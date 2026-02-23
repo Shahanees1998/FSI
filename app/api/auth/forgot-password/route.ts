@@ -56,10 +56,29 @@ export async function POST(request: NextRequest) {
         JWT_SECRET,
         { expiresIn: '1h' }
       );
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+      const resetLink = `${appUrl}/auth/reset-password?token=${token.substring(0, 20)}...`;
+      console.log('[Forgot Password – Admin reset link]', {
+        to: user.email,
+        resetLinkPreview: resetLink,
+        appUrl,
+        hasSendGridKey: !!process.env.SENDGRID_API_KEY,
+        fromEmail: process.env.SENDGRID_FROM_EMAIL || process.env.FROM_EMAIL || '(default)',
+      });
       try {
         await sendPasswordResetEmail(user.email, token, user.firstName);
-      } catch (emailError) {
-        console.error('Failed to send password reset link:', emailError);
+        console.log('[Forgot Password – Admin reset link] Email sent successfully to', user.email);
+      } catch (emailError: unknown) {
+        console.error('[Forgot Password – Admin reset link] Failed to send email:', emailError);
+        const err = emailError as any;
+        if (err?.response?.body) {
+          console.error('[Forgot Password] SendGrid response:', {
+            statusCode: err.response?.statusCode,
+            body: err.response.body,
+            errors: err.response.body?.errors,
+          });
+        }
+        if (err?.code) console.error('[Forgot Password] SendGrid error code:', err.code);
       }
       return NextResponse.json({
         success: true,

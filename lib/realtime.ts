@@ -22,7 +22,7 @@ export async function getPusherServer(): Promise<PusherServer | null> {
             useTLS: true,
         });
     }
-    if (pusherServer.key) return pusherServer;
+    if (process.env.NEXT_PUBLIC_PUSHER_KEY && process.env.PUSHER_APP_ID) return pusherServer;
     return null;
 }
 

@@ -18,12 +18,14 @@ interface EmailOptions {
 export async function sendEmail(options: EmailOptions): Promise<void> {
   try {
     if (!process.env.SENDGRID_API_KEY) {
-      console.error('SENDGRID_API_KEY is not set');
-      throw new Error('Email service not configured');
+      console.error('[Email] SENDGRID_API_KEY is not set in .env – email cannot be sent. Add SENDGRID_API_KEY to your .env file.');
+      throw new Error('Email service not configured: SENDGRID_API_KEY is missing');
     }
 
     const fromEmail = process.env.SENDGRID_FROM_EMAIL || process.env.FROM_EMAIL || 'noreply@example.com';
     const fromName = process.env.SENDGRID_FROM_NAME || 'Job Portal';
+
+    console.log('[Email] Sending:', { to: options.to, subject: options.subject, from: fromEmail });
 
     const msg = {
       to: options.to,
@@ -37,18 +39,28 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
     };
 
     await sgMail.send(msg);
-    console.log(`Email sent successfully to ${options.to}`);
-  } catch (error) {
-    console.error('Error sending email:', error);
-    
-    if (error instanceof Error) {
-      // Log SendGrid specific errors
-      if ('response' in error && typeof error.response === 'object') {
-        const response = error.response as any;
-        console.error('SendGrid error response:', response.body);
+    console.log('[Email] Sent successfully to', options.to);
+  } catch (error: unknown) {
+    const err = error as any;
+    console.error('[Email] Send failed:', err?.message || error);
+
+    if (err?.response) {
+      const status = err.response.statusCode;
+      const body = err.response.body;
+      const errors = Array.isArray(body?.errors) ? body.errors : [];
+      console.error('[Email] SendGrid response:', {
+        statusCode: status,
+        body,
+        firstError: errors[0],
+      });
+      if (status === 401) {
+        console.error('[Email] Likely cause: Invalid SENDGRID_API_KEY. Check your API key at https://app.sendgrid.com/settings/api_keys');
+      } else if (status === 403) {
+        console.error('[Email] Likely cause: Sender identity not verified. Verify the "from" address in SendGrid: https://app.sendgrid.com/settings/sender_auth');
+      } else if (errors.length > 0 && errors[0].message) {
+        console.error('[Email] SendGrid error:', errors[0].message);
       }
     }
-    
     throw error;
   }
 }
@@ -151,7 +163,9 @@ export async function sendPasswordResetEmail(
   resetToken: string,
   firstName?: string
 ): Promise<void> {
-  const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/reset-password?token=${resetToken}`;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const resetUrl = `${baseUrl}/auth/reset-password?token=${resetToken}`;
+  console.log('[Email] Password reset link – to:', email, '| base URL:', baseUrl, '| token length:', resetToken?.length);
   const subject = 'Reset Your Password';
   const html = `
     <!DOCTYPE html>
