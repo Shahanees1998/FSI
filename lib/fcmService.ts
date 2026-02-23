@@ -1,6 +1,9 @@
 /**
  * FCM (Firebase Cloud Messaging) for mobile push notifications.
- * Env: FIREBASE_SERVICE_ACCOUNT_JSON (JSON string or base64) or GOOGLE_APPLICATION_CREDENTIALS (path to JSON).
+ * Env (any one of):
+ *   - FIREBASE_SERVICE_ACCOUNT_JSON (full JSON string or base64)
+ *   - GOOGLE_APPLICATION_CREDENTIALS (path to JSON file)
+ *   - Or individual: FIREBASE_PROJECT_ID + FIREBASE_CLIENT_EMAIL + FIREBASE_PRIVATE_KEY
  */
 import * as admin from 'firebase-admin';
 import { prisma } from './prisma';
@@ -16,6 +19,10 @@ function initFcm(): boolean {
     }
     const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
     const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+    const projectId = process.env.FIREBASE_PROJECT_ID;
+    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
     if (serviceAccountJson) {
       const parsed = typeof serviceAccountJson === 'string' && serviceAccountJson.startsWith('{')
         ? JSON.parse(serviceAccountJson)
@@ -23,6 +30,16 @@ function initFcm(): boolean {
       admin.initializeApp({ credential: admin.credential.cert(parsed) });
     } else if (credentialsPath) {
       admin.initializeApp({ credential: admin.credential.applicationDefault() });
+    } else if (projectId && clientEmail && privateKey) {
+      // Support separate env vars (e.g. FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY)
+      const privateKeyUnescaped = privateKey.replace(/\\n/g, '\n');
+      admin.initializeApp({
+        credential: admin.credential.cert({
+          projectId,
+          clientEmail,
+          privateKey: privateKeyUnescaped,
+        }),
+      });
     } else {
       return false;
     }
