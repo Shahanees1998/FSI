@@ -7,7 +7,7 @@ import { AuthService } from '@/lib/auth';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { firstName, lastName, email, password, phone, role, googleToken, googleId } = body;
+    const { firstName, lastName, email, password, phone, role, googleToken, googleId, fcmToken, platform } = body;
 
     // Validate input - email or phone required
     if (!firstName || !lastName || (!email && !phone)) {
@@ -224,6 +224,25 @@ export async function POST(request: NextRequest) {
       AuthService.generateAccessToken(payload),
       AuthService.generateRefreshToken(payload),
     ]);
+
+    // Save FCM device token if provided (mobile app sends token in same register request)
+    const tokenStr = typeof fcmToken === 'string' ? fcmToken.trim() : '';
+    const platformStr = platform === 'ios' || platform === 'android' ? platform : undefined;
+    if (tokenStr && user.id) {
+      try {
+        console.log('[FCM device token] Register: received from mobile app, saving...');
+        await prisma.fcmToken.upsert({
+          where: { userId_token: { userId: user.id, token: tokenStr } },
+          create: { userId: user.id, token: tokenStr, platform: platformStr ?? undefined },
+          update: { platform: platformStr ?? undefined, updatedAt: new Date() },
+        });
+        console.log('[FCM device token] Register: saved successfully. userId:', user.id);
+      } catch (fcmErr) {
+        console.error('[FCM device token] Register: save failed:', fcmErr);
+      }
+    } else if (!tokenStr) {
+      console.log('[FCM device token] Register: no token in request.');
+    }
 
     return NextResponse.json({
       success: true,

@@ -6,7 +6,7 @@ import { getAuthCookieOptions } from '@/lib/authCookieOptions';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, phone, password, googleToken } = body;
+    const { email, phone, password, googleToken, fcmToken, platform } = body;
 
     // Google OAuth login
     if (googleToken) {
@@ -82,6 +82,26 @@ export async function POST(request: NextRequest) {
       email: user.email,
       role: user.role,
     });
+
+    // Save FCM device token if provided (mobile app sends token in same login request)
+    const tokenStr = typeof fcmToken === 'string' ? fcmToken.trim() : '';
+    const platformStr = platform === 'ios' || platform === 'android' ? platform : undefined;
+    if (tokenStr && user.id) {
+      try {
+        console.log('[FCM device token] Login: received from mobile app, saving...');
+        await prisma.fcmToken.upsert({
+          where: { userId_token: { userId: user.id, token: tokenStr } },
+          create: { userId: user.id, token: tokenStr, platform: platformStr ?? undefined },
+          update: { platform: platformStr ?? undefined, updatedAt: new Date() },
+        });
+        console.log('[FCM device token] Login: saved successfully. userId:', user.id);
+      } catch (fcmErr) {
+        console.error('[FCM device token] Login: save failed:', fcmErr);
+      }
+    } else if (!tokenStr) {
+      console.log('[FCM device token] Login: no token in request.');
+    }
+
     // Create response with token for mobile apps
     const response = NextResponse.json({
       success: true,
