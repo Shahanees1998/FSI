@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
         },
       });
 
+      console.info('[FCM] Token registered for userId:', userId, 'platform:', platform ?? 'unknown');
       return NextResponse.json({ success: true, message: 'FCM token registered' });
     } catch (error) {
       console.error('Error registering FCM token:', error);

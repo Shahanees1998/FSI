@@ -76,7 +76,7 @@ export async function POST(
         userId: application.job.employer.user.id,
         title: 'Application Withdrawn',
         message: `${candidateName} withdrew their application for ${application.job.title}.`,
-        type: 'INFO',
+        type: 'SYSTEM_ALERT',
         relatedId: applicationId,
         relatedType: 'application',
         metadata: { jobId },

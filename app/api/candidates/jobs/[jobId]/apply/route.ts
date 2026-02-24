@@ -143,7 +143,7 @@ export async function POST(
         userId: job.employer.user.id,
         title: template.title,
         message: template.message,
-        type: 'INFO',
+        type: 'APPLICATION_RECEIVED',
         relatedId: application.id,
         relatedType: 'application',
         metadata: template.metadata,

@@ -8,7 +8,8 @@ export interface NotificationData {
   userId: string;
   title: string;
   message: string;
-  type: 'SUCCESS' | 'INFO' | 'WARNING' | 'ERROR';
+  /** Use Prisma NotificationType (e.g. JOB_APPROVED, APPLICATION_APPROVED) so DB create succeeds */
+  type: NotificationType | 'SUCCESS' | 'INFO' | 'WARNING' | 'ERROR';
   relatedId?: string;
   relatedType?: string;
   metadata?: any;
@@ -33,7 +34,7 @@ export async function sendUserNotification(data: NotificationData) {
         userId: data.userId,
         title: data.title,
         message: data.message,
-        type: data.type as any,
+        type: data.type as NotificationType,
         relatedId: data.relatedId,
         relatedType: data.relatedType,
         metadata: data.metadata ? JSON.stringify(data.metadata) : null,
@@ -88,7 +89,7 @@ export async function sendAdminNotification(data: AdminNotificationData) {
             userId: admin.id,
             title: data.title,
             message: data.message,
-            type: data.type as any,
+            type: data.type as NotificationType,
             relatedId: data.relatedId,
             relatedType: data.relatedType,
             metadata: data.metadata ? JSON.stringify(data.metadata) : null,

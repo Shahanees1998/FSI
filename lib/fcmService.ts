@@ -4,6 +4,12 @@
  *   - FIREBASE_SERVICE_ACCOUNT_JSON (full JSON string or base64)
  *   - GOOGLE_APPLICATION_CREDENTIALS (path to JSON file)
  *   - Or individual: FIREBASE_PROJECT_ID + FIREBASE_CLIENT_EMAIL + FIREBASE_PRIVATE_KEY
+ *
+ * Debugging "no FCM received":
+ * 1. Local check (dev only): GET http://localhost:3000/api/debug/fcm?userId=RECIPIENT_USER_ID – shows init status, env, and token count. POST with body { "userId": "..." } sends a test notification.
+ * 2. Backend logs: grep for [FCM] and [Chat]. Look for "Initialization failed", "No device tokens for userId", "Send to user failed".
+ * 3. DB: Check FCM tokens for the recipient (fcm_tokens table, userId = recipient). If empty, recipient must open the app (dev build or APK, not Expo Go) and be logged in.
+ * 4. App: Push works only in dev build or APK; Expo Go does not support FCM. After login the app registers token; backend logs "[FCM] Token registered for userId".
  */
 import * as admin from 'firebase-admin';
 import { prisma } from './prisma';
@@ -41,12 +47,14 @@ function initFcm(): boolean {
         }),
       });
     } else {
+      console.warn('[FCM] Initialization skipped: no credentials (set FIREBASE_SERVICE_ACCOUNT_JSON or FIREBASE_PROJECT_ID + FIREBASE_CLIENT_EMAIL + FIREBASE_PRIVATE_KEY)');
       return false;
     }
     fcmInitialized = true;
+    console.info('[FCM] Initialized successfully');
     return true;
   } catch (e) {
-    console.warn('[FCM] Initialization skipped:', (e as Error).message);
+    console.warn('[FCM] Initialization failed:', (e as Error).message);
     return false;
   }
 }
@@ -58,18 +66,65 @@ export interface FcmPayload {
 }
 
 /**
+ * Get FCM status for local/debug use. Safe to call anytime.
+ * Returns whether FCM can initialize and which env vars are set (no secrets).
+ */
+export async function getFcmStatus(userId?: string): Promise<{
+  ok: boolean;
+  initialized: boolean;
+  env: { hasProjectId: boolean; hasClientEmail: boolean; hasPrivateKey: boolean; hasServiceAccountJson: boolean };
+  tokenCount?: number;
+  message?: string;
+}> {
+  const env = {
+    hasProjectId: !!process.env.FIREBASE_PROJECT_ID,
+    hasClientEmail: !!process.env.FIREBASE_CLIENT_EMAIL,
+    hasPrivateKey: !!process.env.FIREBASE_PRIVATE_KEY,
+    hasServiceAccountJson: !!process.env.FIREBASE_SERVICE_ACCOUNT_JSON,
+  };
+  const canInit = env.hasServiceAccountJson || (env.hasProjectId && env.hasClientEmail && env.hasPrivateKey);
+  const initialized = initFcm();
+
+  let tokenCount: number | undefined;
+  if (userId) {
+    const count = await prisma.fcmToken.count({ where: { userId } });
+    tokenCount = count;
+  }
+
+  let message: string | undefined;
+  if (!canInit) message = 'Set FIREBASE_SERVICE_ACCOUNT_JSON or FIREBASE_PROJECT_ID + FIREBASE_CLIENT_EMAIL + FIREBASE_PRIVATE_KEY in .env';
+  else if (!initialized) message = 'FCM init failed (check server logs for [FCM])';
+  else if (userId !== undefined && tokenCount === 0) message = 'No device token for this user – open the app (dev build/APK, not Expo Go) and log in';
+
+  return {
+    ok: initialized && (userId === undefined || (tokenCount !== undefined && tokenCount > 0)),
+    initialized,
+    env,
+    tokenCount,
+    message,
+  };
+}
+
+/**
  * Send FCM notification to all devices registered for a user.
  * Used for all notification types (announcements, job updates, application status, etc.)
  * so mobile app users receive push notifications.
  */
 export async function sendFcmToUser(userId: string, payload: FcmPayload): Promise<void> {
-  if (!initFcm()) return;
+  if (!initFcm()) {
+    console.warn('[FCM] Send skipped: FCM not initialized');
+    return;
+  }
   try {
     const tokens = await prisma.fcmToken.findMany({
       where: { userId },
       select: { token: true },
     });
-    if (tokens.length === 0) return;
+    if (tokens.length === 0) {
+      console.warn('[FCM] No device tokens for userId:', userId, '- user must open the app (dev build/APK) and be logged in to register push token');
+      return;
+    }
+    console.info('[FCM] Sending to userId:', userId, 'tokens:', tokens.length, 'title:', payload.title);
     const messaging = admin.messaging();
     const message: admin.messaging.MulticastMessage = {
       tokens: tokens.map((t) => t.token),
@@ -90,21 +145,26 @@ export async function sendFcmToUser(userId: string, payload: FcmPayload): Promis
       },
     };
     const result = await messaging.sendEachForMulticast(message);
+    console.info('[FCM] Send result userId:', userId, 'successCount:', result.successCount, 'failureCount:', result.failureCount);
     if (result.failureCount > 0) {
       const invalid: string[] = [];
       result.responses.forEach((resp, i) => {
-        if (!resp.success && resp.error?.code === 'messaging/invalid-registration-token') {
-          invalid.push(tokens[i].token);
+        if (!resp.success && resp.error) {
+          console.warn('[FCM] Token failed:', resp.error.code, resp.error.message);
+          if (resp.error.code === 'messaging/invalid-registration-token' || resp.error.code === 'messaging/registration-token-not-registered') {
+            invalid.push(tokens[i].token);
+          }
         }
       });
       if (invalid.length > 0) {
         await prisma.fcmToken.deleteMany({
           where: { userId, token: { in: invalid } },
         });
+        console.info('[FCM] Removed', invalid.length, 'invalid token(s) for userId:', userId);
       }
     }
   } catch (error) {
-    console.error('[FCM] Send to user failed:', userId, (error as Error).message);
+    console.error('[FCM] Send to user failed. userId:', userId, 'error:', (error as Error).message);
   }
 }
 

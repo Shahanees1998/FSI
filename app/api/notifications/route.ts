@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       // Build orderBy clause
       let orderBy: any = { [sortField]: sortOrder === 'desc' ? 'desc' : 'asc' };
       
-      const [notifications, total] = await Promise.all([
+      const [notifications, total, unreadCount] = await Promise.all([
         prisma.notification.findMany({
           where,
           skip,
@@ -65,12 +65,19 @@ export async function GET(request: NextRequest) {
           },
         }),
         prisma.notification.count({ where }),
+        prisma.notification.count({
+          where: {
+            userId: authenticatedReq.user!.userId,
+            isRead: false,
+          },
+        }),
       ]);
-      
+
       return NextResponse.json({
         success: true,
         data: {
           notifications,
+          unreadCount,
           pagination: {
             page,
             limit,

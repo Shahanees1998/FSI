@@ -240,20 +240,29 @@ export async function POST(
           title: 'New Message',
           body: `${senderName}: ${contentStr.length > 80 ? contentStr.substring(0, 80) + '...' : contentStr}`,
           data: { chatId, type: 'NEW_CHAT_MESSAGE', relatedId: chatId, relatedType: 'CHAT' },
-        }).catch(() => {});
+        }).catch((e) => console.error('[Chat] FCM push failed for recipient userId:', otherParticipant.userId, (e as Error).message));
       }
 
-      // Real-time 1-1 chat: Pusher so both web and mobile can receive live messages
+      // Real-time 1-1 chat: Pusher (payload must stay under 10KB or Pusher returns 413)
       try {
         const pusher = await getPusherServer();
         if (pusher) {
+          const isMedia = message.messageType === 'IMAGE' || message.messageType === 'FILE';
+          const contentForPusher = isMedia
+            ? (message.messageType === 'IMAGE' ? '[Image]' : '[File]')
+            : message.content.length > 800
+              ? message.content.slice(0, 800) + '...'
+              : message.content;
+          const senderSlim = message.sender
+            ? { id: message.sender.id, firstName: message.sender.firstName ?? '', lastName: message.sender.lastName ?? '' }
+            : undefined;
           await pusher.trigger(chatChannelName(chatId), 'new-message', {
             id: message.id,
             senderId: message.senderId,
-            content: message.content,
+            content: contentForPusher,
             messageType: message.messageType,
             createdAt: message.createdAt.toISOString(),
-            sender: message.sender,
+            sender: senderSlim,
           });
         }
       } catch (pusherErr) {

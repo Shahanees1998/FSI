@@ -178,14 +178,14 @@ export async function PUT(
           });
         }
 
-        // Notify candidate (in-app + FCM)
+        // Notify candidate (in-app + FCM) – use enum so Prisma saves correctly
         const approvedTpl = NotificationTemplates.applicationApproved(job.title, job.employer.companyName ?? '');
         sendUserNotification({
           id: applicationId,
           userId: application.candidate.userId,
           title: approvedTpl.title,
           message: approvedTpl.message,
-          type: 'SUCCESS',
+          type: 'APPLICATION_APPROVED',
           relatedId: applicationId,
           relatedType: 'application',
         }).catch((e) => console.error('[FCM] Application approved notify:', e));
@@ -197,7 +197,7 @@ export async function PUT(
           userId: application.candidate.userId,
           title: rejectedTpl.title,
           message: rejectedTpl.message,
-          type: 'ERROR',
+          type: 'APPLICATION_REJECTED',
           relatedId: applicationId,
           relatedType: 'application',
           metadata: rejectedTpl.metadata,
@@ -220,7 +220,7 @@ export async function PUT(
           userId: application.candidate.userId,
           title: candidateTitle,
           message: candidateMessage,
-          type: 'INFO',
+          type: isInterviewUpdate ? 'INTERVIEW_UPDATED' : 'INTERVIEW_SCHEDULED',
           relatedId: applicationId,
           relatedType: 'application',
           metadata: candidateTpl.metadata,
@@ -235,7 +235,7 @@ export async function PUT(
           userId: job.employer.userId,
           title: employerTitle,
           message: employerMessage,
-          type: 'INFO',
+          type: isInterviewUpdate ? 'INTERVIEW_UPDATED' : 'INTERVIEW_SCHEDULED',
           relatedId: applicationId,
           relatedType: 'application',
         }).catch((e) => console.error('[FCM] Interview scheduled notify employer:', e));

@@ -67,16 +67,21 @@ export async function PUT(
         },
       });
 
-      // Notify employer (in-app + FCM)
-      sendUserNotification({
-        id: updatedJob.id,
-        userId: job.employer.userId,
-        title: NotificationTemplates.jobApproved(updatedJob.title).title,
-        message: NotificationTemplates.jobApproved(updatedJob.title).message,
-        type: 'SUCCESS',
-        relatedId: id,
-        relatedType: 'job',
-      }).catch((e) => console.error('[FCM] Job approved notify:', e));
+      // Notify employer (in-app + FCM) – use JOB_APPROVED so Prisma saves correctly
+      try {
+        await sendUserNotification({
+          id: updatedJob.id,
+          userId: job.employer.userId,
+          title: NotificationTemplates.jobApproved(updatedJob.title).title,
+          message: NotificationTemplates.jobApproved(updatedJob.title).message,
+          type: 'JOB_APPROVED',
+          relatedId: id,
+          relatedType: 'job',
+        });
+      } catch (e) {
+        console.error('[Admin approve job] Failed to send notification to employer:', e);
+        // Still return success; job was approved
+      }
 
       return NextResponse.json({
         data: {

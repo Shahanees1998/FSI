@@ -74,14 +74,14 @@ export async function PUT(
         },
       });
 
-      // Notify employer (in-app + FCM)
+      // Notify employer (in-app + FCM) – use JOB_REJECTED so Prisma saves correctly
       const reasonStr = typeof reason === 'string' ? reason : '';
       sendUserNotification({
         id: updatedJob.id,
         userId: job.employer.userId,
         title: NotificationTemplates.jobRejected(job.title, reasonStr).title,
         message: NotificationTemplates.jobRejected(job.title, reasonStr).message,
-        type: 'ERROR',
+        type: 'JOB_REJECTED',
         relatedId: id,
         relatedType: 'job',
         metadata: { reason: reasonStr },
