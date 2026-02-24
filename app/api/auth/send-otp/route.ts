@@ -51,15 +51,15 @@ export async function POST(request: NextRequest) {
       } catch (emailError) {
         console.error('Failed to send OTP email:', emailError);
         // Log OTP to console for testing
-        console.log('========================================');
-        console.log('📧 OTP VERIFICATION (Console Log)');
-        console.log('========================================');
-        console.log(`Email: ${email}`);
-        console.log(`Name: ${user.firstName} ${user.lastName || ''}`);
-        console.log(`OTP Code: ${otp}`);
-        console.log(`OTP Expires: ${expiry.toLocaleString()}`);
-        console.log(`Verification Link: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/verification?email=${encodeURIComponent(email)}&otp=${otp}`);
-        console.log('========================================');
+        //console.log('========================================');
+        //console.log('📧 OTP VERIFICATION (Console Log)');
+        //console.log('========================================');
+        //console.log(`Email: ${email}`);
+        //console.log(`Name: ${user.firstName} ${user.lastName || ''}`);
+        //console.log(`OTP Code: ${otp}`);
+        //console.log(`OTP Expires: ${expiry.toLocaleString()}`);
+        //console.log(`Verification Link: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/verification?email=${encodeURIComponent(email)}&otp=${otp}`);
+        //console.log('========================================');
         // Don't fail the request if email fails, but log it
         // The OTP is still saved and can be verified
       }
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
       });
 
       // TODO: Send OTP via SMS service (Twilio, AWS SNS, etc.)
-      console.log(`Phone OTP for ${phone}: ${otp}`); // Remove in production
+      //console.log(`Phone OTP for ${phone}: ${otp}`); // Remove in production
 
       return NextResponse.json({
         success: true,

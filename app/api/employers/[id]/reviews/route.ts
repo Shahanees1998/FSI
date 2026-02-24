@@ -49,7 +49,7 @@ export async function GET(
     });
 
     if (process.env.NODE_ENV !== 'production') {
-      console.log('[GET /api/employers/[id]/reviews] employerId:', employerId, 'reviews count:', reviews.length);
+      //console.log('[GET /api/employers/[id]/reviews] employerId:', employerId, 'reviews count:', reviews.length);
     }
 
     const data = reviews.map((r) => ({

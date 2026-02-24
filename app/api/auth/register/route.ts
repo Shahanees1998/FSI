@@ -7,7 +7,7 @@ import { AuthService } from '@/lib/auth';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { firstName, lastName, email, password, phone, role, googleToken, googleId, fcmToken, platform } = body;
+    const { firstName, lastName, email, password, phone, role, googleToken, googleId } = body;
 
     // Validate input - email or phone required
     if (!firstName || !lastName || (!email && !phone)) {
@@ -184,15 +184,15 @@ export async function POST(request: NextRequest) {
       } catch (emailError) {
         console.error('Failed to send welcome/OTP email:', emailError);
         // Log OTP to console for testing
-        console.log('========================================');
-        console.log('📧 EMAIL VERIFICATION (Console Log)');
-        console.log('========================================');
-        console.log(`Email: ${email}`);
-        console.log(`Name: ${firstName} ${lastName}`);
-        console.log(`OTP Code: ${emailOtp}`);
-        console.log(`OTP Expires: ${emailOtpExpiry?.toLocaleString()}`);
-        console.log(`Verification Link: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/verification?email=${encodeURIComponent(email)}&otp=${emailOtp}`);
-        console.log('========================================');
+        //console.log('========================================');
+        //console.log('📧 EMAIL VERIFICATION (Console Log)');
+        //console.log('========================================');
+        //console.log(`Email: ${email}`);
+        //console.log(`Name: ${firstName} ${lastName}`);
+        //console.log(`OTP Code: ${emailOtp}`);
+        //console.log(`OTP Expires: ${emailOtpExpiry?.toLocaleString()}`);
+        //console.log(`Verification Link: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/verification?email=${encodeURIComponent(email)}&otp=${emailOtp}`);
+        //console.log('========================================');
         // Don't fail registration if email fails
       }
     }
@@ -224,25 +224,6 @@ export async function POST(request: NextRequest) {
       AuthService.generateAccessToken(payload),
       AuthService.generateRefreshToken(payload),
     ]);
-
-    // Save FCM device token if provided (mobile app sends token in same register request)
-    const tokenStr = typeof fcmToken === 'string' ? fcmToken.trim() : '';
-    const platformStr = platform === 'ios' || platform === 'android' ? platform : undefined;
-    if (tokenStr && user.id) {
-      try {
-        console.log('[FCM device token] Register: received from mobile app, saving...');
-        await prisma.fcmToken.upsert({
-          where: { userId_token: { userId: user.id, token: tokenStr } },
-          create: { userId: user.id, token: tokenStr, platform: platformStr ?? undefined },
-          update: { platform: platformStr ?? undefined, updatedAt: new Date() },
-        });
-        console.log('[FCM device token] Register: saved successfully. userId:', user.id);
-      } catch (fcmErr) {
-        console.error('[FCM device token] Register: save failed:', fcmErr);
-      }
-    } else if (!tokenStr) {
-      console.log('[FCM device token] Register: no token in request.');
-    }
 
     return NextResponse.json({
       success: true,

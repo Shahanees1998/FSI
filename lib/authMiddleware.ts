@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AuthService, JWTPayload } from './auth';
+import { AuthService, getTokenFromRequest, JWTPayload, refreshAccessToken } from './auth';
 import { getAuthCookieOptions } from './authCookieOptions';
 
 export interface AuthenticatedRequest extends NextRequest {
@@ -15,18 +15,12 @@ export async function withAuth(
   handler: (req: AuthenticatedRequest) => Promise<NextResponse>
 ): Promise<NextResponse> {
   try {
-    const token = AuthService.getTokenFromRequest(req);
+    const token = getTokenFromRequest(req);
     const cookies = req.cookies.getAll();
     
-    console.log('🔐 [AUTH_MIDDLEWARE] withAuth:', {
-      path: req.nextUrl.pathname,
-      hasToken: !!token,
-      cookieNames: cookies.map(c => c.name),
-      hasAccessToken: !!req.cookies.get('access_token'),
-    });
+
     
     if (!token) {
-      console.log('❌ [AUTH_MIDDLEWARE] No token found');
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -34,12 +28,8 @@ export async function withAuth(
     }
 
     // Verify the token
-    console.log('✅ [AUTH_MIDDLEWARE] Verifying token...');
     const payload = await AuthService.verifyToken(token);
-    console.log('✅ [AUTH_MIDDLEWARE] Token verified:', {
-      userId: payload.userId,
-      role: payload.role,
-    });
+
     
     // Add user to request
     const authenticatedReq = req as AuthenticatedRequest;
@@ -53,7 +43,7 @@ export async function withAuth(
       
       if (refreshToken) {
         try {
-          const newAccessToken = await AuthService.refreshAccessToken(refreshToken);
+          const newAccessToken = await refreshAccessToken(refreshToken);
           
           // Set new access token in cookie
           const response = await handler(req as AuthenticatedRequest);
@@ -116,32 +106,20 @@ export async function withOptionalAuth(
   handler: (req: AuthenticatedRequest) => Promise<NextResponse>
 ): Promise<NextResponse> {
   try {
-    const token = AuthService.getTokenFromRequest(req);
+    const token = getTokenFromRequest(req);
     const cookies = req.cookies.getAll();
-    
-    console.log('🔓 [AUTH_MIDDLEWARE] withOptionalAuth:', {
-      path: req.nextUrl.pathname,
-      hasToken: !!token,
-      cookieNames: cookies.map(c => c.name),
-      hasAccessToken: !!req.cookies.get('access_token'),
-    });
+
     
     if (token) {
-      console.log('✅ [AUTH_MIDDLEWARE] Token found, verifying...');
       const payload = await AuthService.verifyToken(token);
-      console.log('✅ [AUTH_MIDDLEWARE] Token verified:', {
-        userId: payload.userId,
-        role: payload.role,
-      });
+
       const authenticatedReq = req as AuthenticatedRequest;
       authenticatedReq.user = payload;
       return await handler(authenticatedReq);
     } else {
-      console.log('ℹ️ [AUTH_MIDDLEWARE] No token, proceeding without auth');
     }
   } catch (error) {
     // Ignore auth errors for optional auth
-    console.log('⚠️ [AUTH_MIDDLEWARE] Auth error (ignored):', error instanceof Error ? error.message : String(error));
   }
 
   return await handler(req as AuthenticatedRequest);

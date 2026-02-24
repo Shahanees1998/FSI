@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
                         await Promise.all(notificationPromises);
                     }
 
-                    console.log(`Sent notifications to ${adminUsers.length} admin users about new user: ${user.firstName} ${user.lastName}`);
+                    //console.log(`Sent notifications to ${adminUsers.length} admin users about new user: ${user.firstName} ${user.lastName}`);
                 } catch (notificationError) {
                     console.error('Error sending notifications:', notificationError);
                     // Don't fail the user creation if notification fails
@@ -202,9 +202,9 @@ export async function POST(request: NextRequest) {
                             html: emailContent,
                         });
 
-                        console.log(`Welcome email sent to ${user.email}`);
+                        //console.log(`Welcome email sent to ${user.email}`);
                     } else {
-                        console.log('SendGrid not configured. Skipping welcome email.');
+                        //console.log('SendGrid not configured. Skipping welcome email.');
                     }
                 } catch (emailError) {
                     console.error('Failed to send welcome email:', emailError);

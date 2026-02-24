@@ -25,7 +25,7 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
     const fromEmail = process.env.SENDGRID_FROM_EMAIL || process.env.FROM_EMAIL || 'noreply@example.com';
     const fromName = process.env.SENDGRID_FROM_NAME || 'Job Portal';
 
-    console.log('[Email] Sending:', { to: options.to, subject: options.subject, from: fromEmail });
+    //console.log('[Email] Sending:', { to: options.to, subject: options.subject, from: fromEmail });
 
     const msg = {
       to: options.to,
@@ -39,7 +39,7 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
     };
 
     await sgMail.send(msg);
-    console.log('[Email] Sent successfully to', options.to);
+    //console.log('[Email] Sent successfully to', options.to);
   } catch (error: unknown) {
     const err = error as any;
     console.error('[Email] Send failed:', err?.message || error);
@@ -165,7 +165,7 @@ export async function sendPasswordResetEmail(
 ): Promise<void> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   const resetUrl = `${baseUrl}/auth/reset-password?token=${resetToken}`;
-  console.log('[Email] Password reset link – to:', email, '| base URL:', baseUrl, '| token length:', resetToken?.length);
+  //console.log('[Email] Password reset link – to:', email, '| base URL:', baseUrl, '| token length:', resetToken?.length);
   const subject = 'Reset Your Password';
   const html = `
     <!DOCTYPE html>

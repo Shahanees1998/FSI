@@ -16,7 +16,7 @@ function tokenPreview(token: string): string {
 export async function POST(request: NextRequest) {
   return withAuth(request, async (authenticatedReq: AuthenticatedRequest) => {
     try {
-      console.log('[FCM device token] Request received from mobile app.');
+      //console.log('[FCM device token] Request received from mobile app.');
       const userId = authenticatedReq.user?.userId;
       if (!userId) {
         console.warn('[FCM device token] Not saved: no userId (unauthorized).');
@@ -40,9 +40,9 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
-      console.log('[FCM device token] Received from mobile app:', tokenPreview(token), 'platform:', platform ?? 'unknown');
+      //console.log('[FCM device token] Received from mobile app:', tokenPreview(token), 'platform:', platform ?? 'unknown');
 
-      console.log('[FCM device token] Saving to database...');
+      //console.log('[FCM device token] Saving to database...');
       await prisma.fcmToken.upsert({
         where: {
           userId_token: { userId, token },
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      console.log('[FCM device token] Saved successfully. userId:', userId, 'platform:', platform ?? 'unknown');
+      //console.log('[FCM device token] Saved successfully. userId:', userId, 'platform:', platform ?? 'unknown');
       return NextResponse.json({ success: true, message: 'FCM token registered' });
     } catch (error) {
       console.error('[FCM device token] Not saved: error:', error instanceof Error ? error.message : error);
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   return withAuth(request, async (authenticatedReq: AuthenticatedRequest) => {
     try {
-      console.log('[FCM device token] Unregister request received from mobile app.');
+      //console.log('[FCM device token] Unregister request received from mobile app.');
       const userId = authenticatedReq.user?.userId;
       if (!userId) {
         console.warn('[FCM device token] Unregister: no userId (unauthorized).');
@@ -99,7 +99,7 @@ export async function DELETE(request: NextRequest) {
       await prisma.fcmToken.deleteMany({
         where: { userId, token },
       });
-      console.log('[FCM device token] Removed successfully. userId:', userId, 'token:', tokenPreview(token));
+      //console.log('[FCM device token] Removed successfully. userId:', userId, 'token:', tokenPreview(token));
 
       return NextResponse.json({ success: true, message: 'FCM token removed' });
     } catch (error) {

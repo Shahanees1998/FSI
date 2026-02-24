@@ -64,7 +64,7 @@ export default function NotificationCenter() {
 
     const unsubscribe = subscribeUser({
       onNotification: (notification: Notification) => {
-        console.log('Received real-time notification:', notification);
+        //console.log('Received real-time notification:', notification);
         setNotifications(prev => [notification, ...prev]);
         setUnreadCount(prev => prev + 1);
       },
@@ -198,7 +198,7 @@ export default function NotificationCenter() {
     // Handle navigation based on notification type
     if (notification.relatedId && notification.relatedType) {
       // You can implement navigation logic here
-      console.log('Navigate to:', notification.relatedType, notification.relatedId);
+      //console.log('Navigate to:', notification.relatedType, notification.relatedId);
     }
   };
 

@@ -27,23 +27,23 @@ export interface LCMNotificationOptions {
 
 export class LCMService {
   static async registerDeviceToken(userId: string, deviceInfo: LCMDeviceInfo): Promise<void> {
-    console.log('LCM Service: Device token registration not implemented');
+    //console.log('LCM Service: Device token registration not implemented');
   }
 
   static async unregisterDeviceToken(userId: string, token: string): Promise<void> {
-    console.log('LCM Service: Device token unregistration not implemented');
+    //console.log('LCM Service: Device token unregistration not implemented');
   }
 
   static async sendToUser(userId: string, notification: LCMNotification, options?: LCMNotificationOptions): Promise<void> {
-    console.log('LCM Service: Send to user not implemented');
+    //console.log('LCM Service: Send to user not implemented');
   }
 
   static async sendToUsers(userIds: string[], notification: LCMNotification, options?: LCMNotificationOptions): Promise<void> {
-    console.log('LCM Service: Send to users not implemented');
+    //console.log('LCM Service: Send to users not implemented');
   }
 
   static async sendToAllUsers(notification: LCMNotification, options?: LCMNotificationOptions): Promise<void> {
-    console.log('LCM Service: Send to all users not implemented');
+    //console.log('LCM Service: Send to all users not implemented');
   }
 
   static async getUserDeviceTokenCount(userId: string): Promise<number> {
@@ -55,6 +55,6 @@ export class LCMService {
   }
 
   static async cleanupInvalidTokens(): Promise<void> {
-    console.log('LCM Service: Token cleanup not implemented');
+    //console.log('LCM Service: Token cleanup not implemented');
   }
 }

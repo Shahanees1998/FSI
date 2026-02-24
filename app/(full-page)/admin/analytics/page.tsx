@@ -44,7 +44,7 @@ export default function AdminAnalytics() {
     setLoading(true);
     try {
       const response = await apiClient.getAdminAnalytics(timeRange, selectedMetric);
-      console.log('>>>>>>>>>>>>><<<<<<<<<',response)
+      //console.log('>>>>>>>>>>>>><<<<<<<<<',response)
       setAnalyticsData(response.data);
       
       // Generate dynamic chart data based on time range

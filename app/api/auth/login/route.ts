@@ -6,7 +6,7 @@ import { getAuthCookieOptions } from '@/lib/authCookieOptions';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, phone, password, googleToken, fcmToken, platform } = body;
+    const { email, phone, password, googleToken } = body;
 
     // Google OAuth login
     if (googleToken) {
@@ -21,18 +21,13 @@ export async function POST(request: NextRequest) {
     // Validate input - email or phone required
     const identifier = email || phone;
     if (!identifier || !password) {
-      console.log('❌ [API /auth/login] Missing credentials');
+      //console.log('❌ [API /auth/login] Missing credentials');
       return NextResponse.json(
         { error: 'Email/phone and password are required' },
         { status: 400 }
       );
     }
 
-    console.log('🔐 [API /auth/login] Calling authenticateUser with:', {
-      identifier,
-      hasPassword: !!password,
-      passwordLength: password.length,
-    });
 
     // Authenticate user (supports both email and phone)
     const { accessToken, refreshToken } = await AuthService.authenticateUser({
@@ -40,7 +35,7 @@ export async function POST(request: NextRequest) {
       password,
     });
     
-    console.log('✅ [API /auth/login] Authentication successful, tokens generated');
+    //console.log('✅ [API /auth/login] Authentication successful, tokens generated');
 
     // Get user details for response
     const user = await prisma.user.findFirst({
@@ -78,30 +73,6 @@ export async function POST(request: NextRequest) {
     // Note: All users can login via API (for mobile apps)
     // The middleware will restrict /admin routes to ADMIN users only
     // This allows employers and candidates to login for mobile app access
-    console.log('✅ [API /auth/login] User authenticated:', {
-      email: user.email,
-      role: user.role,
-    });
-
-    // Save FCM device token if provided (mobile app sends token in same login request)
-    const tokenStr = typeof fcmToken === 'string' ? fcmToken.trim() : '';
-    const platformStr = platform === 'ios' || platform === 'android' ? platform : undefined;
-    if (tokenStr && user.id) {
-      try {
-        console.log('[FCM device token] Login: received from mobile app, saving...');
-        await prisma.fcmToken.upsert({
-          where: { userId_token: { userId: user.id, token: tokenStr } },
-          create: { userId: user.id, token: tokenStr, platform: platformStr ?? undefined },
-          update: { platform: platformStr ?? undefined, updatedAt: new Date() },
-        });
-        console.log('[FCM device token] Login: saved successfully. userId:', user.id);
-      } catch (fcmErr) {
-        console.error('[FCM device token] Login: save failed:', fcmErr);
-      }
-    } else if (!tokenStr) {
-      console.log('[FCM device token] Login: no token in request.');
-    }
-
     // Create response with token for mobile apps
     const response = NextResponse.json({
       success: true,
@@ -127,15 +98,6 @@ export async function POST(request: NextRequest) {
     // In development (localhost), use secure: false and sameSite: 'lax'
     // In production, use secure: true and sameSite: 'none' (for cross-site)
     const baseCookieOptions = getAuthCookieOptions(request);
-    console.log('🍪 [API /auth/login] Setting cookies:', {
-      hasAccessToken: !!accessToken,
-      hasRefreshToken: !!refreshToken,
-      accessTokenLength: accessToken?.length,
-      refreshTokenLength: refreshToken?.length,
-      secure: baseCookieOptions.secure,
-      sameSite: baseCookieOptions.sameSite,
-      environment: process.env.NODE_ENV,
-    });
     
     response.cookies.set('access_token', accessToken, {
       ...baseCookieOptions,
@@ -149,12 +111,6 @@ export async function POST(request: NextRequest) {
     
     // Verify cookies were set
     const setCookies = response.cookies.getAll();
-    console.log('🍪 [API /auth/login] Cookies in response:', {
-      total: setCookies.length,
-      cookieNames: setCookies.map(c => c.name),
-      hasAccessToken: !!response.cookies.get('access_token'),
-      hasRefreshToken: !!response.cookies.get('refresh_token'),
-    });
 
     return response;
   } catch (error) {

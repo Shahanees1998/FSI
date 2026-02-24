@@ -51,10 +51,10 @@ export default function NotificationBell() {
                 try {
                     if (context.state === 'suspended') {
                         await context.resume();
-                        console.log('Audio context resumed successfully');
+                        //console.log('Audio context resumed successfully');
                     }
                 } catch (error) {
-                    console.log('Could not resume audio context:', error);
+                    //console.log('Could not resume audio context:', error);
                 }
             };
 
@@ -77,18 +77,18 @@ export default function NotificationBell() {
     const playNotificationSound = async () => {
         try {
             if (!audioContext) {
-                console.log('Audio context not available');
+                //console.log('Audio context not available');
                 return;
             }
             
             // Resume audio context if suspended (required for autoplay policy)
             if (audioContext.state === 'suspended') {
-                console.log('Audio context suspended, attempting to resume...');
+                //console.log('Audio context suspended, attempting to resume...');
                 await audioContext.resume();
             }
 
             if (audioContext.state !== 'running') {
-                console.log('Audio context not running, cannot play sound');
+                //console.log('Audio context not running, cannot play sound');
                 return;
             }
 
@@ -107,9 +107,9 @@ export default function NotificationBell() {
             oscillator.start(audioContext.currentTime);
             oscillator.stop(audioContext.currentTime + 0.2);
 
-            console.log('Notification sound played successfully');
+            //console.log('Notification sound played successfully');
         } catch (error) {
-            console.log('Could not play notification sound:', error);
+            //console.log('Could not play notification sound:', error);
         }
     };
 
@@ -163,13 +163,13 @@ export default function NotificationBell() {
 
         // Listen for new notifications from server
         const handleNewNotification = (notification: Notification) => {
-            console.log('Received new notification:', notification);
+            //console.log('Received new notification:', notification);
             
             // Check if notification already exists to prevent duplicates
             setNotifications(prev => {
                 const exists = prev.some(n => n.id === notification.id);
                 if (exists) {
-                    console.log('Notification already exists, skipping:', notification.id);
+                    //console.log('Notification already exists, skipping:', notification.id);
                     return prev;
                 }
                 
@@ -197,7 +197,7 @@ export default function NotificationBell() {
         const handleNewMessage = ({ chatRoomId, message }: { chatRoomId: string; message: any }) => {
             if (message.senderId === user.id) return; // Don't notify for own messages
             
-            console.log('Received new message notification:', message);
+            //console.log('Received new message notification:', message);
             
             const notification: Notification = {
                 id: `msg_${message.id}`,
@@ -215,7 +215,7 @@ export default function NotificationBell() {
             setNotifications(prev => {
                 const exists = prev.some(n => n.id === notification.id);
                 if (exists) {
-                    console.log('Message notification already exists, skipping:', notification.id);
+                    //console.log('Message notification already exists, skipping:', notification.id);
                     return prev;
                 }
                 
@@ -242,7 +242,7 @@ export default function NotificationBell() {
 
         // Listen for meal selection notifications
         const handleMealSelection = (data: any) => {
-            console.log('Received meal selection notification:', data);
+            //console.log('Received meal selection notification:', data);
             
             const notification: Notification = {
                 id: `meal_${Date.now()}_${Math.random()}`,
@@ -284,7 +284,7 @@ export default function NotificationBell() {
 
         // Listen for trestle board notifications
         const handleTrestleBoardAdded = (data: any) => {
-            console.log('Received trestle board notification:', data);
+            //console.log('Received trestle board notification:', data);
             
             const notification: Notification = {
                 id: `trestle_${Date.now()}_${Math.random()}`,
@@ -326,7 +326,7 @@ export default function NotificationBell() {
 
         // Listen for user creation notifications
         const handleUserCreated = (data: any) => {
-            console.log('Received user creation notification:', data);
+            //console.log('Received user creation notification:', data);
             
             const notification: Notification = {
                 id: `user_${Date.now()}_${Math.random()}`,

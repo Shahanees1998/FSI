@@ -110,7 +110,7 @@ export class AuthService {
     const { email, password } = credentials;
 
     // Find user by email or phone
-    console.log('🔍 [AUTH] Looking for user with:', { email, hasPassword: !!password });
+    //console.log('🔍 [AUTH] Looking for user with:', { email, hasPassword: !!password });
     
     const user = await prisma.user.findFirst({
       where: {
@@ -138,48 +138,41 @@ export class AuthService {
       },
     });
 
-    console.log('🔍 [AUTH] User lookup result:', {
-      found: !!user,
-      email: user?.email,
-      role: user?.role,
-      status: user?.status,
-      isDeleted: user?.isDeleted,
-      hasPassword: !!user?.password,
-    });
+    // console.log('🔍 [AUTH] User lookup result:', { found: !!user, email: user?.email, role: user?.role, status: user?.status, isDeleted: user?.isDeleted, hasPassword: !!user?.password });
 
     if (!user) {
-      console.log('❌ [AUTH] User not found');
+      //console.log('❌ [AUTH] User not found');
       throw new Error('Invalid email or password');
     }
 
     if (user.isDeleted) {
-      console.log('❌ [AUTH] User is deleted');
+      //console.log('❌ [AUTH] User is deleted');
       throw new Error('Account has been deleted. Please contact admin.');
     }
 
     if (user.status === 'DEACTIVATED') {
-      console.log('❌ [AUTH] User is deactivated');
+      //console.log('❌ [AUTH] User is deactivated');
       throw new Error('Account has been deactivated. Please contact admin.');
     }
     
     // Allow PENDING status for EMPLOYER role (they need to login to see their pending status)
     // Other roles must be ACTIVE
     if (user.status !== 'ACTIVE' && !(user.status === 'PENDING' && user.role === 'EMPLOYER')) {
-      console.log('❌ [AUTH] User status check failed:', { status: user.status, role: user.role });
+      //console.log('❌ [AUTH] User status check failed:', { status: user.status, role: user.role });
       throw new Error('Account is not active. Please contact admin.');
     }
 
     // Verify password
-    console.log('🔐 [AUTH] Verifying password...');
+    //console.log('🔐 [AUTH] Verifying password...');
     const isValidPassword = await bcrypt.compare(password, user.password);
-    console.log('🔐 [AUTH] Password verification result:', isValidPassword);
+    //console.log('🔐 [AUTH] Password verification result:', isValidPassword);
     
     if (!isValidPassword) {
-      console.log('❌ [AUTH] Invalid password');
+      //console.log('❌ [AUTH] Invalid password');
       throw new Error('Invalid email or password');
     }
     
-    console.log('✅ [AUTH] Authentication successful:', { userId: user.id, email: user.email, role: user.role });
+    //console.log('✅ [AUTH] Authentication successful:', { userId: user.id, email: user.email, role: user.role });
 
     // Update last login
     await prisma.user.update({
@@ -300,4 +293,14 @@ export class AuthService {
     return await bcrypt.compare(password, hashedPassword);
   }
 
+}
+
+/** Get token from request (supports Authorization header and cookies). Use this in middleware to avoid type issues. */
+export function getTokenFromRequest(req: NextRequest): string | null {
+  return AuthService.getTokenFromRequest(req);
+}
+
+/** Refresh access token using refresh token string. Use this in middleware to avoid type issues. */
+export async function refreshAccessToken(refreshToken: string): Promise<string> {
+  return AuthService.refreshAccessToken(refreshToken);
 } 

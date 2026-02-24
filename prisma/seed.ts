@@ -4,10 +4,10 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting database seed...');
+  //console.log('🌱 Starting database seed...');
 
   // Clear existing data (optional - comment out if you want to keep existing data)
-  console.log('🧹 Clearing existing data...');
+  //console.log('🧹 Clearing existing data...');
   await prisma.message.deleteMany();
   await prisma.chatParticipant.deleteMany();
   await prisma.chat.deleteMany();
@@ -42,7 +42,7 @@ async function main() {
       isPasswordChanged: true,
     },
   });
-  console.log('✅ Created admin user:', adminUser.email);
+  //console.log('✅ Created admin user:', adminUser.email);
 
   // Create Additional Admin Users
   const adminUsers = [];
@@ -62,7 +62,7 @@ async function main() {
     });
     adminUsers.push(admin);
   }
-  console.log(`✅ Created ${adminUsers.length} additional admin users`);
+  //console.log(`✅ Created ${adminUsers.length} additional admin users`);
 
   // Create Employer Users
   const employerUsers = [];
@@ -107,7 +107,7 @@ async function main() {
       },
     });
   }
-  console.log(`✅ Created ${employerUsers.length} employer users with profiles`);
+  //console.log(`✅ Created ${employerUsers.length} employer users with profiles`);
 
   // Create Candidate Users
   const candidateUsers = [];
@@ -156,7 +156,7 @@ async function main() {
       },
     });
   }
-  console.log(`✅ Created ${candidateUsers.length} candidate users with profiles`);
+  //console.log(`✅ Created ${candidateUsers.length} candidate users with profiles`);
 
   // Create Jobs
   const jobTitles = [
@@ -214,7 +214,7 @@ async function main() {
       jobs.push(job);
     }
   }
-  console.log(`✅ Created ${jobs.length} jobs`);
+  //console.log(`✅ Created ${jobs.length} jobs`);
 
   // Create Applications
   const applications = [];
@@ -259,7 +259,7 @@ async function main() {
       });
     }
   }
-  console.log(`✅ Created ${applications.length} applications`);
+  //console.log(`✅ Created ${applications.length} applications`);
 
   // Create Chats for approved applications
   const chats = [];
@@ -323,7 +323,7 @@ async function main() {
       }
     }
   }
-  console.log(`✅ Created ${chats.length} chats with messages`);
+  //console.log(`✅ Created ${chats.length} chats with messages`);
 
   // Create Notifications
   const notifications = [];
@@ -343,7 +343,7 @@ async function main() {
     });
     notifications.push(notification);
   }
-  console.log(`✅ Created ${notifications.length} notifications`);
+  //console.log(`✅ Created ${notifications.length} notifications`);
 
   // Create Support Requests
   const supportRequests = [];
@@ -363,7 +363,7 @@ async function main() {
     });
     supportRequests.push(request);
   }
-  console.log(`✅ Created ${supportRequests.length} support requests`);
+  //console.log(`✅ Created ${supportRequests.length} support requests`);
 
   // Create Announcements
   const announcements = [];
@@ -380,7 +380,7 @@ async function main() {
     });
     announcements.push(announcement);
   }
-  console.log(`✅ Created ${announcements.length} announcements`);
+  //console.log(`✅ Created ${announcements.length} announcements`);
 
   // Create Admin Escalations
   const escalations = [];
@@ -399,7 +399,7 @@ async function main() {
     });
     escalations.push(escalation);
   }
-  console.log(`✅ Created ${escalations.length} admin escalations`);
+  //console.log(`✅ Created ${escalations.length} admin escalations`);
 
   // Create Admin Logs
   const adminLogs = [];
@@ -419,7 +419,7 @@ async function main() {
     });
     adminLogs.push(log);
   }
-  console.log(`✅ Created ${adminLogs.length} admin logs`);
+  //console.log(`✅ Created ${adminLogs.length} admin logs`);
 
   // Create System Settings (if not exists)
   const settings = await prisma.systemSettings.findFirst();
@@ -432,24 +432,24 @@ async function main() {
         enableNotifications: true,
       },
     });
-    console.log('✅ Created system settings');
+    //console.log('✅ Created system settings');
   } else {
-    console.log('ℹ️ System settings already exist');
+    //console.log('ℹ️ System settings already exist');
   }
 
-  console.log('\n🎉 Database seeding completed successfully!');
-  console.log('\n📊 Summary:');
-  console.log(`   - Admin Users: ${1 + adminUsers.length}`);
-  console.log(`   - Employer Users: ${employerUsers.length}`);
-  console.log(`   - Candidate Users: ${candidateUsers.length}`);
-  console.log(`   - Jobs: ${jobs.length}`);
-  console.log(`   - Applications: ${applications.length}`);
-  console.log(`   - Chats: ${chats.length}`);
-  console.log(`   - Notifications: ${notifications.length}`);
-  console.log(`   - Support Requests: ${supportRequests.length}`);
-  console.log(`   - Announcements: ${announcements.length}`);
-  console.log(`   - Escalations: ${escalations.length}`);
-  console.log(`   - Admin Logs: ${adminLogs.length}`);
+  //console.log('\n🎉 Database seeding completed successfully!');
+  //console.log('\n📊 Summary:');
+  //console.log(`   - Admin Users: ${1 + adminUsers.length}`);
+  //console.log(`   - Employer Users: ${employerUsers.length}`);
+  //console.log(`   - Candidate Users: ${candidateUsers.length}`);
+  //console.log(`   - Jobs: ${jobs.length}`);
+  //console.log(`   - Applications: ${applications.length}`);
+  //console.log(`   - Chats: ${chats.length}`);
+  //console.log(`   - Notifications: ${notifications.length}`);
+  //console.log(`   - Support Requests: ${supportRequests.length}`);
+  //console.log(`   - Announcements: ${announcements.length}`);
+  //console.log(`   - Escalations: ${escalations.length}`);
+  //console.log(`   - Admin Logs: ${adminLogs.length}`);
 }
 
 main()
