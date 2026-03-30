@@ -1,40 +1,54 @@
-import PusherServer from 'pusher';
-import PusherClient from 'pusher-js';
-import { prisma } from '@/lib/prisma';
+import Pusher from "pusher";
 
-export const pusherServer = new PusherServer({
-    appId: process.env.PUSHER_APP_ID || '',
-    key: process.env.NEXT_PUBLIC_PUSHER_KEY || '',
-    secret: process.env.PUSHER_SECRET || '',
-    cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || 'mt1',
+let pusherServer: Pusher | null | undefined;
+
+function getPusherServer() {
+  if (pusherServer !== undefined) {
+    return pusherServer;
+  }
+
+  const appId = process.env.PUSHER_APP_ID;
+  const key = process.env.NEXT_PUBLIC_PUSHER_KEY;
+  const secret = process.env.PUSHER_SECRET;
+  const cluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
+
+  if (!appId || !key || !secret || !cluster) {
+    pusherServer = null;
+    return pusherServer;
+  }
+
+  pusherServer = new Pusher({
+    appId,
+    key,
+    secret,
+    cluster,
     useTLS: true,
-});
+  });
 
-/** Get Pusher server from DB (admin panel config) or env. Use this when triggering so admin config is used. */
-export async function getPusherServer(): Promise<PusherServer | null> {
-    const settings = await prisma.systemSettings.findFirst({ select: { pusherAppId: true, pusherKey: true, pusherSecret: true } });
-    if (settings?.pusherKey && settings?.pusherSecret && settings?.pusherAppId) {
-        return new PusherServer({
-            appId: settings.pusherAppId,
-            key: settings.pusherKey,
-            secret: settings.pusherSecret,
-            cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || 'mt1',
-            useTLS: true,
-        });
-    }
-    if (process.env.NEXT_PUBLIC_PUSHER_KEY && process.env.PUSHER_APP_ID) return pusherServer;
-    return null;
+  return pusherServer;
 }
 
-export const getPusherClient = () => {
-    if (typeof window === 'undefined') return null as any;
-    const key = process.env.NEXT_PUBLIC_PUSHER_KEY || '';
-    const cluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER || 'mt1';
-    return new PusherClient(key, { cluster, forceTLS: true });
-};
+async function publish(channel: string, event: string, payload: unknown) {
+  const pusher = getPusherServer();
+  if (!pusher) {
+    return;
+  }
 
-export const chatChannelName = (chatRoomId: string) => `chat-${chatRoomId}`;
-export const userChannelName = (userId: string) => `user-${userId}`;
-export const globalChannelName = () => `global`;
+  await pusher.trigger(channel, event, payload);
+}
 
+export async function publishConversationMessage(
+  conversationId: string,
+  payload: unknown
+) {
+  await publish(`conversation-${conversationId}`, "message.created", payload);
+}
 
+export async function publishNotification(userId: string, payload: unknown) {
+  await publish(`user-${userId}`, "notification.created", payload);
+}
+
+/** Sidebar / inbox refresh when a conversation is created or a new message arrives. */
+export async function publishInboxUpdate(userId: string, payload: unknown) {
+  await publish(`user-${userId}`, "inbox.updated", payload);
+}

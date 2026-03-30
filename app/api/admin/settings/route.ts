@@ -1,76 +1,52 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { withAuth, AuthenticatedRequest } from '@/lib/authMiddleware';
-import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { withAdminAuth } from "@/lib/authMiddleware";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
-  return withAuth(request, async (authenticatedReq: AuthenticatedRequest) => {
-    try {
-      // Check if user is admin
-      if (authenticatedReq.user?.role !== 'ADMIN') {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
+  return withAdminAuth(request, async () => {
+    const settings =
+      (await prisma.systemSettings.findFirst()) ||
+      (await prisma.systemSettings.create({
+        data: {
+          siteName: "Freedom Shield Insurance Portal",
+          siteDescription: "Back-office workspace for agents, carriers, and administrators.",
+          supportEmail: "support@freedomshieldinsurance.com",
+          notificationsEnabled: true,
+        },
+      }));
 
-      let settings = await prisma.systemSettings.findFirst();
-
-      // If no settings exist, create default ones
-      if (!settings) {
-        settings = await prisma.systemSettings.create({
-          data: {
-            siteName: 'Guest Feedback Platform',
-            siteDescription: 'SaaS Guest Feedback & Review Management Platform',
-            contactEmail: 'admin@example.com',
-            enableNotifications: true,
-          },
-        });
-      }
-
-      return NextResponse.json({ data: settings });
-    } catch (error) {
-      console.error('Error fetching settings:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch settings' },
-        { status: 500 }
-      );
-    }
+    return NextResponse.json({ settings });
   });
 }
 
 export async function PUT(request: NextRequest) {
-  return withAuth(request, async (authenticatedReq: AuthenticatedRequest) => {
-    try {
-      // Check if user is admin
-      if (authenticatedReq.user?.role !== 'ADMIN') {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
+  return withAdminAuth(request, async () => {
+    const body = await request.json();
+    const existing = await prisma.systemSettings.findFirst();
 
-      const body = await request.json();
-
-      let settings = await prisma.systemSettings.findFirst();
-
-      if (!settings) {
-        settings = await prisma.systemSettings.create({
+    const settings = existing
+      ? await prisma.systemSettings.update({
+          where: { id: existing.id },
           data: {
-            siteName: 'Guest Feedback Platform',
-            siteDescription: 'SaaS Guest Feedback & Review Management Platform',
-            contactEmail: 'admin@example.com',
-            enableNotifications: true,
-            ...body,
+            siteName: body.siteName,
+            siteDescription: body.siteDescription ?? null,
+            supportEmail: body.supportEmail,
+            supportPhone: body.supportPhone ?? null,
+            commissionDisclaimer: body.commissionDisclaimer ?? null,
+            notificationsEnabled: Boolean(body.notificationsEnabled),
+          },
+        })
+      : await prisma.systemSettings.create({
+          data: {
+            siteName: body.siteName,
+            siteDescription: body.siteDescription ?? null,
+            supportEmail: body.supportEmail,
+            supportPhone: body.supportPhone ?? null,
+            commissionDisclaimer: body.commissionDisclaimer ?? null,
+            notificationsEnabled: Boolean(body.notificationsEnabled),
           },
         });
-      } else {
-        settings = await prisma.systemSettings.update({
-          where: { id: settings.id },
-          data: body,
-        });
-      }
 
-      return NextResponse.json({ data: settings });
-    } catch (error) {
-      console.error('Error updating settings:', error);
-      return NextResponse.json(
-        { error: 'Failed to update settings' },
-        { status: 500 }
-      );
-    }
+    return NextResponse.json({ settings });
   });
 }

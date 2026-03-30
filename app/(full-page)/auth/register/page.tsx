@@ -1,190 +1,224 @@
 "use client";
-import type { Page } from "@/types/index";
+
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "primereact/button";
-import { Checkbox } from "primereact/checkbox";
+import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
-import { Toast } from "primereact/toast";
-import { useState, useRef } from "react";
 import { AuthSplitLayout } from "@/components/auth/AuthSplitLayout";
-import { useLanguage } from "@/context/LanguageContext";
+import { getDefaultRedirectPath } from "@/lib/rolePermissions";
 
-const Register: Page = () => {
-    const [confirmed, setConfirmed] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: '',
-        phone: ''
-    });
+export default function RegisterPage() {
     const router = useRouter();
-    const toast = useRef<Toast>(null);
-    const { t } = useLanguage();
+    const [form, setForm] = useState({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        password: "",
+        confirmPassword: "",
+        role: "",
+        jobTitle: "",
+        location: "",
+        agencyName: "",
+        carrierName: "",
+    });
+    const [submitting, setSubmitting] = useState(false);
+    const [message, setMessage] = useState<string | null>(null);
 
-    const handleInputChange = (field: string, value: string) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }));
-    };
+    const renderLabel = (label: string, required = false) => (
+        <label className="block text-white mb-2">
+            {required && <span className="text-red-400 mr-1">*</span>}
+            {label}
+        </label>
+    );
 
-    const showToast = (severity: "success" | "error" | "warn" | "info", summary: string, detail: string) => {
-        toast.current?.show({ severity, summary, detail, life: 3000 });
-    };
-
-    const handleRegister = async () => {
-        if (!confirmed) {
-            showToast("warn", t("common.warning"), t("auth.acceptTerms"));
+    const handleSubmit = async () => {
+        if (!form.role) {
+            setMessage("Please select a role.");
             return;
         }
 
-        if (!formData.firstName || !formData.lastName || !formData.email || !formData.password) {
-            showToast("error", t("common.error"), t("profile.fillAllFields"));
+        if (form.password !== form.confirmPassword) {
+            setMessage("Passwords do not match.");
             return;
         }
 
-        setLoading(true);
-        try {
-            const response = await fetch('/api/auth/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-            });
+        setSubmitting(true);
+        setMessage(null);
 
-            const data = await response.json();
+        const response = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+                firstName: form.firstName,
+                lastName: form.lastName,
+                email: form.email,
+                phone: form.phone || undefined,
+                password: form.password,
+                role: form.role,
+                jobTitle: form.jobTitle || undefined,
+                location: form.location || undefined,
+                agencyName: form.role === "AGENT" ? form.agencyName || undefined : undefined,
+                carrierName: form.role === "CARRIER" ? form.carrierName || undefined : undefined,
+            }),
+        });
 
-            if (response.ok) {
-                showToast("success", "Success", data.message);
-                setTimeout(() => {
-                    router.push('/auth/login');
-                }, 2000);
-            } else {
-                showToast("error", "Error", data.error);
-            }
-        } catch (error) {
-            showToast("error", t("common.error"), t("auth.unexpectedError"));
-        } finally {
-            setLoading(false);
+        const payload = await response.json();
+        if (!response.ok) {
+            setMessage(payload.error || "Unable to create account.");
+            setSubmitting(false);
+            return;
         }
+
+        router.replace(getDefaultRedirectPath(payload.user.role));
+        router.refresh();
     };
 
     return (
-        <>
-            <AuthSplitLayout>
-                <div className="border-1 surface-border surface-card border-round py-7 px-4 md:px-7 shadow-2">
-                    <div className="mb-4">
-                        <div className="text-900 text-xl font-bold mb-2">
-                            {t("auth.registerTitle")}
-                        </div>
-                        <span className="text-600 font-medium">
-                            {t("auth.letsGetStarted")}
-                        </span>
+        <AuthSplitLayout>
+            <div className="auth-form-content">
+                <div className="mb-4">
+                    <h1 className="text-2xl font-bold mb-2 text-white m-0">Create your FSI account</h1>
+                    <span className="text-white-alpha-90 font-medium">
+                        Join the portal as an agent or carrier and start working immediately.
+                    </span>
+                </div>
+                <div className="grid">
+                    <div className="col-12 md:col-6">
+                        {renderLabel("First name", true)}
+                        <InputText
+                            className="w-full mb-3"
+                            value={form.firstName}
+                            onChange={(e) => setForm((prev) => ({ ...prev, firstName: e.target.value }))}
+                            placeholder="Enter your first name"
+                        />
                     </div>
-                    <div className="flex flex-column">
-                        <span className="p-input-icon-left w-full mb-4">
-                            <i className="pi pi-user"></i>
-                            <InputText
-                                id="firstName"
-                                type="text"
-                                className="w-full"
-                                placeholder={t("auth.firstName")}
-                                value={formData.firstName}
-                                onChange={(e) => handleInputChange('firstName', e.target.value)}
-                            />
-                        </span>
-                        <span className="p-input-icon-left w-full mb-4">
-                            <i className="pi pi-user"></i>
-                            <InputText
-                                id="lastName"
-                                type="text"
-                                className="w-full"
-                                placeholder={t("auth.lastName")}
-                                value={formData.lastName}
-                                onChange={(e) => handleInputChange('lastName', e.target.value)}
-                            />
-                        </span>
-                        <span className="p-input-icon-left w-full mb-4">
-                            <i className="pi pi-envelope"></i>
-                            <InputText
-                                id="email"
-                                type="email"
-                                className="w-full"
-                                placeholder={t("auth.emailPlaceholder")}
-                                value={formData.email}
-                                onChange={(e) => handleInputChange('email', e.target.value)}
-                            />
-                        </span>
-                        <span className="p-input-icon-left w-full mb-4">
-                            <i className="pi pi-phone"></i>
-                            <InputText
-                                id="phone"
-                                type="tel"
-                                className="w-full"
-                                placeholder={t("auth.phoneOptional")}
-                                value={formData.phone}
-                                onChange={(e) => handleInputChange('phone', e.target.value)}
-                            />
-                        </span>
-                        <span className="p-input-icon-left w-full mb-4">
-                            <i className="pi pi-lock z-2"></i>
-                            <Password
-                                id="password"
-                                type="password"
-                                className="w-full"
-                                inputClassName="w-full"
-                                placeholder={t("auth.passwordPlaceholder")}
-                                toggleMask
-                                inputStyle={{ paddingLeft: "2.5rem" }}
-                                value={formData.password}
-                                onChange={(e) => handleInputChange('password', e.target.value)}
-                            />
-                        </span>
-                        <div className="mb-4 flex flex-wrap">
-                            <Checkbox
-                                name="checkbox"
-                                checked={confirmed}
-                                onChange={(e) =>
-                                    setConfirmed(e.checked ?? false)
-                                }
-                                className="mr-2"
-                            ></Checkbox>
-                            <label
-                                htmlFor="checkbox"
-                                className="text-900 font-medium mr-2"
-                            >
-                                {t("auth.readTerms")}
-                            </label>
-                            <a className="text-600 cursor-pointer hover:text-primary cursor-pointer">
-                                {t("auth.termsAndConditions")}
-                            </a>
-                        </div>
-                        <Button
-                            label={t("auth.signUp")}
-                            className="w-full mb-4"
-                            onClick={handleRegister}
-                            loading={loading}
-                            disabled={loading}
-                        ></Button>
-                        <span className="font-medium text-600">
-                            {t("auth.alreadyHaveAccount")}{" "}
-                            <a 
-                                className="font-semibold cursor-pointer text-900 hover:text-primary transition-colors transition-duration-300"
-                                onClick={() => router.push('/auth/login')}
-                            >
-                                {t("auth.signIn")}
-                            </a>
-                        </span>
+                    <div className="col-12 md:col-6">
+                        {renderLabel("Last name", true)}
+                        <InputText
+                            className="w-full mb-3"
+                            value={form.lastName}
+                            onChange={(e) => setForm((prev) => ({ ...prev, lastName: e.target.value }))}
+                            placeholder="Enter your last name"
+                        />
+                    </div>
+                    <div className="col-12 md:col-6">
+                        {renderLabel("Email address", true)}
+                        <InputText
+                            className="w-full mb-3"
+                            value={form.email}
+                            onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+                            placeholder="Enter your work email"
+                        />
+                    </div>
+                    <div className="col-12 md:col-6">
+                        {renderLabel("Phone number")}
+                        <InputText
+                            className="w-full mb-3"
+                            value={form.phone}
+                            onChange={(e) => setForm((prev) => ({ ...prev, phone: e.target.value }))}
+                            placeholder="Enter your phone number"
+                        />
+                    </div>
+                    <div className="col-12 md:col-6">
+                        {renderLabel("Role", true)}
+                        <Dropdown
+                            className="w-full mb-3 auth-dropdown"
+                            value={form.role}
+                            options={[
+                                { label: "Agent", value: "AGENT" },
+                                { label: "Carrier", value: "CARRIER" },
+                            ]}
+                            onChange={(e) => setForm((prev) => ({ ...prev, role: e.value }))}
+                            placeholder="Select your role"
+                        />
+                    </div>
+                    <div className="col-12 md:col-6">
+                        {renderLabel(
+                            form.role === "AGENT"
+                                ? "Agency name"
+                                : form.role === "CARRIER"
+                                    ? "Carrier name"
+                                    : "Organization name"
+                        )}
+                        <InputText
+                            className="w-full mb-3"
+                            value={form.role === "AGENT" ? form.agencyName : form.carrierName}
+                            onChange={(e) =>
+                                setForm((prev) => ({
+                                    ...prev,
+                                    [form.role === "AGENT" ? "agencyName" : "carrierName"]: e.target.value,
+                                }))
+                            }
+                            placeholder={
+                                form.role === "AGENT"
+                                    ? "Enter your agency name"
+                                    : form.role === "CARRIER"
+                                        ? "Enter your carrier name"
+                                        : "Enter your organization name"
+                            }
+                        />
+                    </div>
+                    <div className="col-12 md:col-6">
+                        {renderLabel("Job title")}
+                        <InputText
+                            className="w-full mb-3"
+                            value={form.jobTitle}
+                            onChange={(e) => setForm((prev) => ({ ...prev, jobTitle: e.target.value }))}
+                            placeholder="Enter your job title"
+                        />
+                    </div>
+                    <div className="col-12 md:col-6">
+                        {renderLabel("Location")}
+                        <InputText
+                            className="w-full mb-3"
+                            value={form.location}
+                            onChange={(e) => setForm((prev) => ({ ...prev, location: e.target.value }))}
+                            placeholder="Enter your city or region"
+                        />
+                    </div>
+                    <div className="col-12 md:col-6">
+                        {renderLabel("Password", true)}
+                        <Password
+                            feedback={false}
+                            toggleMask
+                            className="w-full mb-3"
+                            inputClassName="w-full"
+                            value={form.password}
+                            onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+                            placeholder="Create a password"
+                        />
+                    </div>
+                    <div className="col-12 md:col-6">
+                        {renderLabel("Confirm password", true)}
+                        <Password
+                            feedback={false}
+                            toggleMask
+                            className="w-full mb-3"
+                            inputClassName="w-full"
+                            value={form.confirmPassword}
+                            onChange={(e) => setForm((prev) => ({ ...prev, confirmPassword: e.target.value }))}
+                            placeholder="Re-enter your password"
+                        />
                     </div>
                 </div>
-            </AuthSplitLayout>
-            <Toast ref={toast} />
-        </>
+                {message && <p className="text-red-300 mt-0 mb-3">{message}</p>}
+                <Button
+                    label="Create account"
+                    className="w-full mb-3"
+                    loading={submitting}
+                    onClick={handleSubmit}
+                />
+                <Button
+                    label="Back to login"
+                    outlined
+                    className="w-full auth-btn-outlined"
+                    onClick={() => router.push("/auth/login")}
+                />
+            </div>
+        </AuthSplitLayout>
     );
-};
-
-export default Register;
+}

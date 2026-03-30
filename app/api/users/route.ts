@@ -1,17 +1,90 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { withAuth, AuthenticatedRequest } from '@/lib/authMiddleware'
-import { prisma } from '@/lib/prisma'
+import bcrypt from "bcryptjs";
+import { NextRequest, NextResponse } from "next/server";
+import { withAdminAuth, AuthenticatedRequest } from "@/lib/authMiddleware";
+import { prisma } from "@/lib/prisma";
 
-// GET /api/users - Get all users (admin only)
 export async function GET(request: NextRequest) {
-  return withAuth(request, async (authenticatedReq: AuthenticatedRequest) => {
-    try {
-      // Only admins can see all users
-        // if (authenticatedReq.user?.role !== 'ADMIN') {
-        //   return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-        // }
+  return withAdminAuth(request, async () => {
+    const users = await prisma.user.findMany({
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        role: true,
+        status: true,
+        jobTitle: true,
+        location: true,
+        createdAt: true,
+        agentProfile: { select: { agentCode: true, agencyName: true } },
+        carrierProfile: { select: { carrierName: true, carrierCode: true } },
+      },
+    });
 
-      const users = await prisma.user.findMany({
+    return NextResponse.json({ users });
+  });
+}
+
+export async function POST(request: NextRequest) {
+  return withAdminAuth(request, async (authenticatedReq: AuthenticatedRequest) => {
+    const body = await request.json();
+    const {
+      email,
+      password,
+      firstName,
+      lastName,
+      phone,
+      role,
+      status = "ACTIVE",
+      jobTitle,
+      location,
+      agentCode,
+      carrierCode,
+      carrierName,
+    } = body;
+
+    if (!email || !password || !firstName || !lastName || !role) {
+      return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
+    }
+
+    const hashedPassword = await bcrypt.hash(String(password), 12);
+
+    try {
+      const user = await prisma.user.create({
+        data: {
+          email: String(email).toLowerCase(),
+          password: hashedPassword,
+          firstName,
+          lastName,
+          phone,
+          role,
+          status,
+          jobTitle,
+          location,
+          emailVerified: true,
+          ...(role === "AGENT"
+            ? {
+                agentProfile: {
+                  create: {
+                    agentCode: agentCode || `AGT-${Date.now()}`,
+                    agencyName: "Freedom Shield Insurance",
+                  },
+                },
+              }
+            : {}),
+          ...(role === "CARRIER"
+            ? {
+                carrierProfile: {
+                  create: {
+                    carrierCode: carrierCode || `CAR-${Date.now()}`,
+                    carrierName: carrierName || `${firstName} ${lastName}`,
+                  },
+                },
+              }
+            : {}),
+        },
         select: {
           id: true,
           email: true,
@@ -19,75 +92,23 @@ export async function GET(request: NextRequest) {
           lastName: true,
           role: true,
           status: true,
-          profileImage: true,
-          profileImagePublicId: true,
-          createdAt: true,
-          updatedAt: true,
         },
-      })
-      
-      return NextResponse.json(users)
+      });
+
+      await prisma.adminLog.create({
+        data: {
+          adminId: authenticatedReq.user!.userId,
+          action: "USER_CREATED",
+          entityType: "USER",
+          entityId: user.id,
+          description: `Created ${role.toLowerCase()} account for ${firstName} ${lastName}.`,
+        },
+      });
+
+      return NextResponse.json({ user }, { status: 201 });
     } catch (error) {
-      console.error('Get users error:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch users' },
-        { status: 500 }
-      )
+      console.error(error);
+      return NextResponse.json({ error: "Failed to create user." }, { status: 500 });
     }
   });
 }
-
-// POST /api/users - Create a new user (admin only)
-export async function POST(request: NextRequest) {
-  return withAuth(request, async (authenticatedReq: AuthenticatedRequest) => {
-    try {
-      // Only admins can create users
-      // if (authenticatedReq.user?.role !== 'ADMIN') {
-      //   return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-      // }
-
-      const body = await request.json()
-      const { email, username, password, firstName, lastName } = body
-
-      if (!email || !username || !password) {
-        return NextResponse.json(
-          { error: 'Email, username, and password are required' },
-          { status: 400 }
-        )
-      }
-
-      const user = await prisma.user.create({
-        data: {
-          email,
-          password, 
-          firstName,
-          lastName,
-        },
-        select: {
-          id: true,
-          email: true,
-          firstName: true,
-          lastName: true,
-          role: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-      })
-
-      return NextResponse.json(user, { status: 201 })
-    } catch (error) {
-      console.error('Create user error:', error);
-      const err = error as any;
-      if (err && typeof err === 'object' && 'code' in err && err.code === 'P2002') {
-        return NextResponse.json(
-          { error: 'User with this email already exists' },
-          { status: 409 }
-        );
-      }
-      return NextResponse.json(
-        { error: 'Failed to create user' },
-        { status: 500 }
-      );
-    }
-  });
-} 

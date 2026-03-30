@@ -1,111 +1,83 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { NextRequest, NextResponse } from "next/server";
+import { withAuth, AuthenticatedRequest } from "@/lib/authMiddleware";
+import { isAdminRole } from "@/lib/rolePermissions";
+import { prisma } from "@/lib/prisma";
 
-// GET /api/users/[id] - Get a specific user
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: params.id },
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    })
+  return withAuth(request, async (authenticatedReq: AuthenticatedRequest) => {
+    const { id } = params;
+    const requester = authenticatedReq.user!;
 
-    if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
+    if (!isAdminRole(requester.role) && requester.userId !== id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    return NextResponse.json(user)
-  } catch {
-    return NextResponse.json(
-      { error: 'Failed to fetch user' },
-      { status: 500 }
-    )
-  }
+    const user = await prisma.user.findUnique({
+      where: { id },
+      include: {
+        agentProfile: true,
+        carrierProfile: true,
+      },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found." }, { status: 404 });
+    }
+
+    return NextResponse.json({ user });
+  });
 }
 
-// PUT /api/users/[id] - Update a user
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  try {
-    const body = await request.json()
-    const { email, name, password } = body
+  return withAuth(request, async (authenticatedReq: AuthenticatedRequest) => {
+    const { id } = params;
+    if (!isAdminRole(authenticatedReq.user!.role) && authenticatedReq.user!.userId !== id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const { firstName, lastName, phone, jobTitle, location, status } = await request.json();
 
     const user = await prisma.user.update({
-      where: { id: params.id },
+      where: { id },
       data: {
-        ...(email && { email }),
-        ...(name && { name }),
-        ...(password && { password }), // In production, hash this password
+        ...(firstName !== undefined ? { firstName } : {}),
+        ...(lastName !== undefined ? { lastName } : {}),
+        ...(phone !== undefined ? { phone } : {}),
+        ...(jobTitle !== undefined ? { jobTitle } : {}),
+        ...(location !== undefined ? { location } : {}),
+        ...(isAdminRole(authenticatedReq.user!.role) && status !== undefined ? { status } : {}),
       },
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    })
+    });
 
-    return NextResponse.json(user)
-  } catch (error) {
-    const err = error as any;
-    if (err && typeof err === 'object' && 'code' in err && err.code === 'P2025') {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
-    }
-    
-    if (err && typeof err === 'object' && 'code' in err && err.code === 'P2002') {
-      return NextResponse.json(
-        { error: 'User with this email already exists' },
-        { status: 409 }
-      )
-    }
-
-    return NextResponse.json(
-      { error: 'Failed to update user' },
-      { status: 500 }
-    )
-  }
+    return NextResponse.json({ user });
+  });
 }
 
-// DELETE /api/users/[id] - Delete a user
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  try {
-    await prisma.user.delete({
-      where: { id: params.id },
-    })
-
-    return NextResponse.json({ message: 'User deleted successfully' })
-  } catch (error) {
-    const err = error as any;
-    if (err && typeof err === 'object' && 'code' in err && err.code === 'P2025') {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
+  return withAuth(request, async (authenticatedReq: AuthenticatedRequest) => {
+    if (!isAdminRole(authenticatedReq.user!.role)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    return NextResponse.json(
-      { error: 'Failed to delete user' },
-      { status: 500 }
-    )
-  }
-} 
+    const { id } = params;
+
+    await prisma.user.update({
+      where: { id },
+      data: {
+        isDeleted: true,
+        status: "INACTIVE",
+      },
+    });
+
+    return NextResponse.json({ success: true });
+  });
+}

@@ -5,21 +5,25 @@ interface MainLayoutProps {
 }
 
 export const metadata: Metadata = {
-    title: "JobPortal Admin",
+    title: "Freedom Shield Insurance Portal",
     description:
-        "Administrative dashboard for JobPortal community management",
+        "Secure portal for Freedom Shield Insurance agents, carriers, and administrators.",
     robots: { index: false, follow: false },
     openGraph: {
         type: "website",
-        title: "JobPortal Admin",
-        url: "https://www.jobportal.com",
+        title: "Freedom Shield Insurance Portal",
+        url: "https://www.freedomshieldinsurance.com",
         description:
-            "Administrative dashboard for JobPortal community management",
-        images: ["https://www.jobportal.com/images/logo.png"],
+            "Secure portal for Freedom Shield Insurance agents, carriers, and administrators.",
+        images: ["/images/logo.png"],
         ttl: 604800,
     },
     icons: {
-        icon: "/favicon.ico",
+        icon: [
+            { url: "/favicon.ico", sizes: "any" },
+            { url: "/favicon.png", type: "image/png", sizes: "32x32" },
+        ],
+        apple: "/images/logo.png",
     },
 };
 

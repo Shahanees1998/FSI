@@ -1,50 +1,27 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { AuthService } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { getAuthCookieOptions } from '@/lib/authCookieOptions';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { AuthService } from "@/lib/auth";
+import { getAuthCookieOptions } from "@/lib/authCookieOptions";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { email, phone, password, googleToken } = body;
+    const { email, password } = await request.json();
 
-    // Google OAuth login
-    if (googleToken) {
-      // TODO: Verify Google token with Google API
-      // For now, return error - implement Google OAuth verification
+    if (!email || !password) {
       return NextResponse.json(
-        { error: 'Google login not yet implemented. Please use email/phone and password.' },
-        { status: 501 }
-      );
-    }
-
-    // Validate input - email or phone required
-    const identifier = email || phone;
-    if (!identifier || !password) {
-      //console.log('❌ [API /auth/login] Missing credentials');
-      return NextResponse.json(
-        { error: 'Email/phone and password are required' },
+        { error: "Email and password are required." },
         { status: 400 }
       );
     }
 
-
-    // Authenticate user (supports both email and phone)
+    const normalizedEmail = String(email).trim().toLowerCase();
     const { accessToken, refreshToken } = await AuthService.authenticateUser({
-      email: identifier, // AuthService handles both email and phone
-      password,
+      email: normalizedEmail,
+      password: String(password),
     });
-    
-    //console.log('✅ [API /auth/login] Authentication successful, tokens generated');
 
-    // Get user details for response
-    const user = await prisma.user.findFirst({
-      where: {
-        OR: [
-          { email: identifier },
-          { phone: identifier },
-        ],
-      },
+    const user = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
       select: {
         id: true,
         email: true,
@@ -53,79 +30,42 @@ export async function POST(request: NextRequest) {
         phone: true,
         role: true,
         status: true,
+        jobTitle: true,
+        location: true,
         profileImage: true,
         profileImagePublicId: true,
         lastLogin: true,
-        isPasswordChanged: true,
         createdAt: true,
         updatedAt: true,
       },
     });
 
-    // Check if user exists
     if (!user) {
-      return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Invalid email or password." }, { status: 401 });
     }
-    
-    // Note: All users can login via API (for mobile apps)
-    // The middleware will restrict /admin routes to ADMIN users only
-    // This allows employers and candidates to login for mobile app access
-    // Create response with token for mobile apps
+
     const response = NextResponse.json({
       success: true,
-      message: 'Login successful',
-      accessToken, // Include token for mobile apps
-      refreshToken, // Include refresh token for mobile apps
-      user: {
-        id: user?.id,
-        email: user?.email,
-        firstName: user?.firstName,
-        lastName: user?.lastName,
-        phone: user?.phone,
-        role: user?.role,
-        status: user?.status,
-        profileImage: user?.profileImage,
-        profileImagePublicId: user?.profileImagePublicId,
-        lastLogin: user?.lastLogin,
-        createdAt: user?.createdAt,
-        updatedAt: user?.updatedAt,
-      },
-    });
-    // Set authentication cookies for all web logins
-    // In development (localhost), use secure: false and sameSite: 'lax'
-    // In production, use secure: true and sameSite: 'none' (for cross-site)
-    const baseCookieOptions = getAuthCookieOptions(request);
-    
-    response.cookies.set('access_token', accessToken, {
-      ...baseCookieOptions,
-      maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
+      user,
     });
 
-    response.cookies.set('refresh_token', refreshToken, {
-      ...baseCookieOptions,
-      maxAge: 30 * 24 * 60 * 60, // 30 days in seconds
+    const cookieOptions = getAuthCookieOptions(request);
+    response.cookies.set("access_token", accessToken, {
+      ...cookieOptions,
+      maxAge: 7 * 24 * 60 * 60,
     });
-    
-    // Verify cookies were set
-    const setCookies = response.cookies.getAll();
+    response.cookies.set("refresh_token", refreshToken, {
+      ...cookieOptions,
+      maxAge: 30 * 24 * 60 * 60,
+    });
 
     return response;
   } catch (error) {
-    console.error('Login error:', error);
-    
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 401 }
-      );
-    }
-
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      {
+        error: error instanceof Error ? error.message : "Login failed.",
+      },
+      { status: 401 }
     );
   }
-} 
+}

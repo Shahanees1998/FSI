@@ -3,9 +3,8 @@
 import React from "react";
 import Image from "next/image";
 
-// Professional job agency / recruitment style image (team, workspace, hiring)
 const AUTH_IMAGE_URL =
-    "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80";
+    "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1200&q=80";
 
 export function AuthSplitLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -18,7 +17,7 @@ export function AuthSplitLayout({ children }: { children: React.ReactNode }) {
                     <div className="auth-logo-wrap flex justify-content-center mb-5">
                         <Image
                             src="/images/logo.png"
-                            alt="NextJob"
+                            alt="Freedom Shield Insurance"
                             width={320}
                             height={128}
                             priority
@@ -46,11 +45,11 @@ export function AuthSplitLayout({ children }: { children: React.ReactNode }) {
                 />
                 <div className="relative z-1 flex flex-column justify-content-end p-6 text-white auth-split-image-text">
                     <p className="auth-split-image-title font-semibold mb-2">
-                        Job Agency Dashboard
+                        Freedom Shield Insurance Portal
                     </p>
                     <p className="text-white-alpha-90 auth-split-image-desc line-height-3 m-0">
-                        Manage candidates, employers, and placements in one
-                        place.
+                        Securely manage agent operations, carrier communication,
+                        commission visibility, and support workflows.
                     </p>
                 </div>
             </div>

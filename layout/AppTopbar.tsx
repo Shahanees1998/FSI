@@ -1,82 +1,34 @@
-'use client'
+"use client";
 
 import type { AppTopbarRef } from "@/types/index";
+import Link from "next/link";
+import { forwardRef, useContext, useImperativeHandle, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { Avatar } from "primereact/avatar";
 import { Button } from "primereact/button";
-import { InputText } from "primereact/inputtext";
-import { forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
 import AppBreadcrumb from "./AppBreadCrumb";
 import { LayoutContext } from "./context/layoutcontext";
 import { useAuth } from "@/hooks/useAuth";
-import { Toast } from "primereact/toast";
-import { apiClient } from "@/lib/apiClient";
-import { getProfileImageUrl } from "@/lib/cloudinary-client";
-import { Avatar } from "primereact/avatar";
-import NotificationCenter from "@/components/NotificationCenter";
-import { useLanguage } from "@/context/LanguageContext";
 
-const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
-    const { onMenuToggle, showProfileSidebar, showConfigSidebar } =
-        useContext(LayoutContext);
-    const { locale, setLocale } = useLanguage();
+const AppTopbar = forwardRef<AppTopbarRef>((_props, ref) => {
+    const { onMenuToggle, showProfileSidebar } = useContext(LayoutContext);
+    const { user, logout } = useAuth();
+    const router = useRouter();
     const menubuttonRef = useRef(null);
-    const { user } = useAuth();
-    const [profile, setProfile] = useState<any | null>(null);
-    const toast = useRef<Toast>(null);
-
-    useEffect(() => {
-        if (user?.id) {
-            loadProfile();
-        }
-    }, [user?.id, user?.profileImage]);
-
-    // Listen for custom profile update events
-    useEffect(() => {
-        const handleProfileUpdate = () => {
-            if (user?.id) {
-                loadProfile();
-            }
-        };
-
-        window.addEventListener('profile-updated', handleProfileUpdate);
-        
-        return () => {
-            window.removeEventListener('profile-updated', handleProfileUpdate);
-        };
-    }, [user?.id]);
-
-    const getUserInitials = () => {
-        if (profile?.firstName && profile?.lastName) {
-            return `${profile.firstName[0]}${profile.lastName[0]}`;
-        }
-        return 'U';
-    };
-
-    const loadProfile = async () => {
-        if (!user?.id) return;
-        try {
-            const response = await apiClient.getUser(user.id);
-
-            if (response.error) {
-                throw new Error(response.error);
-            }
-
-            const userProfile = response.data as any;
-            if (userProfile) {
-                setProfile(userProfile);
-            }
-        }
-        catch (error) {
-            console.error('Error loading profile:', error);
-        }
-    }
-
-    const onConfigButtonClick = () => {
-        showConfigSidebar();
-    };
 
     useImperativeHandle(ref, () => ({
         menubutton: menubuttonRef.current,
     }));
+
+    const initials = `${user?.firstName?.[0] ?? "F"}${user?.lastName?.[0] ?? "S"}`;
+
+    const dashboardPath =
+        user?.role === "ADMIN" ? "/admin" : user?.role === "CARRIER" ? "/carrier" : "/agent";
+
+    const handleLogout = async () => {
+        await logout();
+        router.push("/auth/login");
+    };
 
     return (
         <div className="layout-topbar">
@@ -90,59 +42,38 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
                     <i className="pi pi-bars"></i>
                 </button>
 
-                <AppBreadcrumb className="topbar-breadcrumb"></AppBreadcrumb>
+                <AppBreadcrumb className="topbar-breadcrumb" />
             </div>
 
             <div className="topbar-end">
-                <ul className="topbar-menu">
-                    {/* Language switch */}
-                    <li className="ml-3 flex align-items-center gap-1">
-                        <button
-                            type="button"
-                            className={`p-button p-button-text p-button-rounded ${locale === 'en' ? 'p-button-primary font-semibold' : 'p-button-secondary'}`}
-                            onClick={() => setLocale('en')}
-                            aria-label="English"
-                        >
-                            EN
-                        </button>
-                        <span className="text-500">|</span>
-                        <button
-                            type="button"
-                            className={`p-button p-button-text p-button-rounded ${locale === 'es' ? 'p-button-primary font-semibold' : 'p-button-secondary'}`}
-                            onClick={() => setLocale('es')}
-                            aria-label="Español"
-                        >
-                            ES
-                        </button>
-                    </li>
-                    {/* Notification Bell */}
-                    <li className="ml-3">
-                        <NotificationCenter />
-                    </li>
-
-                    {/* Profile Button */}
-                    <li className="ml-3">
-                        <button
-                            type="button"
-                            style={{border : 'none', cursor:'pointer'}}
-                            onClick={showProfileSidebar}
-                        >
-                             <Avatar
-                                    image={profile?.profileImagePublicId ? 
-                                        getProfileImageUrl(profile.profileImagePublicId, 'large') : 
-                                        profile?.profileImage
-                                    }
-                                    label={getUserInitials()}
-                                    size="large"
-                                    shape="circle"
-                                    className="bg-primary"
-                                />
-                        </button>
-                    </li>
-                </ul>
+                <div className="flex align-items-center gap-3">
+                    <div className="hidden md:block text-right">
+                        <div className="font-semibold text-sm">
+                            {user ? `${user.firstName} ${user.lastName}` : "Freedom Shield User"}
+                        </div>
+                        <div className="text-600 text-xs">
+                            {user?.role === "ADMIN"
+                                ? "FSI Administration"
+                                : user?.role === "CARRIER"
+                                  ? "Carrier Partner"
+                                  : "Licensed Agent"}
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        style={{ border: "none", background: "transparent", cursor: "pointer" }}
+                        onClick={showProfileSidebar}
+                    >
+                        <Avatar label={initials} size="large" shape="circle" className="bg-primary" />
+                    </button>
+                    <Button
+                        label="Logout"
+                        icon="pi pi-sign-out"
+                        className="p-button-text"
+                        onClick={handleLogout}
+                    />
+                </div>
             </div>
-
-            <Toast ref={toast} />
         </div>
     );
 });

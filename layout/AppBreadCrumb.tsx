@@ -1,48 +1,28 @@
-import type { AppBreadcrumbProps, Breadcrumb } from "@/types/index";
+import type { AppBreadcrumbProps } from "@/types/index";
 import { usePathname } from "next/navigation";
-import { ObjectUtils } from "primereact/utils";
-import React, { useContext, useEffect, useState } from "react";
-import { LayoutContext } from "./context/layoutcontext";
 
-const AppBreadcrumb = (props: AppBreadcrumbProps) => {
+const formatSegment = (segment: string) =>
+    segment
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, (letter) => letter.toUpperCase());
+
+const AppBreadcrumb = ({ className }: AppBreadcrumbProps) => {
     const pathname = usePathname();
-    const [breadcrumb, setBreadcrumb] = useState<Breadcrumb | null>(null);
-    const { breadcrumbs } = useContext(LayoutContext);
-
-    useEffect(() => {
-        const filteredBreadcrumbs = breadcrumbs?.find((crumb: Breadcrumb) => {
-            return crumb.to?.replace(/\/$/, "") === pathname.replace(/\/$/, "");
-        });
-        setBreadcrumb(filteredBreadcrumbs ?? null);
-    }, [pathname, breadcrumbs]);
+    const parts = pathname.split("/").filter(Boolean);
 
     return (
-        <div className={props.className}>
+        <div className={className}>
             <nav className="layout-breadcrumb">
                 <ol>
-                    {ObjectUtils.isNotEmpty(breadcrumb) && pathname !== "/" ? (
-                        breadcrumb?.labels?.map((label, index) => {
-                            return (
-                                <React.Fragment key={index}>
-                                    {index !== 0 && (
-                                        <li className="layout-breadcrumb-chevron">
-                                            {" "}
-                                            /{" "}
-                                        </li>
-                                    )}
-                                    <li key={index}>{label}</li>
-                                </React.Fragment>
-                            );
-                        })
+                    {parts.length === 0 ? (
+                        <li>Freedom Shield Insurance</li>
                     ) : (
-                        <>
-                            {pathname === "/" && (
-                                <li key={"home"}>E-Commerce Dashboard</li>
-                            )}
-                            {pathname === "/dashboard-banking" && (
-                                <li key={"banking"}>Banking Dashboard</li>
-                            )}
-                        </>
+                        parts.map((part, index) => (
+                            <li key={`${part}-${index}`}>
+                                {index > 0 ? " / " : ""}
+                                {formatSegment(part)}
+                            </li>
+                        ))
                     )}
                 </ol>
             </nav>

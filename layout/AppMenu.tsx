@@ -2,11 +2,9 @@ import type { MenuModel } from "@/types/index";
 import AppSubMenu from "./AppSubMenu";
 import { useAuth } from "@/hooks/useAuth";
 import { canAccessSection } from "@/lib/rolePermissions";
-import { useLanguage } from "@/context/LanguageContext";
 
 const AppMenu = () => {
     const { user } = useAuth();
-    const { t } = useLanguage();
 
     if (!user) {
         return null;
@@ -14,75 +12,89 @@ const AppMenu = () => {
 
     const model: MenuModel[] = [
         {
-            label: t("menu.dashboard"),
+            label: "Workspace",
             icon: "pi pi-home",
             items: [
-                { label: t("menu.overview"), icon: "pi pi-fw pi-home", to: "/admin" },
-            ],
-        },
-        {
-            label: t("menu.employerManagement"),
-            icon: "pi pi-briefcase",
-            items: [
-                { label: t("menu.allEmployers"), icon: "pi pi-fw pi-briefcase", to: "/admin/employers" },
-                { label: t("menu.pendingApprovals"), icon: "pi pi-fw pi-clock", to: "/admin/employers/pending" },
-            ],
-        },
-        {
-            label: t("menu.candidateManagement"),
-            icon: "pi pi-users",
-            items: [
-                { label: t("menu.allCandidates"), icon: "pi pi-fw pi-users", to: "/admin/candidates" },
-            ],
-        },
-        {
-            label: t("menu.jobListings"),
-            icon: "pi pi-list",
-            items: [
-                { label: t("menu.allJobs"), icon: "pi pi-fw pi-list", to: "/admin/jobs" },
-                { label: t("menu.pendingModeration"), icon: "pi pi-fw pi-clock", to: "/admin/jobs/pending" },
-            ],
-        },
-        {
-            label: t("menu.applications"),
-            icon: "pi pi-file",
-            items: [
-                { label: t("menu.allApplications"), icon: "pi pi-fw pi-file", to: "/admin/applications" },
-            ],
-        },
-        {
-            label: t("menu.chatModeration"),
-            icon: "pi pi-comments",
-            items: [
-                { label: t("menu.allChats"), icon: "pi pi-fw pi-comments", to: "/admin/chats" },
-            ],
-        },
-        {
-            label: t("menu.support"),
-            icon: "pi pi-shield",
-            items: [
-                { label: t("menu.supportTickets"), icon: "pi pi-fw pi-question-circle", to: "/admin/support" },
-                { label: t("menu.notifications"), icon: "pi pi-fw pi-bell", to: "/admin/notifications" },
-            ],
-        },
-        {
-            label: t("menu.system"),
-            icon: "pi pi-cog",
-            items: [
-                { label: t("menu.settings"), icon: "pi pi-fw pi-cog", to: "/admin/settings" },
-                { label: t("menu.announcements"), icon: "pi pi-fw pi-megaphone", to: "/admin/announcements" },
-            ],
-        },
-        {
-            label: t("menu.profile"),
-            icon: "pi pi-user",
-            items: [
-                { label: t("menu.personalInfo"), icon: "pi pi-fw pi-user", to: "/admin/profile/user" },
-                { label: t("menu.changePassword"), icon: "pi pi-fw pi-key", to: "/admin/profile/password" },
-                { label: t("menu.accountSettings"), icon: "pi pi-fw pi-cog", to: "/admin/profile/settings" },
+                {
+                    label: "Dashboard",
+                    icon: "pi pi-fw pi-home",
+                    to:
+                        user.role === "ADMIN"
+                            ? "/admin"
+                            : user.role === "CARRIER"
+                              ? "/carrier"
+                              : "/agent",
+                },
             ],
         },
     ];
+
+    if (canAccessSection(user.role, "messages")) {
+        model.push({
+            label: "Communication",
+            icon: "pi pi-comments",
+            items: [
+                {
+                    label: "Messages",
+                    icon: "pi pi-fw pi-comments",
+                    to: user.role === "CARRIER" ? "/carrier/messages" : user.role === "ADMIN" ? "/admin/messages" : "/agent/messages",
+                },
+            ],
+        });
+    }
+
+    if (canAccessSection(user.role, "commissions")) {
+        model.push({
+            label: "Commissions",
+            icon: "pi pi-wallet",
+            items: [
+                {
+                    label: user.role === "ADMIN" ? "Commission Management" : "Commission Tracker",
+                    icon: "pi pi-fw pi-wallet",
+                    to: user.role === "ADMIN" ? "/admin/commissions" : "/agent/commissions",
+                },
+            ],
+        });
+    }
+
+    if (canAccessSection(user.role, "tickets")) {
+        model.push({
+            label: "Support",
+            icon: "pi pi-ticket",
+            items: [
+                {
+                    label: user.role === "ADMIN" ? "Ticket Queue" : "My Tickets",
+                    icon: "pi pi-fw pi-ticket",
+                    to: user.role === "CARRIER" ? "/carrier/tickets" : user.role === "ADMIN" ? "/admin/tickets" : "/agent/tickets",
+                },
+            ],
+        });
+    }
+
+    if (canAccessSection(user.role, "agents") || canAccessSection(user.role, "carriers")) {
+        model.push({
+            label: "Administration",
+            icon: "pi pi-cog",
+            items: [
+                { label: "Agents", icon: "pi pi-fw pi-users", to: "/admin/agents" },
+                { label: "Carriers", icon: "pi pi-fw pi-building", to: "/admin/carriers" },
+                { label: "Insurer Stats", icon: "pi pi-fw pi-chart-line", to: "/admin/insurer-stats" },
+                { label: "Settings", icon: "pi pi-fw pi-cog", to: "/admin/settings" },
+            ],
+        });
+    }
+
+    model.push({
+        label: "Account",
+        icon: "pi pi-user",
+        items: [
+            {
+                label: "Profile",
+                icon: "pi pi-fw pi-user",
+                to: user.role === "CARRIER" ? "/carrier/profile" : user.role === "ADMIN" ? "/admin/profile" : "/agent/profile",
+            },
+        ],
+    });
 
     return <AppSubMenu model={model} />;
 };

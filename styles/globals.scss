@@ -1084,6 +1084,27 @@ p strong {
       box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.15);
     }
   }
+  .p-dropdown {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    .p-dropdown-label {
+      color: #fff;
+    }
+    .p-dropdown-label.p-placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+    .p-dropdown-trigger {
+      color: rgba(255, 255, 255, 0.7);
+    }
+    &:not(.p-disabled):hover {
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+    &:not(.p-disabled).p-focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.15);
+    }
+  }
   .p-button {
     background: #fff;
     color: #111827;
@@ -1119,4 +1140,23 @@ p strong {
 }
 .auth-split-image-text .auth-split-image-desc {
   font-size: 1.0625rem;
+}
+
+/* Messaging thread: compact composer, inline with Send */
+.messaging-composer-row {
+  align-items: center;
+}
+
+textarea.messaging-composer-input {
+  min-height: 2.25rem;
+  max-height: 5rem;
+  resize: none;
+  line-height: 1.35;
+  padding: 0.4375rem 0.75rem;
+  overflow-y: auto;
+  vertical-align: middle;
+}
+
+.messaging-composer-send.p-button {
+  min-height: 2.25rem;
 }

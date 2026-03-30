@@ -1,165 +1,78 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
-import { sendWelcomeEmail, sendOTPEmail } from '@/lib/emailService';
-import { AuthService } from '@/lib/auth';
+import bcrypt from "bcryptjs";
+import { Prisma } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { AuthService } from "@/lib/auth";
+import { getAuthCookieOptions } from "@/lib/authCookieOptions";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { firstName, lastName, email, password, phone, role, googleToken, googleId } = body;
+    const {
+      email,
+      password,
+      firstName,
+      lastName,
+      phone,
+      role,
+      jobTitle,
+      location,
+      agencyName,
+      carrierName,
+    } = body;
 
-    // Validate input - email or phone required
-    if (!firstName || !lastName || (!email && !phone)) {
+    if (!email || !password || !firstName || !lastName || !role) {
+      return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
+    }
+
+    if (!["AGENT", "CARRIER"].includes(String(role))) {
+      return NextResponse.json({ error: "Invalid account role." }, { status: 400 });
+    }
+
+    if (String(password).length < 8) {
       return NextResponse.json(
-        { error: 'First name, last name, and email or phone are required' },
+        { error: "Password must be at least 8 characters long." },
         { status: 400 }
       );
     }
 
-    // Google OAuth registration
-    if (googleToken && googleId) {
-      // TODO: Verify Google token with Google API
-      // For now, create user with Google ID
-      const existingGoogleUser = await prisma.user.findUnique({
-        where: { googleId },
-      });
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const hashedPassword = await bcrypt.hash(String(password), 12);
 
-      if (existingGoogleUser) {
-        return NextResponse.json(
-          { error: 'User with this Google account already exists' },
-          { status: 409 }
-        );
-      }
-
-      // Check if email already exists
-      if (email) {
-        const existingEmailUser = await prisma.user.findUnique({
-          where: { email },
-        });
-
-        if (existingEmailUser) {
-          return NextResponse.json(
-            { error: 'User with this email already exists' },
-            { status: 409 }
-          );
-        }
-      }
-
-      // Create user with Google account (no password required)
-      const user = await prisma.user.create({
-        data: {
-          email: email || `google_${googleId}@temp.com`, // Temporary email if not provided
-          password: await bcrypt.hash(Math.random().toString(36), 10), // Random password
-          firstName,
-          lastName,
-          phone: phone || null,
-          googleId,
-          emailVerified: email ? true : false,
-          role: role === 'EMPLOYER' || role === 'CANDIDATE' ? role : 'CANDIDATE',
-          status: role === 'EMPLOYER' ? 'PENDING' : 'ACTIVE',
-          isPasswordChanged: false, // User needs to set password
-        },
-        select: {
-          id: true,
-          email: true,
-          firstName: true,
-          lastName: true,
-          phone: true,
-          role: true,
-          status: true,
-          createdAt: true,
-        },
-      });
-
-      // Create Candidate or Employer profile for app access
-      if (user.role === 'CANDIDATE') {
-        await prisma.candidate.create({
-          data: { userId: user.id },
-        });
-      } else if (user.role === 'EMPLOYER') {
-        await prisma.employer.create({
-          data: {
-            userId: user.id,
-            companyName: `${user.firstName}'s Company`,
-          },
-        });
-      }
-
-      return NextResponse.json({
-        success: true,
-        message: 'Registration successful with Google account.',
-        user,
-      }, { status: 201 });
-    }
-
-    // Regular registration with email or phone
-    if (!password) {
-      return NextResponse.json(
-        { error: 'Password is required for email/phone registration' },
-        { status: 400 }
-      );
-    }
-
-    // Check if user already exists by email
-    if (email) {
-      const existingUser = await prisma.user.findUnique({
-        where: { email },
-      });
-
-      if (existingUser) {
-        return NextResponse.json(
-          { error: 'User with this email already exists' },
-          { status: 409 }
-        );
-      }
-    }
-
-    // Check if user already exists by phone
-    if (phone) {
-      const existingPhoneUser = await prisma.user.findUnique({
-        where: { phone },
-      });
-
-      if (existingPhoneUser) {
-        return NextResponse.json(
-          { error: 'User with this phone already exists' },
-          { status: 409 }
-        );
-      }
-    }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Validate role (must be EMPLOYER or CANDIDATE)
-    const validRole = role === 'EMPLOYER' || role === 'CANDIDATE' ? role : 'CANDIDATE';
-    
-    // Generate OTP for email verification if email provided
-    let emailOtp: string | null = null;
-    let emailOtpExpiry: Date | null = null;
-    
-    if (email && !email.includes('@temp.com')) {
-      emailOtp = Math.floor(100000 + Math.random() * 900000).toString();
-      emailOtpExpiry = new Date();
-      emailOtpExpiry.setMinutes(emailOtpExpiry.getMinutes() + 10);
-    }
-
-    // Create user (email/phone verification will be done via OTP)
     const user = await prisma.user.create({
       data: {
-        email: email || `phone_${phone}@temp.com`, // Temporary email if only phone provided
+        email: normalizedEmail,
         password: hashedPassword,
-        firstName,
-        lastName,
-        phone: phone || null,
-        role: validRole,
-        status: validRole === 'EMPLOYER' ? 'PENDING' : 'ACTIVE',
-        emailVerified: false,
-        phoneVerified: false,
-        emailOtp: emailOtp,
-        emailOtpExpiry: emailOtpExpiry,
-        isPasswordChanged: true,
+        firstName: String(firstName).trim(),
+        lastName: String(lastName).trim(),
+        phone: phone ? String(phone).trim() : null,
+        role,
+        status: "ACTIVE",
+        jobTitle: jobTitle ? String(jobTitle).trim() : null,
+        location: location ? String(location).trim() : null,
+        emailVerified: true,
+        ...(role === "AGENT"
+          ? {
+              agentProfile: {
+                create: {
+                  agentCode: `AGT-${Date.now()}`,
+                  agencyName: agencyName ? String(agencyName).trim() : "Freedom Shield Insurance",
+                },
+              },
+            }
+          : {
+              carrierProfile: {
+                create: {
+                  carrierCode: `CAR-${Date.now()}`,
+                  carrierName: carrierName
+                    ? String(carrierName).trim()
+                    : `${String(firstName).trim()} ${String(lastName).trim()}`,
+                  contactEmail: normalizedEmail,
+                  contactPhone: phone ? String(phone).trim() : null,
+                  status: "ACTIVE",
+                },
+              },
+            }),
       },
       select: {
         id: true,
@@ -169,86 +82,55 @@ export async function POST(request: NextRequest) {
         phone: true,
         role: true,
         status: true,
+        jobTitle: true,
+        location: true,
+        profileImage: true,
+        profileImagePublicId: true,
         createdAt: true,
+        updatedAt: true,
       },
     });
 
-    // Send welcome email and OTP if email is provided
-    if (email && !email.includes('@temp.com') && emailOtp) {
-      try {
-        // Send welcome email
-        await sendWelcomeEmail(email, firstName, validRole);
-        
-        // Send OTP email
-        await sendOTPEmail(email, emailOtp, firstName);
-      } catch (emailError) {
-        console.error('Failed to send welcome/OTP email:', emailError);
-        // Log OTP to console for testing
-        //console.log('========================================');
-        //console.log('📧 EMAIL VERIFICATION (Console Log)');
-        //console.log('========================================');
-        //console.log(`Email: ${email}`);
-        //console.log(`Name: ${firstName} ${lastName}`);
-        //console.log(`OTP Code: ${emailOtp}`);
-        //console.log(`OTP Expires: ${emailOtpExpiry?.toLocaleString()}`);
-        //console.log(`Verification Link: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/verification?email=${encodeURIComponent(email)}&otp=${emailOtp}`);
-        //console.log('========================================');
-        // Don't fail registration if email fails
-      }
-    }
-
-    // Create Candidate or Employer profile so app profile/apply/CV work
-    if (validRole === 'CANDIDATE') {
-      await prisma.candidate.create({
-        data: { userId: user.id },
-      });
-    } else if (validRole === 'EMPLOYER') {
-      await prisma.employer.create({
-        data: {
-          userId: user.id,
-          companyName: `${firstName}'s Company`,
-        },
-      });
-    }
-
-    // Generate tokens so mobile app can auto-login after register
     const payload = {
       userId: user.id,
       email: user.email,
       role: user.role,
       firstName: user.firstName,
       lastName: user.lastName,
-      status: user.status,
     };
+
     const [accessToken, refreshToken] = await Promise.all([
       AuthService.generateAccessToken(payload),
       AuthService.generateRefreshToken(payload),
     ]);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
-      message: email 
-        ? 'Registration successful. Please check your email for verification code.'
-        : 'Registration successful. Please verify your phone with OTP.',
       user,
-      requiresVerification: true,
-      accessToken,
-      refreshToken,
-    }, { status: 201 });
+    });
+    const cookieOptions = getAuthCookieOptions(request);
+    response.cookies.set("access_token", accessToken, {
+      ...cookieOptions,
+      maxAge: 7 * 24 * 60 * 60,
+    });
+    response.cookies.set("refresh_token", refreshToken, {
+      ...cookieOptions,
+      maxAge: 30 * 24 * 60 * 60,
+    });
 
+    return response;
   } catch (error) {
-    console.error('Registration error:', error);
-    
-    if (error instanceof Error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
       return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
+        { error: "An account with that email or phone already exists." },
+        { status: 409 }
       );
     }
 
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error("Register error:", error);
+    return NextResponse.json({ error: "Unable to create account." }, { status: 500 });
   }
 }

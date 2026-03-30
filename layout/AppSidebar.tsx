@@ -5,7 +5,6 @@ import { LayoutContext } from "./context/layoutcontext";
 import { MenuProvider } from "./context/menucontext";
 import { LayoutState } from "../types/layout";
 import { useAuth } from "@/hooks/useAuth";
-import Image from "next/image";
 
 const AppSidebar = () => {
     const { setLayoutState } = useContext(LayoutContext);
@@ -18,14 +17,29 @@ const AppSidebar = () => {
         }));
     };
 
-    const dashboardPath = "/admin";
-    const title = "Admin";
+    const dashboardPath =
+        user?.role === "ADMIN" ? "/admin" : user?.role === "CARRIER" ? "/carrier" : "/agent";
+    const title =
+        user?.role === "ADMIN"
+            ? "FSI Admin"
+            : user?.role === "CARRIER"
+              ? "Carrier Portal"
+              : "Agent Portal";
 
     return (
         <>
             <div className="sidebar-header">
-                <Link style={{display:'flex', alignItems: 'center', color: '#ffffff' }} href={dashboardPath} className="app-logo flex items-center justify-content-center gap-3">
-                    <img src="/images/logo.png" alt="JobPortal Logo"  style={{height:'100px', filter: 'brightness(0) invert(1)'}}/>
+                <Link
+                    style={{ display: "flex", alignItems: "center", color: "#ffffff" }}
+                    href={dashboardPath}
+                    className="app-logo flex items-center justify-content-center gap-3"
+                >
+                    <img
+                        src="/images/logo.png"
+                        alt="Freedom Shield Insurance"
+                        style={{ height: "72px", filter: "brightness(0) invert(1)" }}
+                    />
+               
                 </Link>
                 <button
                     className="layout-sidebar-anchor p-link z-2 mb-2"
