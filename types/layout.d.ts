@@ -161,6 +161,7 @@ export interface MenuProps {
 export interface MenuModel {
     label: string;
     icon?: string;
+    badge?: "updated" | "new" | string | number;
     items?: MenuModel[];
     to?: string;
     url?: string;
@@ -177,7 +178,7 @@ export interface UseSubmenuOverlayPositionProps {
 
 export interface AppMenuItem extends MenuModel {
     items?: AppMenuItem[];
-    badge?: "updated" | "new";
+    badge?: "updated" | "new" | string | number;
     badgeClass?: string;
     class?: string;
     preventExact?: boolean;

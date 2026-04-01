@@ -64,7 +64,7 @@ function LoginContent() {
                 {error && <p className="text-red-300 mt-0 mb-3">{error}</p>}
                 <Button label="Sign in" className="w-full mb-3" loading={submitting} onClick={handleSubmit} />
                 <div className="grid mt-2">
-                    <div className="col-12 md:col-6">
+                    <div className="col-12">
                         <Button
                             label="Forgot password?"
                             outlined
@@ -72,14 +72,14 @@ function LoginContent() {
                             onClick={() => router.push("/auth/forgotpassword")}
                         />
                     </div>
-                    <div className="col-12 md:col-6">
+                    {/* <div className="col-12 md:col-6">
                         <Button
                             label="Create account"
                             text
                             className="w-full auth-btn-outlined"
                             onClick={() => router.push("/auth/register")}
                         />
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </AuthSplitLayout>

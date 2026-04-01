@@ -152,7 +152,6 @@ const AppMenuitemInner = (props: AppMenuItemProps) => {
             className={classNames(
                 "layout-menu-badge p-tag p-tag-rounded ml-2 uppercase",
                 {
-                    [`${item?.badge}`]: true,
                     "p-tag-success": item?.badge === "new",
                     "p-tag-info": item?.badge === "updated",
                 }
