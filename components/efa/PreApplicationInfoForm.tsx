@@ -3,7 +3,6 @@
 import { Calendar } from "primereact/calendar";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
-import { RadioButton } from "primereact/radiobutton";
 import { classNames } from "primereact/utils";
 import { useState } from "react";
 
@@ -108,25 +107,13 @@ export default function PreApplicationInfoForm() {
                         <div className="flex align-items-center gap-3 flex-wrap">
                             <span className="text-sm">(Y) / (N)</span>
                             <div className="flex align-items-center gap-2">
-                                <RadioButton
-                                    inputId="owner-same-y"
-                                    name="ownerSame"
-                                    value="Y"
-                                    onChange={(e) => setOwnerSame(e.value)}
-                                    checked={ownerSame === "Y"}
-                                />
+                                <input id="owner-same-y" name="ownerSame" type="radio" value="Y" checked={ownerSame === "Y"} onChange={(e) => setOwnerSame(e.target.value)} />
                                 <label htmlFor="owner-same-y" className="text-sm">
                                     Y
                                 </label>
                             </div>
                             <div className="flex align-items-center gap-2">
-                                <RadioButton
-                                    inputId="owner-same-n"
-                                    name="ownerSame"
-                                    value="N"
-                                    onChange={(e) => setOwnerSame(e.value)}
-                                    checked={ownerSame === "N"}
-                                />
+                                <input id="owner-same-n" name="ownerSame" type="radio" value="N" checked={ownerSame === "N"} onChange={(e) => setOwnerSame(e.target.value)} />
                                 <label htmlFor="owner-same-n" className="text-sm">
                                     N
                                 </label>
@@ -154,25 +141,13 @@ export default function PreApplicationInfoForm() {
                     <Labeled label="U.S. Citizen" className="col-12 md:col-6">
                         <div className="flex align-items-center gap-3 flex-wrap">
                             <div className="flex align-items-center gap-2">
-                                <RadioButton
-                                    inputId="usc-y"
-                                    name="usc"
-                                    value="Y"
-                                    onChange={(e) => setUsCitizen(e.value)}
-                                    checked={usCitizen === "Y"}
-                                />
+                                <input id="usc-y" name="usc" type="radio" value="Y" checked={usCitizen === "Y"} onChange={(e) => setUsCitizen(e.target.value)} />
                                 <label htmlFor="usc-y" className="text-sm">
                                     Y
                                 </label>
                             </div>
                             <div className="flex align-items-center gap-2">
-                                <RadioButton
-                                    inputId="usc-n"
-                                    name="usc"
-                                    value="N"
-                                    onChange={(e) => setUsCitizen(e.value)}
-                                    checked={usCitizen === "N"}
-                                />
+                                <input id="usc-n" name="usc" type="radio" value="N" checked={usCitizen === "N"} onChange={(e) => setUsCitizen(e.target.value)} />
                                 <label htmlFor="usc-n" className="text-sm">
                                     N
                                 </label>
@@ -188,25 +163,13 @@ export default function PreApplicationInfoForm() {
                     <Labeled label="Smoker status" className="col-12 md:col-6">
                         <div className="flex align-items-center gap-3">
                             <div className="flex align-items-center gap-2">
-                                <RadioButton
-                                    inputId="sm-s"
-                                    name="smoker"
-                                    value="smoker"
-                                    onChange={(e) => setSmoker(e.value)}
-                                    checked={smoker === "smoker"}
-                                />
+                                <input id="sm-s" name="smoker" type="radio" value="smoker" checked={smoker === "smoker"} onChange={(e) => setSmoker(e.target.value)} />
                                 <label htmlFor="sm-s" className="text-sm">
                                     Smoker
                                 </label>
                             </div>
                             <div className="flex align-items-center gap-2">
-                                <RadioButton
-                                    inputId="sm-ns"
-                                    name="smoker"
-                                    value="non"
-                                    onChange={(e) => setSmoker(e.value)}
-                                    checked={smoker === "non"}
-                                />
+                                <input id="sm-ns" name="smoker" type="radio" value="non" checked={smoker === "non"} onChange={(e) => setSmoker(e.target.value)} />
                                 <label htmlFor="sm-ns" className="text-sm">
                                     Non-Smoker
                                 </label>
@@ -288,23 +251,11 @@ export default function PreApplicationInfoForm() {
                     </Labeled>
                     <Labeled label="U.S. Citizen (Y) / (N)" className="col-12 md:col-6">
                         <div className="flex align-items-center gap-2">
-                            <RadioButton
-                                inputId="po-usc-y"
-                                name="poUsc"
-                                value="Y"
-                                onChange={(e) => setOwnerUsCitizen(e.value)}
-                                checked={ownerUsCitizen === "Y"}
-                            />
+                            <input id="po-usc-y" name="poUsc" type="radio" value="Y" checked={ownerUsCitizen === "Y"} onChange={(e) => setOwnerUsCitizen(e.target.value)} />
                             <label htmlFor="po-usc-y" className="text-sm mr-3">
                                 Y
                             </label>
-                            <RadioButton
-                                inputId="po-usc-n"
-                                name="poUsc"
-                                value="N"
-                                onChange={(e) => setOwnerUsCitizen(e.value)}
-                                checked={ownerUsCitizen === "N"}
-                            />
+                            <input id="po-usc-n" name="poUsc" type="radio" value="N" checked={ownerUsCitizen === "N"} onChange={(e) => setOwnerUsCitizen(e.target.value)} />
                             <label htmlFor="po-usc-n" className="text-sm">
                                 N
                             </label>
@@ -353,23 +304,11 @@ export default function PreApplicationInfoForm() {
                     <Labeled label="Replacement" className="col-12 md:col-6">
                         <div className="flex align-items-center gap-2">
                             <span className="text-sm mr-2">yes or no</span>
-                            <RadioButton
-                                inputId="rep-y"
-                                name="rep"
-                                value="yes"
-                                onChange={(e) => setReplacement(e.value)}
-                                checked={replacement === "yes"}
-                            />
+                            <input id="rep-y" name="rep" type="radio" value="yes" checked={replacement === "yes"} onChange={(e) => setReplacement(e.target.value)} />
                             <label htmlFor="rep-y" className="text-sm mr-2">
                                 Yes
                             </label>
-                            <RadioButton
-                                inputId="rep-n"
-                                name="rep"
-                                value="no"
-                                onChange={(e) => setReplacement(e.value)}
-                                checked={replacement === "no"}
-                            />
+                            <input id="rep-n" name="rep" type="radio" value="no" checked={replacement === "no"} onChange={(e) => setReplacement(e.target.value)} />
                             <label htmlFor="rep-n" className="text-sm">
                                 No
                             </label>
@@ -378,23 +317,11 @@ export default function PreApplicationInfoForm() {
                     <Labeled label="1035 Exchange — yes or no; if yes, list amount below" className="col-12">
                         <div className="flex flex-column gap-2">
                             <div className="flex align-items-center gap-2 flex-wrap">
-                                <RadioButton
-                                    inputId="ex1035-y"
-                                    name="ex1035"
-                                    value="yes"
-                                    onChange={(e) => setExchange1035(e.value)}
-                                    checked={exchange1035 === "yes"}
-                                />
+                                <input id="ex1035-y" name="ex1035" type="radio" value="yes" checked={exchange1035 === "yes"} onChange={(e) => setExchange1035(e.target.value)} />
                                 <label htmlFor="ex1035-y" className="text-sm">
                                     Yes
                                 </label>
-                                <RadioButton
-                                    inputId="ex1035-n"
-                                    name="ex1035"
-                                    value="no"
-                                    onChange={(e) => setExchange1035(e.value)}
-                                    checked={exchange1035 === "no"}
-                                />
+                                <input id="ex1035-n" name="ex1035" type="radio" value="no" checked={exchange1035 === "no"} onChange={(e) => setExchange1035(e.target.value)} />
                                 <label htmlFor="ex1035-n" className="text-sm">
                                     No
                                 </label>
@@ -492,23 +419,11 @@ export default function PreApplicationInfoForm() {
                     Any felonies, misdemeanors, DUI&apos;s, or license suspensions ever: Circle: (Y) OR (N)
                 </p>
                 <div className="flex align-items-center gap-3 mb-3">
-                    <RadioButton
-                        inputId="crim-y"
-                        name="crim"
-                        value="Y"
-                        onChange={(e) => setCriminal(e.value)}
-                        checked={criminal === "Y"}
-                    />
+                    <input id="crim-y" name="crim" type="radio" value="Y" checked={criminal === "Y"} onChange={(e) => setCriminal(e.target.value)} />
                     <label htmlFor="crim-y" className="text-sm">
                         Y
                     </label>
-                    <RadioButton
-                        inputId="crim-n"
-                        name="crim"
-                        value="N"
-                        onChange={(e) => setCriminal(e.value)}
-                        checked={criminal === "N"}
-                    />
+                    <input id="crim-n" name="crim" type="radio" value="N" checked={criminal === "N"} onChange={(e) => setCriminal(e.target.value)} />
                     <label htmlFor="crim-n" className="text-sm">
                         N
                     </label>

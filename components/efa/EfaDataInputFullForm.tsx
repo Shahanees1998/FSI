@@ -4,7 +4,6 @@ import { Button } from "primereact/button";
 import { Calendar } from "primereact/calendar";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
-import { RadioButton } from "primereact/radiobutton";
 import { classNames } from "primereact/utils";
 import { useCallback, useId, useMemo, useState } from "react";
 
@@ -133,22 +132,24 @@ function PersonMiniForm({ formId, title, showRemove, onRemove }: PersonMiniFormP
                         </label>
                         <div className="col flex align-items-center gap-4">
                             <div className="flex align-items-center gap-2">
-                                <RadioButton
-                                    inputId={`${formId}-male`}
+                                <input
+                                    id={`${formId}-male`}
                                     name={`sex-${formId}`}
+                                    type="radio"
                                     value="male"
-                                    onChange={(e) => setSex(e.value)}
                                     checked={sex === "male"}
+                                    onChange={(e) => setSex(e.target.value)}
                                 />
                                 <label htmlFor={`${formId}-male`}>Male</label>
                             </div>
                             <div className="flex align-items-center gap-2">
-                                <RadioButton
-                                    inputId={`${formId}-female`}
+                                <input
+                                    id={`${formId}-female`}
                                     name={`sex-${formId}`}
+                                    type="radio"
                                     value="female"
-                                    onChange={(e) => setSex(e.value)}
                                     checked={sex === "female"}
+                                    onChange={(e) => setSex(e.target.value)}
                                 />
                                 <label htmlFor={`${formId}-female`}>Female</label>
                             </div>
@@ -252,7 +253,7 @@ export default function EfaDataInputFullForm() {
                     </div>
                     <div className="col-12 md:col-9">
                         <div className="grid">
-                            <div className="col-12 md:col-6">
+                            <div className="col-12 lg:col-6">
                                 <div className="field mb-3">
                                     <label className="block mb-1">
                                         First Name <span className="text-red-500">*</span>
@@ -261,12 +262,40 @@ export default function EfaDataInputFullForm() {
                                         <InputText className="w-full" placeholder="Please enter first name" />
                                     </IconInput>
                                 </div>
+                            </div>
+                            <div className="col-12 lg:col-6">
+                                <div className="field mb-3">
+                                    <label className="block mb-1">City</label>
+                                    <IconInput icon="pi-building">
+                                        <InputText className="w-full" placeholder="Please enter city" />
+                                    </IconInput>
+                                </div>
+                            </div>
+
+                            <div className="col-12 lg:col-6">
                                 <div className="field mb-3">
                                     <label className="block mb-1">Middle Name</label>
                                     <IconInput icon="pi-user">
                                         <InputText className="w-full" placeholder="Please enter middle name" />
                                     </IconInput>
                                 </div>
+                            </div>
+                            <div className="col-12 lg:col-6">
+                                <div className="field mb-3">
+                                    <label className="block mb-1">State</label>
+                                    <Dropdown
+                                        value={state}
+                                        options={US_STATES}
+                                        onChange={(e) => setState(e.value)}
+                                        className="w-full"
+                                        optionLabel="label"
+                                        optionValue="value"
+                                        placeholder="Select State"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="col-12 lg:col-6">
                                 <div className="field mb-3">
                                     <label className="block mb-1">
                                         Last Name <span className="text-red-500">*</span>
@@ -275,6 +304,17 @@ export default function EfaDataInputFullForm() {
                                         <InputText className="w-full" placeholder="Please enter last name" />
                                     </IconInput>
                                 </div>
+                            </div>
+                            <div className="col-12 lg:col-6">
+                                <div className="field mb-3">
+                                    <label className="block mb-1">Email</label>
+                                    <IconInput icon="pi-envelope">
+                                        <InputText className="w-full" type="email" placeholder="Please enter email" />
+                                    </IconInput>
+                                </div>
+                            </div>
+
+                            <div className="col-12 lg:col-6">
                                 <div className="field mb-3">
                                     <label className="block mb-1">
                                         Preferred First Name <span className="text-red-500">*</span>
@@ -283,33 +323,70 @@ export default function EfaDataInputFullForm() {
                                         <InputText className="w-full" placeholder="Please enter first name" />
                                     </IconInput>
                                 </div>
+                            </div>
+                            <div className="col-12 lg:col-6">
+                                <div className="field mb-3">
+                                    <label className="block mb-1">
+                                        Phone <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="flex align-items-stretch gap-2">
+                                        <Dropdown
+                                            value={phoneType}
+                                            options={PHONE_TYPES}
+                                            onChange={(e) => setPhoneType(e.value)}
+                                            className="w-8rem"
+                                            optionLabel="label"
+                                            optionValue="value"
+                                        />
+                                        <IconInput icon="pi-phone" className="flex-grow-1">
+                                            <InputText className="w-full" placeholder="Please enter phone" />
+                                        </IconInput>
+                                        <Button icon="pi pi-plus" className="p-button-success" type="button" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="col-12 lg:col-6">
                                 <div className="field mb-3">
                                     <label className="block mb-1">
                                         Sex <span className="text-red-500">*</span>
                                     </label>
                                     <div className="flex align-items-center gap-4">
                                         <div className="flex align-items-center gap-2">
-                                            <RadioButton
-                                                inputId={`${baseId}-client-male`}
+                                            <input
+                                                id={`${baseId}-client-male`}
                                                 name="client-sex"
+                                                type="radio"
                                                 value="male"
-                                                onChange={(e) => setClientSex(e.value)}
                                                 checked={clientSex === "male"}
+                                                onChange={(e) => setClientSex(e.target.value)}
                                             />
                                             <label htmlFor={`${baseId}-client-male`}>Male</label>
                                         </div>
                                         <div className="flex align-items-center gap-2">
-                                            <RadioButton
-                                                inputId={`${baseId}-client-female`}
+                                            <input
+                                                id={`${baseId}-client-female`}
                                                 name="client-sex"
+                                                type="radio"
                                                 value="female"
-                                                onChange={(e) => setClientSex(e.value)}
                                                 checked={clientSex === "female"}
+                                                onChange={(e) => setClientSex(e.target.value)}
                                             />
                                             <label htmlFor={`${baseId}-client-female`}>Female</label>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                            <div className="col-12 lg:col-6">
+                                <div className="field mb-3">
+                                    <label className="block mb-1">Address</label>
+                                    <IconInput icon="pi-home">
+                                        <InputText className="w-full" placeholder="Please enter address" />
+                                    </IconInput>
+                                </div>
+                            </div>
+
+                            <div className="col-12 lg:col-6">
                                 <div className="field mb-3">
                                     <label className="block mb-1">
                                         Birth Date <span className="text-red-500">*</span>
@@ -334,37 +411,8 @@ export default function EfaDataInputFullForm() {
                                         </span>
                                     </div>
                                 </div>
-                                <div className="field mb-3">
-                                    <label className="block mb-1">Email</label>
-                                    <IconInput icon="pi-envelope">
-                                        <InputText className="w-full" type="email" placeholder="Please enter email" />
-                                    </IconInput>
-                                </div>
-                                <div className="field mb-3">
-                                    <label className="block mb-1">
-                                        Phone <span className="text-red-500">*</span>
-                                    </label>
-                                    <div className="flex align-items-stretch gap-2">
-                                        <Dropdown
-                                            value={phoneType}
-                                            options={PHONE_TYPES}
-                                            onChange={(e) => setPhoneType(e.value)}
-                                            className="w-8rem"
-                                            optionLabel="label"
-                                            optionValue="value"
-                                        />
-                                        <IconInput icon="pi-phone" className="flex-grow-1">
-                                            <InputText className="w-full" placeholder="Please enter phone" />
-                                        </IconInput>
-                                        <Button icon="pi pi-plus" className="p-button-success" type="button" />
-                                    </div>
-                                </div>
-                                <div className="field mb-3">
-                                    <label className="block mb-1">Address</label>
-                                    <IconInput icon="pi-home">
-                                        <InputText className="w-full" placeholder="Please enter address" />
-                                    </IconInput>
-                                </div>
+                            </div>
+                            <div className="col-12 lg:col-6">
                                 <div className="field mb-3">
                                     <label className="block mb-1">Country</label>
                                     <Dropdown
@@ -376,31 +424,14 @@ export default function EfaDataInputFullForm() {
                                         optionValue="value"
                                     />
                                 </div>
+                            </div>
+
+                            <div className="col-12 lg:col-6">
                                 <div className="field mb-3">
                                     <label className="block mb-1">Zip Code</label>
                                     <IconInput icon="pi-globe">
                                         <InputText className="w-full" placeholder="Please enter postal code / zip code" />
                                     </IconInput>
-                                </div>
-                            </div>
-                            <div className="col-12 md:col-6">
-                                <div className="field mb-3">
-                                    <label className="block mb-1">City</label>
-                                    <IconInput icon="pi-building">
-                                        <InputText className="w-full" placeholder="Please enter city" />
-                                    </IconInput>
-                                </div>
-                                <div className="field mb-3">
-                                    <label className="block mb-1">State</label>
-                                    <Dropdown
-                                        value={state}
-                                        options={US_STATES}
-                                        onChange={(e) => setState(e.value)}
-                                        className="w-full"
-                                        optionLabel="label"
-                                        optionValue="value"
-                                        placeholder="Select State"
-                                    />
                                 </div>
                             </div>
                         </div>

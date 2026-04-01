@@ -234,7 +234,7 @@ export default function TeamPromotionView() {
                     field="recruitmentDate"
                     header="Recruitment date"
                     filter
-                    filterPlaceholder=""
+                    filterPlaceholder="Filter"
                     showFilterMenu={false}
                     style={{ minWidth: "9rem" }}
                 />
@@ -242,7 +242,7 @@ export default function TeamPromotionView() {
                     field="requirementsAchieved"
                     header="Requirements achieved"
                     filter
-                    filterPlaceholder=""
+                    filterPlaceholder="Filter"
                     showFilterMenu={false}
                     style={{ minWidth: "11rem" }}
                 />
@@ -288,16 +288,33 @@ export default function TeamPromotionView() {
 
             <style jsx global>{`
                 .team-promotion-datatable .p-datatable-thead > tr > th {
+                    background: #efe4d2;
                     font-size: 0.75rem;
                     font-weight: 600;
                     vertical-align: top;
+                    color: #334155;
+                    border-color: #e2d5c3;
                 }
                 .team-promotion-datatable .p-datatable-filter-row > td {
-                    background: var(--surface-0);
+                    background: #efe4d2;
                     vertical-align: middle;
+                    border-color: #e2d5c3;
                 }
                 .team-promotion-datatable.p-datatable .p-datatable-tbody > tr > td {
                     padding: 0.65rem 0.5rem;
+                }
+                .team-promotion-datatable .p-datatable-tbody > tr:first-child > td {
+                    border-top: 0;
+                }
+                .team-promotion-datatable .p-paginator {
+                    border: 1px solid var(--surface-border);
+                    border-top: 0;
+                    border-radius: 0 0 10px 10px;
+                }
+                .team-promotion-datatable.p-datatable {
+                    border: 1px solid var(--surface-border);
+                    border-radius: 10px;
+                    overflow: hidden;
                 }
             `}</style>
         </>
@@ -332,6 +349,12 @@ export default function TeamPromotionView() {
                     border: none;
                     background: transparent;
                     gap: 0.25rem;
+                    list-style: none !important;
+                    margin: 0;
+                    padding: 0;
+                }
+                .team-promotion-tabs .p-tabview-nav > li::marker {
+                    content: none;
                 }
                 .team-promotion-tabs .p-tabview-nav-link {
                     border: none !important;
@@ -339,6 +362,9 @@ export default function TeamPromotionView() {
                     border-radius: 0 !important;
                     background: transparent !important;
                     padding: 0.75rem 1rem !important;
+                }
+                .team-promotion-tabs .p-tabview-nav li {
+                    list-style: none !important;
                 }
                 .team-promotion-tabs .p-highlight .p-tabview-nav-link {
                     border-bottom-color: ${ACCENT} !important;

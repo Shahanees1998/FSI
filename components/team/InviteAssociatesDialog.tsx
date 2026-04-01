@@ -6,7 +6,6 @@ import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
-import { RadioButton } from "primereact/radiobutton";
 import { useState } from "react";
 
 const RECRUITER_OPTIONS = [
@@ -56,24 +55,28 @@ export default function InviteAssociatesDialog({ visible, onHide }: Props) {
                     <span className="block text-sm font-bold text-800 mb-2">Language</span>
                     <div className="flex align-items-center gap-4 flex-wrap">
                         <div className="flex align-items-center gap-2">
-                            <RadioButton
-                                inputId="invite-lang-en"
+                            <input
+                                id="invite-lang-en"
                                 name="aoaLang"
+                                type="radio"
                                 value="english"
-                                onChange={(e) => setAoaLanguage(e.value)}
                                 checked={aoaLanguage === "english"}
+                                onChange={(e) => setAoaLanguage(e.target.value as "english" | "spanish")}
+                                className="m-0"
                             />
                             <label htmlFor="invite-lang-en" className="text-sm cursor-pointer">
                                 English AOA
                             </label>
                         </div>
                         <div className="flex align-items-center gap-2">
-                            <RadioButton
-                                inputId="invite-lang-es"
+                            <input
+                                id="invite-lang-es"
                                 name="aoaLang"
+                                type="radio"
                                 value="spanish"
-                                onChange={(e) => setAoaLanguage(e.value)}
                                 checked={aoaLanguage === "spanish"}
+                                onChange={(e) => setAoaLanguage(e.target.value as "english" | "spanish")}
+                                className="m-0"
                             />
                             <label htmlFor="invite-lang-es" className="text-sm cursor-pointer">
                                 Spanish AOA
@@ -85,21 +88,21 @@ export default function InviteAssociatesDialog({ visible, onHide }: Props) {
                 <div className="grid">
                     <div className="col-12 md:col-4">
                         <label className="block text-sm font-bold text-800 mb-1">First Name</label>
-                        <InputText className="w-full surface-100 border-none" />
+                        <InputText className="w-full surface-100 border-none" placeholder="Enter first name" />
                     </div>
                     <div className="col-12 md:col-4">
                         <label className="block text-sm font-bold text-800 mb-1">Middle Name</label>
-                        <InputText className="w-full surface-100 border-none" />
+                        <InputText className="w-full surface-100 border-none" placeholder="Enter middle name" />
                     </div>
                     <div className="col-12 md:col-4">
                         <label className="block text-sm font-bold text-800 mb-1">Last Name</label>
-                        <InputText className="w-full surface-100 border-none" />
+                        <InputText className="w-full surface-100 border-none" placeholder="Enter last name" />
                     </div>
                 </div>
 
                 <div>
                     <label className="block text-sm font-bold text-800 mb-1">Email</label>
-                    <InputText className="w-full surface-100 border-none" type="email" />
+                    <InputText className="w-full surface-100 border-none" type="email" placeholder="Enter email address" />
                 </div>
 
                 <div className="flex align-items-center gap-2">

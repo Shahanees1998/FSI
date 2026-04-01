@@ -103,7 +103,7 @@ export default function TeamReassignedClientsView() {
                             value={opts.value ?? ""}
                             onChange={(e) => opts.filterCallback(e.target.value)}
                             className="w-full p-inputtext-sm"
-                            placeholder=""
+                            placeholder="Filter"
                         />
                     )}
                 />

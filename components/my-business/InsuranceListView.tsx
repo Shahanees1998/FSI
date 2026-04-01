@@ -1,0 +1,186 @@
+"use client";
+
+import { FilterMatchMode } from "primereact/api";
+import { Button } from "primereact/button";
+import { Column } from "primereact/column";
+import { DataTable, DataTableFilterMeta } from "primereact/datatable";
+import { Dropdown } from "primereact/dropdown";
+import { InputText } from "primereact/inputtext";
+import { useState } from "react";
+
+type InsuranceRow = {
+    id: number;
+    clientName: string;
+    policyNo: string;
+    associate: string;
+    shareAssociate: string;
+    created: string;
+    paidDate: string;
+    company: string;
+    enteredPremium: string;
+    calculatedPremium: string;
+    paidOver12Months: string;
+    hasSubDeal: string;
+};
+
+const LIST_TABS = ["INSURANCE", "ANNUITIES", "TRAIL", "RENEWALS", "GROUP", "HEALTH & DENTAL", "UNLICENSED", "ADDITIONAL COMMISSIONS"];
+const ANY_OPTIONS = [{ label: "Any", value: null }];
+
+const ROWS: InsuranceRow[] = [
+    {
+        id: 1,
+        clientName: "Sidney Moreira",
+        policyNo: "PENDING-NBT-91564",
+        associate: "Jo Cleine Spinola",
+        shareAssociate: "Jo Cleine Spinola JC investment Group LLC",
+        created: "Mar 30, 2026",
+        paidDate: "-",
+        company: "National Life Group",
+        enteredPremium: "$1,200.00",
+        calculatedPremium: "$0.00",
+        paidOver12Months: "-",
+        hasSubDeal: "No",
+    },
+    {
+        id: 2,
+        clientName: "Nadine Damourli-Kishawi",
+        policyNo: "PENDING-NBT-88019",
+        associate: "Jo Cleine Spinola",
+        shareAssociate: "Jo Cleine Spinola JC investment Group LLC",
+        created: "Mar 13, 2026",
+        paidDate: "-",
+        company: "National Life Group",
+        enteredPremium: "$6,600.00",
+        calculatedPremium: "$0.00",
+        paidOver12Months: "-",
+        hasSubDeal: "No",
+    },
+    {
+        id: 3,
+        clientName: "Johsue Castillo",
+        policyNo: "L2262970",
+        associate: "Jo Cleine Spinola",
+        shareAssociate: "Jo Cleine Spinola JC investment Group LLC",
+        created: "Mar 13, 2026",
+        paidDate: "Mar 26, 2026",
+        company: "National Life Group",
+        enteredPremium: "$7,200.00",
+        calculatedPremium: "$7,200.00",
+        paidOver12Months: "-",
+        hasSubDeal: "No",
+    },
+];
+
+function emptyFilters(): DataTableFilterMeta {
+    return {
+        clientName: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        policyNo: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        associate: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        shareAssociate: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        created: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        paidDate: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        company: { value: null, matchMode: FilterMatchMode.EQUALS },
+        enteredPremium: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        calculatedPremium: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        paidOver12Months: { value: null, matchMode: FilterMatchMode.EQUALS },
+        hasSubDeal: { value: null, matchMode: FilterMatchMode.EQUALS },
+    };
+}
+
+export default function InsuranceListView() {
+    const [filters, setFilters] = useState<DataTableFilterMeta>(() => emptyFilters());
+    const [activeTab, setActiveTab] = useState("INSURANCE");
+
+    const clear = () => setFilters(emptyFilters());
+
+    return (
+        <div className="insurance-list-view">
+            <div className="flex justify-content-between align-items-center mb-2">
+                <h1 className="text-2xl font-bold text-900 m-0">Insurance list</h1>
+                <Button label="EXPORT INSURANCE" className="p-button-warning p-button-sm" />
+            </div>
+            <p className="m-0 mb-3 text-sm text-800">
+                <span className="text-red-700 font-bold mr-1">■</span>
+                The Agent&apos;s Name is highlighted with red as the Agent is not currently licensed.
+            </p>
+
+            <div className="flex flex-wrap gap-2 mb-3">
+                {LIST_TABS.map((tab) => (
+                    <Button
+                        key={tab}
+                        label={tab}
+                        type="button"
+                        className={`p-button-sm ${activeTab === tab ? "p-button-warning" : "p-button-outlined p-button-warning"}`}
+                        onClick={() => setActiveTab(tab)}
+                    />
+                ))}
+            </div>
+
+            <div className="flex justify-content-between align-items-center mb-2">
+                <p className="text-sm text-700 m-0">Showing 1-20 of 64 items.</p>
+                <div className="flex gap-2">
+                    <Button label="RESET" icon="pi pi-times" className="p-button-warning p-button-sm" onClick={clear} />
+                    <Button label="APPLY" icon="pi pi-filter" className="p-button-warning p-button-sm" />
+                </div>
+            </div>
+
+            <DataTable
+                value={ROWS}
+                filters={filters}
+                onFilter={(e) => setFilters(e.filters)}
+                filterDisplay="row"
+                className="p-datatable-sm insurance-list-table"
+                scrollable
+                scrollHeight="70vh"
+            >
+                <Column header="#" body={(_, o) => o.rowIndex + 1} style={{ width: "3rem" }} filter={false} />
+                <Column field="clientName" header="CLIENT NAME" filter filterPlaceholder="Filter" style={{ minWidth: "10rem" }} />
+                <Column field="policyNo" header="POLICY #" filter filterPlaceholder="Filter" style={{ minWidth: "10rem" }} />
+                <Column field="associate" header="ASSOCIATE" filter filterPlaceholder="Filter" style={{ minWidth: "10rem" }} />
+                <Column field="shareAssociate" header="SHARE ASSOCIATE" filter filterPlaceholder="Filter" style={{ minWidth: "11rem" }} />
+                <Column field="created" header="CREATED" filter filterPlaceholder="Filter" style={{ minWidth: "8rem" }} />
+                <Column field="paidDate" header="PAID DATE" filter filterPlaceholder="Filter" style={{ minWidth: "8rem" }} />
+                <Column
+                    field="company"
+                    header="COMPANY"
+                    filter
+                    showFilterMenu={false}
+                    filterElement={(opts) => <Dropdown value={opts.value} options={ANY_OPTIONS} onChange={(e) => opts.filterCallback(e.value)} placeholder="Any" className="w-full" />}
+                    style={{ minWidth: "9rem" }}
+                />
+                <Column field="enteredPremium" header="AGENT ENTERED PREMIUM" filter filterPlaceholder="Filter" style={{ minWidth: "10rem" }} />
+                <Column field="calculatedPremium" header="COMPANY CALCULATED PREMIUM" filter filterPlaceholder="Filter" style={{ minWidth: "11rem" }} />
+                <Column
+                    field="paidOver12Months"
+                    header="PAID OVER 12 MONTHS"
+                    filter
+                    showFilterMenu={false}
+                    filterElement={(opts) => <Dropdown value={opts.value} options={ANY_OPTIONS} onChange={(e) => opts.filterCallback(e.value)} placeholder="Any" className="w-full" />}
+                    style={{ minWidth: "9rem" }}
+                />
+                <Column
+                    field="hasSubDeal"
+                    header="HAS SUB DEAL"
+                    filter
+                    showFilterMenu={false}
+                    filterElement={(opts) => <Dropdown value={opts.value} options={ANY_OPTIONS} onChange={(e) => opts.filterCallback(e.value)} placeholder="Any" className="w-full" />}
+                    style={{ minWidth: "7rem" }}
+                />
+            </DataTable>
+
+            <style jsx global>{`
+                .insurance-list-table .p-datatable-thead > tr > th {
+                    background: #f4c542 !important;
+                    color: #334155;
+                    border-color: #dfb12a !important;
+                    font-size: 0.72rem;
+                    font-weight: 700;
+                }
+                .insurance-list-table .p-datatable-filter-row > td {
+                    background: #fff;
+                }
+            `}</style>
+        </div>
+    );
+}
+

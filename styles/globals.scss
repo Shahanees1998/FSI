@@ -336,6 +336,26 @@ img {
   padding-right: 5px;
 }
 
+/* Compact datatable filters (small + thin controls) */
+.p-datatable .p-datatable-filter-row .p-inputtext,
+.p-datatable .p-datatable-filter-row .p-dropdown,
+.p-datatable .p-datatable-filter-row .p-calendar .p-inputtext {
+  min-height: 1.95rem !important;
+  height: 1.95rem !important;
+  font-size: 0.72rem !important;
+  padding: 0.2rem 0.55rem !important;
+}
+.p-datatable .p-datatable-filter-row .p-dropdown .p-dropdown-label {
+  font-size: 0.72rem !important;
+  padding: 0.2rem 1.9rem 0.2rem 0.55rem !important;
+  line-height: 1.3 !important;
+}
+.p-datatable .p-datatable-filter-row .p-inputtext::placeholder,
+.p-datatable .p-datatable-filter-row .p-dropdown .p-placeholder {
+  font-size: 0.7rem !important;
+  color: #94a3b8 !important;
+}
+
 .p-scrollpanel-bar-y {
   width: 5px !important;
 }

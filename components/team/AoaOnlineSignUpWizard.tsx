@@ -85,12 +85,12 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
 }
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
-    return <label className="block text-sm font-bold text-700 mb-2">{children}</label>;
+    return <label className="block text-sm font-semibold text-800 mb-2">{children}</label>;
 }
 
 /** Responsive grid: full width on small screens, 2–3 columns on larger breakpoints. */
 function FormGrid({ children }: { children: React.ReactNode }) {
-    return <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3 w-full">{children}</div>;
+    return <div className="aoa-form-grid">{children}</div>;
 }
 
 export default function AoaOnlineSignUpWizard() {
@@ -112,10 +112,11 @@ export default function AoaOnlineSignUpWizard() {
     };
 
     const cardClass =
-        "surface-0 border-round-xl border-1 surface-border shadow-1 p-4 md:p-6 lg:p-8 w-full max-w-full";
+        "aoa-wizard-card surface-0 border-round-xl border-1 surface-border p-4 md:p-6 lg:p-7 w-full";
 
     return (
         <div className="aoa-wizard surface-ground min-h-full w-full py-4 px-3 md:px-6 lg:px-8">
+            <div className="w-full mx-auto" style={{ maxWidth: "1160px" }}>
             <div className={cardClass}>
                 <h2 className="text-center text-xl md:text-2xl font-bold text-800 m-0 mb-4">
                     {STEPS[step - 1]?.title ?? "AOA Online"}
@@ -125,17 +126,17 @@ export default function AoaOnlineSignUpWizard() {
                     <FormGrid>
                         <div>
                             <FieldLabel>First Legal Name</FieldLabel>
-                            <InputText className="w-full surface-100 border-none" placeholder="Kristin" />
+                            <InputText className="aoa-control w-full" placeholder="Kristin" />
                         </div>
                         <div>
                             <FieldLabel>Middle Legal Name</FieldLabel>
-                            <InputText className="w-full surface-100 border-none" placeholder="Elise" />
+                            <InputText className="aoa-control w-full" placeholder="Elise" />
                         </div>
                         <div>
                             <FieldLabel>Last Legal Name</FieldLabel>
-                            <InputText className="w-full surface-100 border-none" placeholder="Simmons" />
+                            <InputText className="aoa-control w-full" placeholder="Simmons" />
                         </div>
-                        <div className="col-span-full flex align-items-center gap-2">
+                        <div className="aoa-span-all aoa-choice-row">
                             <Checkbox
                                 inputId="legal-preferred"
                                 checked={legalAsPreferred}
@@ -147,15 +148,15 @@ export default function AoaOnlineSignUpWizard() {
                         </div>
                         <div>
                             <FieldLabel>First Preferred Name</FieldLabel>
-                            <InputText className="w-full surface-100 border-none" placeholder="Kristin" />
+                            <InputText className="aoa-control w-full" placeholder="Kristin" />
                         </div>
                         <div>
                             <FieldLabel>Last Preferred Name</FieldLabel>
-                            <InputText className="w-full surface-100 border-none" placeholder="Simmons" />
+                            <InputText className="aoa-control w-full" placeholder="Simmons" />
                         </div>
-                        <div className="col-span-full md:col-span-2 xl:col-span-3">
+                        <div className="aoa-span-all">
                             <FieldLabel>Current email</FieldLabel>
-                            <InputText className="w-full surface-100 border-none" placeholder="example@experior.com" type="email" />
+                            <InputText className="aoa-control w-full" placeholder="example@experior.com" type="email" />
                         </div>
                         <div>
                             <FieldLabel>Country</FieldLabel>
@@ -163,33 +164,33 @@ export default function AoaOnlineSignUpWizard() {
                                 value={country}
                                 options={COUNTRY_OPTIONS}
                                 onChange={(e) => setCountry(e.value)}
-                                className="w-full surface-100 border-none"
+                                className="aoa-control w-full"
                                 optionLabel="label"
                                 optionValue="value"
                             />
                         </div>
-                        <div className="md:col-span-1 xl:col-span-2">
+                        <div className="aoa-span-2">
                             <FieldLabel>Recruiter</FieldLabel>
                             <Dropdown
                                 value={recruiter}
                                 options={RECRUITER_OPTIONS.filter((o) => o.value !== "")}
                                 onChange={(e) => setRecruiter(e.value)}
-                                className="w-full surface-100 border-none"
+                                className="aoa-control w-full"
                                 optionLabel="label"
                                 optionValue="value"
                                 showClear
                                 placeholder="Select recruiter"
                             />
                         </div>
-                        <div className="col-span-full">
+                        <div className="aoa-span-all">
                             <FieldLabel>SSN / ITIN</FieldLabel>
                             <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] gap-2 align-items-center">
-                                <InputText className="w-full surface-100 border-none" placeholder="123123123" maxLength={9} />
+                                <InputText className="aoa-control w-full" placeholder="123123123" maxLength={9} />
                                 <span className="text-600 font-semibold text-center sm:px-1">OR</span>
-                                <InputText className="w-full surface-100 border-none" placeholder="123123123" maxLength={9} />
+                                <InputText className="aoa-control w-full" placeholder="123123123" maxLength={9} />
                             </div>
                         </div>
-                        <div className="col-span-full flex align-items-center gap-2">
+                        <div className="aoa-span-all aoa-choice-row">
                             <Checkbox
                                 inputId="split-recruiting"
                                 checked={splitRecruiting}
@@ -199,7 +200,7 @@ export default function AoaOnlineSignUpWizard() {
                                 Split Recruiting
                             </label>
                         </div>
-                        <p className="col-span-full text-xs text-600 line-height-3 m-0 mt-1">
+                        <p className="aoa-span-all text-xs text-600 line-height-3 m-0 mt-1">
                             After you click Continue, you will receive account credentials by email. You may unsubscribe from
                             future messages at any time using the link in those emails.
                         </p>
@@ -210,7 +211,7 @@ export default function AoaOnlineSignUpWizard() {
                     <FormGrid>
                         <div>
                             <FieldLabel>Phone number</FieldLabel>
-                            <InputText className="w-full surface-100 border-none" placeholder="" type="tel" />
+                            <InputText className="aoa-control w-full" placeholder="Enter phone number" type="tel" />
                         </div>
                         <div>
                             <FieldLabel>Date Of Birth</FieldLabel>
@@ -220,8 +221,8 @@ export default function AoaOnlineSignUpWizard() {
                                 showIcon
                                 dateFormat="mm/dd/yy"
                                 placeholder="Select Date"
-                                className="w-full"
-                                inputClassName="w-full surface-100 border-none"
+                                className="aoa-control w-full"
+                                inputClassName="w-full"
                             />
                         </div>
                     </FormGrid>
@@ -229,13 +230,13 @@ export default function AoaOnlineSignUpWizard() {
 
                 {step === 3 && (
                     <FormGrid>
-                        <div className="col-span-full md:col-span-2 xl:col-span-3">
+                        <div className="aoa-span-all">
                             <FieldLabel>Street Address</FieldLabel>
-                            <InputText className="w-full surface-100 border-none" placeholder="Enter Street" />
+                            <InputText className="aoa-control w-full" placeholder="Enter Street" />
                         </div>
                         <div>
                             <FieldLabel>City name</FieldLabel>
-                            <InputText className="w-full surface-100 border-none" placeholder="Enter City" />
+                            <InputText className="aoa-control w-full" placeholder="Enter City" />
                         </div>
                         <div>
                             <FieldLabel>Residence State</FieldLabel>
@@ -243,7 +244,7 @@ export default function AoaOnlineSignUpWizard() {
                                 value={residenceState}
                                 options={STATE_OPTIONS}
                                 onChange={(e) => setResidenceState(e.value)}
-                                className="w-full surface-100 border-none"
+                                className="aoa-control w-full"
                                 optionLabel="label"
                                 optionValue="value"
                                 placeholder="Select State"
@@ -251,7 +252,7 @@ export default function AoaOnlineSignUpWizard() {
                         </div>
                         <div>
                             <FieldLabel>Zip code</FieldLabel>
-                            <InputText className="w-full surface-100 border-none" placeholder="Enter Zip Code" />
+                            <InputText className="aoa-control w-full" placeholder="Enter Zip Code" />
                         </div>
                     </FormGrid>
                 )}
@@ -295,12 +296,82 @@ export default function AoaOnlineSignUpWizard() {
                     <p className="text-center text-sm text-600 mt-2 mb-0">You have reached the final step (UI only).</p>
                 )}
             </div>
+            </div>
 
             <StepIndicator currentStep={step} />
 
             <p className="text-center text-xs text-500 mt-3 mb-0">
                 Team · Recruiting · AOA (Online Sign Up) · Step {step} of {TOTAL_STEPS}
             </p>
+
+            <style jsx global>{`
+                .aoa-wizard-card {
+                    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+                }
+                .aoa-wizard .aoa-control.p-inputtext,
+                .aoa-wizard .aoa-control .p-inputtext,
+                .aoa-wizard .aoa-control.p-dropdown,
+                .aoa-wizard .aoa-control .p-dropdown-label {
+                    background: #f8fafc !important;
+                }
+                .aoa-wizard .aoa-control.p-inputtext,
+                .aoa-wizard .aoa-control .p-inputtext,
+                .aoa-wizard .aoa-control.p-dropdown {
+                    border: 1px solid #e2e8f0 !important;
+                    border-radius: 10px !important;
+                    min-height: 2.75rem;
+                }
+                .aoa-wizard .aoa-control .p-dropdown-label {
+                    display: flex;
+                    align-items: center;
+                }
+                .aoa-wizard .aoa-form-grid {
+                    display: grid;
+                    grid-template-columns: 1fr;
+                    column-gap: 1.25rem;
+                    row-gap: 1.25rem;
+                    width: 100%;
+                }
+                .aoa-wizard .aoa-form-grid > div,
+                .aoa-wizard .aoa-form-grid > p {
+                    min-width: 0;
+                }
+                @media (min-width: 900px) {
+                    .aoa-wizard .aoa-form-grid {
+                        grid-template-columns: repeat(2, minmax(0, 1fr));
+                    }
+                    .aoa-wizard .aoa-span-all {
+                        grid-column: 1 / -1;
+                    }
+                    .aoa-wizard .aoa-span-2 {
+                        grid-column: span 2;
+                    }
+                }
+                @media (min-width: 1280px) {
+                    .aoa-wizard .aoa-form-grid {
+                        grid-template-columns: repeat(3, minmax(0, 1fr));
+                    }
+                    .aoa-wizard .aoa-span-2 {
+                        grid-column: span 2;
+                    }
+                }
+                .aoa-wizard .aoa-choice-row {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.6rem;
+                    padding: 0.45rem 0 0.2rem 0;
+                }
+                .aoa-wizard .aoa-choice-row + .aoa-choice-row {
+                    margin-top: 0.5rem;
+                }
+                .aoa-wizard .aoa-control {
+                    margin-top: 0.35rem;
+                }
+                .aoa-wizard .p-checkbox .p-checkbox-box {
+                    width: 1.05rem;
+                    height: 1.05rem;
+                }
+            `}</style>
         </div>
     );
 }

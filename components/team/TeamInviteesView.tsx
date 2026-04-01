@@ -187,7 +187,7 @@ export default function TeamInviteesView({ embedded = false }: Props) {
                     header={<span className="text-primary font-semibold">NAME</span>}
                     body={nameBody}
                     filter
-                    filterPlaceholder=""
+                    filterPlaceholder="Filter"
                     style={{ minWidth: "9rem" }}
                     showFilterMenu={false}
                 />
@@ -196,7 +196,7 @@ export default function TeamInviteesView({ embedded = false }: Props) {
                     header={<span className="text-primary font-semibold">RECRUITER</span>}
                     body={recruiterBody}
                     filter
-                    filterPlaceholder=""
+                    filterPlaceholder="Filter"
                     style={{ minWidth: "9rem" }}
                     showFilterMenu={false}
                 />
@@ -205,7 +205,7 @@ export default function TeamInviteesView({ embedded = false }: Props) {
                     header={<span className="text-primary font-semibold">EMAIL</span>}
                     body={emailBody}
                     filter
-                    filterPlaceholder=""
+                    filterPlaceholder="Filter"
                     style={{ minWidth: "11rem" }}
                     showFilterMenu={false}
                 />
@@ -230,7 +230,7 @@ export default function TeamInviteesView({ embedded = false }: Props) {
                     field="date"
                     header={<span className="text-primary font-semibold">DATE</span>}
                     filter
-                    filterPlaceholder=""
+                    filterPlaceholder="Filter"
                     style={{ minWidth: "8rem" }}
                     showFilterMenu={false}
                 />
@@ -272,7 +272,7 @@ export default function TeamInviteesView({ embedded = false }: Props) {
                     field="note"
                     header={<span className="text-900 font-semibold">NOTE</span>}
                     filter
-                    filterPlaceholder=""
+                    filterPlaceholder="Filter"
                     style={{ minWidth: "8rem" }}
                     showFilterMenu={false}
                 />
