@@ -8,6 +8,7 @@ import { Suspense, useContext, useEffect, useRef } from "react";
 import { LayoutContext } from "./context/layoutcontext";
 import { MenuContext } from "./context/menucontext";
 import { useSubmenuOverlayPosition } from "./hooks/useSubmenuOverlayPosition";
+import PortalPageLoader from "@/components/PortalPageLoader";
 
 const AppMenuitemInner = (props: AppMenuItemProps) => {
     const pathname = usePathname();
@@ -262,7 +263,7 @@ const AppMenuitemInner = (props: AppMenuItemProps) => {
 
 const AppMenuitem = (props: AppMenuItemProps) => {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<PortalPageLoader variant="menuitem" />}>
             <AppMenuitemInner {...props} />
         </Suspense>
     );

@@ -15,6 +15,7 @@ import AppConfig from "./AppConfig";
 import AppProfileSidebar from "./AppProfileSidebar";
 import AppSidebar from "./AppSidebar";
 import AppTopbar from "./AppTopbar";
+import PortalPageLoader from "@/components/PortalPageLoader";
 import { LayoutContext } from "./context/layoutcontext";
 
 const LayoutInner = (props: ChildContainerProps) => {
@@ -220,7 +221,7 @@ const LayoutInner = (props: ChildContainerProps) => {
 
 const Layout = (props: ChildContainerProps) => {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<PortalPageLoader variant="fullpage" />}>
             <LayoutInner {...props} />
         </Suspense>
     );
