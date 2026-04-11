@@ -15,9 +15,24 @@ import UsaOnboardingProcessView from "@/components/learn/getting-started/UsaOnbo
 import ContestsView from "@/components/learn/ContestsView";
 import DesertOasisContest2027View from "@/components/learn/DesertOasisContest2027View";
 import LeadTrainingGuidesView from "@/components/learn/LeadTrainingGuidesView";
+import LifeInsuranceProductsHubView from "@/components/learn/products/LifeInsuranceProductsHubView";
 import PurchaseLeadsView from "@/components/learn/PurchaseLeadsView";
 import UpcomingMeetingsView from "@/components/learn/UpcomingMeetingsView";
 import ContactsSectionView from "@/components/learn/contacts/ContactsSectionView";
+import ExperiorContactsView from "@/components/learn/contacts/ExperiorContactsView";
+import ExperiorOfficeBranchesView from "@/components/learn/contacts/ExperiorOfficeBranchesView";
+import ProviderContactsView from "@/components/learn/contacts/ProviderContactsView";
+import ExperiorEventsView from "@/components/learn/whats-new/ExperiorEventsView";
+import NewsAndEventsView from "@/components/learn/whats-new/NewsAndEventsView";
+import BuildersBonusQualifiersView from "@/components/learn/whats-new/BuildersBonusQualifiersView";
+import LeadershipView from "@/components/learn/whats-new/LeadershipView";
+import HundredGrandClubView from "@/components/learn/whats-new/HundredGrandClubView";
+import FourHundredGrandClubView from "@/components/learn/whats-new/FourHundredGrandClubView";
+import ThreeHundredGrandClubView from "@/components/learn/whats-new/ThreeHundredGrandClubView";
+import TwoHundredGrandClubView from "@/components/learn/whats-new/TwoHundredGrandClubView";
+import OneMillionHierarchyClubView from "@/components/learn/whats-new/OneMillionHierarchyClubView";
+import PersonalBonusQualifiersView from "@/components/learn/whats-new/PersonalBonusQualifiersView";
+import RecordBreakersView from "@/components/learn/whats-new/RecordBreakersView";
 import WhatsNewSectionView from "@/components/learn/whats-new/WhatsNewSectionView";
 import { requireCurrentUser } from "@/lib/serverAuth";
 import { redirect } from "next/navigation";
@@ -309,6 +324,55 @@ export default async function AgentLearnDetailPage({
         redirect("/agent/learn/about-experior/whats-new/hierarchy-agency-premium-clubs/1-million-hierarchy-club");
     }
 
+    if (key === "about-experior/whats-new/experior-events") {
+        return <ExperiorEventsView eventsPageUrl={process.env.NEXT_PUBLIC_EXPERIOR_EVENTS_URL?.trim() ?? null} />;
+    }
+
+    if (key === "about-experior/whats-new/news-events") {
+        return (
+            <NewsAndEventsView
+                experiorFactorTicketsUrl={process.env.NEXT_PUBLIC_EXPERIOR_FACTOR_TICKETS_URL?.trim() ?? null}
+                entrepreneursLoungeRegisterUrl={process.env.NEXT_PUBLIC_ENTREPRENEURS_LOUNGE_REGISTER_URL?.trim() ?? null}
+            />
+        );
+    }
+
+    if (key === "about-experior/whats-new/record-breakers") {
+        return <RecordBreakersView />;
+    }
+
+    if (key === "about-experior/whats-new/personal-bonus-qualifiers") {
+        return <PersonalBonusQualifiersView />;
+    }
+
+    if (key === "about-experior/whats-new/builders-bonus-qualifiers") {
+        return <BuildersBonusQualifiersView />;
+    }
+
+    if (key === "about-experior/whats-new/leadership") {
+        return <LeadershipView />;
+    }
+
+    if (key === "about-experior/whats-new/hierarchy-agency-premium-clubs/1-million-hierarchy-club") {
+        return <OneMillionHierarchyClubView />;
+    }
+
+    if (key === "about-experior/whats-new/hierarchy-agency-premium-clubs/100-grand-agency-club") {
+        return <HundredGrandClubView />;
+    }
+
+    if (key === "about-experior/whats-new/hierarchy-agency-premium-clubs/200-grand-agency-club") {
+        return <TwoHundredGrandClubView />;
+    }
+
+    if (key === "about-experior/whats-new/hierarchy-agency-premium-clubs/300-grand-agency-club") {
+        return <ThreeHundredGrandClubView />;
+    }
+
+    if (key === "about-experior/whats-new/hierarchy-agency-premium-clubs/400-grand-agency-club") {
+        return <FourHundredGrandClubView />;
+    }
+
     const whatsNewTitle = LEARN_TITLES[key];
     if (whatsNewTitle && key.startsWith("about-experior/whats-new/")) {
         return <WhatsNewSectionView title={whatsNewTitle} />;
@@ -318,9 +382,33 @@ export default async function AgentLearnDetailPage({
         redirect("/agent/learn/about-experior/contacts/experior-contacts");
     }
 
+    if (key === "about-experior/contacts/experior-contacts") {
+        return <ExperiorContactsView />;
+    }
+
+    if (key === "about-experior/contacts/experior-office-branches") {
+        return (
+            <ExperiorOfficeBranchesView
+                embedUrl={process.env.NEXT_PUBLIC_EXPERIOR_OFFICE_BRANCHES_URL?.trim() ?? null}
+            />
+        );
+    }
+
+    if (key === "about-experior/contacts/provider-contacts") {
+        return <ProviderContactsView />;
+    }
+
     const contactsTitle = LEARN_TITLES[key];
     if (contactsTitle && key.startsWith("about-experior/contacts/")) {
         return <ContactsSectionView title={contactsTitle} />;
+    }
+
+    if (key === "products/life-insurance-products") {
+        return (
+            <LifeInsuranceProductsHubView
+                quotingToolsUrl={process.env.NEXT_PUBLIC_LIFE_QUOTING_TOOLS_URL?.trim() ?? null}
+            />
+        );
     }
 
     const title = LEARN_TITLES[key] ?? toTitleCaseFromSlug(slug[slug.length - 1] ?? "Learn");
