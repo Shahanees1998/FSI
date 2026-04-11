@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Button } from "primereact/button";
 import { useRouter } from "next/navigation";
 
@@ -98,7 +99,12 @@ export default function NewAgentGettingStartedView() {
                     className="p-button-warning font-bold px-5 py-2"
                     onClick={() => router.push("/agent/new-agents/get-licensed")}
                 />
-                <p className="text-blue-200 text-sm mt-3 mb-0">Already licensed? Get ready to sell →</p>
+                <Link
+                    href="/agent/new-agents/ready-to-sell"
+                    className="text-blue-200 text-sm mt-3 mb-0 block w-full cursor-pointer no-underline hover:underline"
+                >
+                    Already licensed? Get ready to sell →
+                </Link>
             </section>
             </div>
         </div>

@@ -151,14 +151,376 @@ const AppMenu = () => {
                             items: [
                                 { label: "Experior Academy", icon: "pi pi-fw pi-file", to: "/agent/learn/about-experior/experior-academy" },
                                 { label: "HPN University", icon: "pi pi-fw pi-file", to: "/agent/learn/about-experior/hpn-university" },
-                                { label: "Experior Schedule", icon: "pi pi-fw pi-file", to: "/agent/learn/about-experior/experior-schedule" },
-                                { label: "Getting Started", icon: "pi pi-fw pi-arrow-circle-right", to: "/agent/learn/about-experior/getting-started" },
-                                { label: "Training", icon: "pi pi-fw pi-play-circle", to: "/agent/learn/about-experior/training" },
+                                {
+                                    label: "Experior Schedule",
+                                    icon: "pi pi-fw pi-calendar",
+                                    items: [
+                                        {
+                                            label: "Calendar Integration Explainer Video",
+                                            icon: "pi pi-fw pi-video",
+                                            to: "/agent/learn/about-experior/experior-schedule/calendar-integration-explainer-video",
+                                        },
+                                        {
+                                            label: "Upcoming Meetings",
+                                            icon: "pi pi-fw pi-clock",
+                                            to: "/agent/learn/about-experior/experior-schedule/upcoming-meetings",
+                                        },
+                                        {
+                                            label: "Event Calendar",
+                                            icon: "pi pi-fw pi-calendar",
+                                            to: "/agent/learn/about-experior/experior-schedule/event-calendar",
+                                        },
+                                    ],
+                                },
+                                {
+                                    label: "Getting Started",
+                                    icon: "pi pi-fw pi-arrow-circle-right",
+                                    items: [
+                                        {
+                                            label: "USA Onboarding Process",
+                                            icon: "pi pi-fw pi-file",
+                                            to: "/agent/learn/about-experior/getting-started/usa-onboarding-process",
+                                        },
+                                        {
+                                            label: "Register for the Online Course",
+                                            icon: "pi pi-fw pi-file",
+                                            to: "/agent/learn/about-experior/getting-started/register-for-the-online-course",
+                                        },
+                                        {
+                                            label: "Errors and Omissions Insurance",
+                                            icon: "pi pi-fw pi-file",
+                                            to: "/agent/learn/about-experior/getting-started/errors-and-omissions-insurance",
+                                        },
+                                        {
+                                            label: "Getting Started With Experior Checklist - Unlicensed",
+                                            icon: "pi pi-fw pi-file",
+                                            to: "/agent/learn/about-experior/getting-started/getting-started-with-experior-checklist-unlicensed",
+                                        },
+                                        {
+                                            label: "Submit Your License Application",
+                                            icon: "pi pi-fw pi-file",
+                                            to: "/agent/learn/about-experior/getting-started/submit-your-license-application",
+                                        },
+                                        {
+                                            label: "Getting Started With Experior Checklist - Licensed",
+                                            icon: "pi pi-fw pi-file",
+                                            to: "/agent/learn/about-experior/getting-started/getting-started-with-experior-checklist-licensed",
+                                        },
+                                        {
+                                            label: "Mandatory Documents",
+                                            icon: "pi pi-fw pi-file",
+                                            to: "/agent/learn/about-experior/getting-started/mandatory-documents",
+                                        },
+                                        {
+                                            label: "Getting Appointed",
+                                            icon: "pi pi-fw pi-file",
+                                            to: "/agent/learn/about-experior/getting-started/getting-appointed",
+                                        },
+                                        {
+                                            label: "Contracting FAQ",
+                                            icon: "pi pi-fw pi-file",
+                                            to: "/agent/learn/about-experior/getting-started/contracting-faq",
+                                        },
+                                        {
+                                            label: "Keep your License up to date with NIPR",
+                                            icon: "pi pi-fw pi-file",
+                                            to: "/agent/learn/about-experior/getting-started/keep-your-license-up-to-date-with-nipr",
+                                        },
+                                        {
+                                            label: "CE Credits Providers",
+                                            icon: "pi pi-fw pi-file",
+                                            to: "/agent/learn/about-experior/getting-started/ce-credits-providers",
+                                        },
+                                        {
+                                            label: "Tutorials in Spanish",
+                                            icon: "pi pi-fw pi-file",
+                                            to: "/agent/learn/about-experior/getting-started/tutorials-in-spanish",
+                                        },
+                                        {
+                                            label: "Back Office Fees",
+                                            icon: "pi pi-fw pi-file",
+                                            to: "/agent/learn/about-experior/getting-started/back-office-fees",
+                                        },
+                                    ],
+                                },
+                                {
+                                    label: "Training",
+                                    icon: "pi pi-fw pi-play-circle",
+                                    items: [
+                                        {
+                                            label: "CEO Tap Webinar",
+                                            icon: "pi pi-fw pi-video",
+                                            to: "/agent/learn/about-experior/training/ceo-tap-webinar",
+                                        },
+                                        {
+                                            label: "US Power Hour Recordings",
+                                            icon: "pi pi-fw pi-video",
+                                            to: "/agent/learn/about-experior/training/us-power-hour-recordings",
+                                        },
+                                        {
+                                            label: "Leaders on TAP Webinar",
+                                            icon: "pi pi-fw pi-video",
+                                            to: "/agent/learn/about-experior/training/leaders-on-tap-webinar",
+                                        },
+                                        {
+                                            label: "Agents in Action Webinar",
+                                            icon: "pi pi-fw pi-video",
+                                            to: "/agent/learn/about-experior/training/agents-in-action-webinar",
+                                        },
+                                        {
+                                            label: "Driving Your Success Webinar",
+                                            icon: "pi pi-fw pi-video",
+                                            to: "/agent/learn/about-experior/training/driving-your-success-webinar",
+                                        },
+                                        {
+                                            label: "Business Development",
+                                            icon: "pi pi-fw pi-briefcase",
+                                            items: [
+                                                {
+                                                    label: "XCast Podcast",
+                                                    icon: "pi pi-fw pi-volume-up",
+                                                    to: "/agent/learn/about-experior/training/business-development/xcast-podcast",
+                                                },
+                                                {
+                                                    label: "Experior Master Classes",
+                                                    icon: "pi pi-fw pi-star",
+                                                    to: "/agent/learn/about-experior/training/business-development/experior-master-classes",
+                                                },
+                                                {
+                                                    label: "Resources & Tools",
+                                                    icon: "pi pi-fw pi-wrench",
+                                                    to: "/agent/learn/about-experior/training/business-development/resources-tools",
+                                                },
+                                            ],
+                                        },
+                                        {
+                                            label: "US Product Partner Webinars",
+                                            icon: "pi pi-fw pi-video",
+                                            items: [
+                                                {
+                                                    label: "US Product Partners Weekly Webinar Schedule",
+                                                    icon: "pi pi-fw pi-calendar",
+                                                    to: "/agent/learn/about-experior/training/us-product-partner-webinars/weekly-webinar-schedule",
+                                                },
+                                                {
+                                                    label: "US Product Partner Webinar Recordings",
+                                                    icon: "pi pi-fw pi-video",
+                                                    to: "/agent/learn/about-experior/training/us-product-partner-webinars/webinar-recordings",
+                                                },
+                                                {
+                                                    label: "Spanish US Product Partner Recordings",
+                                                    icon: "pi pi-fw pi-globe",
+                                                    to: "/agent/learn/about-experior/training/us-product-partner-webinars/spanish-recordings",
+                                                },
+                                            ],
+                                        },
+                                        {
+                                            label: "BTO",
+                                            icon: "pi pi-fw pi-calendar",
+                                            items: [
+                                                {
+                                                    label: "Overview",
+                                                    icon: "pi pi-fw pi-file",
+                                                    to: "/agent/learn/about-experior/training/bto",
+                                                },
+                                            ],
+                                        },
+                                        {
+                                            label: "CRM Webinar Training",
+                                            icon: "pi pi-fw pi-video",
+                                            to: "/agent/learn/about-experior/training/crm-webinar-training",
+                                        },
+                                        {
+                                            label: "EmpowHER Webinar",
+                                            icon: "pi pi-fw pi-video",
+                                            to: "/agent/learn/about-experior/training/empowher-webinar",
+                                        },
+                                        {
+                                            label: "CEO Bootcamp",
+                                            icon: "pi pi-fw pi-video",
+                                            to: "/agent/learn/about-experior/training/ceo-bootcamp",
+                                        },
+                                        {
+                                            label: "Pre-Recorded Webinars",
+                                            icon: "pi pi-fw pi-video",
+                                            to: "/agent/learn/about-experior/training/pre-recorded-webinars",
+                                        },
+                                        {
+                                            label: "Audio",
+                                            icon: "pi pi-fw pi-volume-up",
+                                            to: "/agent/learn/about-experior/training/audio",
+                                        },
+                                        {
+                                            label: "Tutorials",
+                                            icon: "pi pi-fw pi-book",
+                                            to: "/agent/learn/about-experior/training/tutorials",
+                                        },
+                                        {
+                                            label: "Podcasts",
+                                            icon: "pi pi-fw pi-megaphone",
+                                            to: "/agent/learn/about-experior/training/podcasts",
+                                        },
+                                        {
+                                            label: "New York",
+                                            icon: "pi pi-fw pi-map-marker",
+                                            items: [
+                                                {
+                                                    label: "Overview",
+                                                    icon: "pi pi-fw pi-file",
+                                                    to: "/agent/learn/about-experior/training/new-york",
+                                                },
+                                            ],
+                                        },
+                                        {
+                                            label: "Event Presentations",
+                                            icon: "pi pi-fw pi-images",
+                                            items: [
+                                                {
+                                                    label: "Overview",
+                                                    icon: "pi pi-fw pi-file",
+                                                    to: "/agent/learn/about-experior/training/event-presentations",
+                                                },
+                                            ],
+                                        },
+                                        {
+                                            label: "Promotion Feature Training",
+                                            icon: "pi pi-fw pi-star",
+                                            to: "/agent/learn/about-experior/training/promotion-feature-training",
+                                        },
+                                        {
+                                            label: "Jairek Robbins Coaching",
+                                            icon: "pi pi-fw pi-user",
+                                            to: "/agent/learn/about-experior/training/jairek-robbins-coaching",
+                                        },
+                                        {
+                                            label: "Spanish Tutorials",
+                                            icon: "pi pi-fw pi-globe",
+                                            to: "/agent/learn/about-experior/training/spanish-tutorials",
+                                        },
+                                        {
+                                            label: "Special Carrier Training",
+                                            icon: "pi pi-fw pi-building",
+                                            items: [
+                                                {
+                                                    label: "Overview",
+                                                    icon: "pi pi-fw pi-file",
+                                                    to: "/agent/learn/about-experior/training/special-carrier-training",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
                                 { label: "Purchase Leads", icon: "pi pi-fw pi-file", to: "/agent/learn/about-experior/purchase-leads" },
                                 { label: "Lead Training Guides", icon: "pi pi-fw pi-book", to: "/agent/learn/about-experior/lead-training-guides" },
-                                { label: "Contests", icon: "pi pi-fw pi-file", to: "/agent/learn/about-experior/contests" },
-                                { label: "What's New", icon: "pi pi-fw pi-info-circle", to: "/agent/learn/about-experior/whats-new" },
-                                { label: "Contacts", icon: "pi pi-fw pi-phone", to: "/agent/learn/about-experior/contacts" },
+                                {
+                                    label: "Contests",
+                                    icon: "pi pi-fw pi-trophy",
+                                    items: [
+                                        {
+                                            label: "Carrier & partner contests",
+                                            icon: "pi pi-fw pi-file",
+                                            to: "/agent/learn/about-experior/contests",
+                                        },
+                                        {
+                                            label: "Desert Oasis 2027",
+                                            icon: "pi pi-fw pi-sun",
+                                            to: "/agent/learn/about-experior/contests/desert-oasis-2027",
+                                        },
+                                    ],
+                                },
+                                {
+                                    label: "What's New",
+                                    icon: "pi pi-fw pi-info-circle",
+                                    items: [
+                                        {
+                                            label: "Experior Events",
+                                            icon: "pi pi-fw pi-calendar",
+                                            to: "/agent/learn/about-experior/whats-new/experior-events",
+                                        },
+                                        {
+                                            label: "News & Events",
+                                            icon: "pi pi-fw pi-megaphone",
+                                            to: "/agent/learn/about-experior/whats-new/news-events",
+                                        },
+                                        {
+                                            label: "Record Breakers",
+                                            icon: "pi pi-fw pi-chart-line",
+                                            to: "/agent/learn/about-experior/whats-new/record-breakers",
+                                        },
+                                        {
+                                            label: "Personal Bonus Qualifiers",
+                                            icon: "pi pi-fw pi-user",
+                                            to: "/agent/learn/about-experior/whats-new/personal-bonus-qualifiers",
+                                        },
+                                        {
+                                            label: "Builders Bonus Qualifiers",
+                                            icon: "pi pi-fw pi-users",
+                                            to: "/agent/learn/about-experior/whats-new/builders-bonus-qualifiers",
+                                        },
+                                        {
+                                            label: "Leadership",
+                                            icon: "pi pi-fw pi-star",
+                                            to: "/agent/learn/about-experior/whats-new/leadership",
+                                        },
+                                        {
+                                            label: "Agent Promotions",
+                                            icon: "pi pi-fw pi-arrow-circle-up",
+                                            to: "/agent/learn/about-experior/whats-new/agent-promotions",
+                                        },
+                                        {
+                                            label: "Hierarchy & Agency Premium Clubs",
+                                            icon: "pi pi-fw pi-sitemap",
+                                            items: [
+                                                {
+                                                    label: "1 Million Hierarchy Club",
+                                                    icon: "pi pi-fw pi-star",
+                                                    to: "/agent/learn/about-experior/whats-new/hierarchy-agency-premium-clubs/1-million-hierarchy-club",
+                                                },
+                                                {
+                                                    label: "100 Grand Agency Club",
+                                                    icon: "pi pi-fw pi-building",
+                                                    to: "/agent/learn/about-experior/whats-new/hierarchy-agency-premium-clubs/100-grand-agency-club",
+                                                },
+                                                {
+                                                    label: "200 Grand Agency Club",
+                                                    icon: "pi pi-fw pi-building",
+                                                    to: "/agent/learn/about-experior/whats-new/hierarchy-agency-premium-clubs/200-grand-agency-club",
+                                                },
+                                                {
+                                                    label: "300 Grand Agency Club",
+                                                    icon: "pi pi-fw pi-building",
+                                                    to: "/agent/learn/about-experior/whats-new/hierarchy-agency-premium-clubs/300-grand-agency-club",
+                                                },
+                                                {
+                                                    label: "400 Grand Agency Club",
+                                                    icon: "pi pi-fw pi-building",
+                                                    to: "/agent/learn/about-experior/whats-new/hierarchy-agency-premium-clubs/400-grand-agency-club",
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                {
+                                    label: "Contacts",
+                                    icon: "pi pi-fw pi-phone",
+                                    items: [
+                                        {
+                                            label: "Experior Contacts",
+                                            icon: "pi pi-fw pi-id-card",
+                                            to: "/agent/learn/about-experior/contacts/experior-contacts",
+                                        },
+                                        {
+                                            label: "Experior Office Branches",
+                                            icon: "pi pi-fw pi-map-marker",
+                                            to: "/agent/learn/about-experior/contacts/experior-office-branches",
+                                        },
+                                        {
+                                            label: "Provider Contacts",
+                                            icon: "pi pi-fw pi-building",
+                                            to: "/agent/learn/about-experior/contacts/provider-contacts",
+                                        },
+                                    ],
+                                },
                             ],
                         },
                         {

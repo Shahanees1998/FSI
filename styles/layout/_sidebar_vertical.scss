@@ -37,7 +37,8 @@
 
     .layout-menu-container {
         flex: 1;
-        padding-bottom: 2rem;
+        min-height: 0; /* lets this flex child shrink so overflow-y:auto can scroll long menus */
+        padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
         overflow-y: auto;
         overflow-x: hidden;
 
@@ -96,8 +97,9 @@
             }
 
             > ul {
-                max-height: 1000px;
-                transition: max-height 1s ease-in-out;
+                /* Default 1000px clipped long groups (e.g. About Experior + Getting Started). Large cap keeps accordion animation but allows full lists. */
+                max-height: 6000px;
+                transition: max-height 0.8s ease-in-out;
             }
         }
 
