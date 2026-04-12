@@ -1,4 +1,14 @@
 import type { MenuModel } from "@/types/index";
+import { brokerSupportLearnMenuItems } from "@/lib/learn/departmentsBrokerSupportNav";
+import { commissionsLearnMenuItems } from "@/lib/learn/departmentsCommissionsNav";
+import { complianceLearnMenuItems } from "@/lib/learn/departmentsComplianceNav";
+import { contractingLearnMenuItems } from "@/lib/learn/departmentsContractingNav";
+import { newPendingBusinessLearnMenuItems } from "@/lib/learn/departmentsNewPendingBusinessNav";
+import { formsLearnMenuItems } from "@/lib/learn/resourcesFormsNav";
+import { resourcesHubLearnMenuItems } from "@/lib/learn/resourcesHubNav";
+import { carrierLearnMenuItems } from "@/lib/learn/carriersNav";
+import { puertoRicoLearnMenuItems } from "@/lib/learn/puertoRicoNav";
+import { referralPartnersLearnMenuItems } from "@/lib/learn/referralPartnersNav";
 import AppSubMenu from "./AppSubMenu";
 import { useAuth } from "@/hooks/useAuth";
 import { canAccessSection } from "@/lib/rolePermissions";
@@ -532,21 +542,53 @@ const AppMenu = () => {
                                 { label: "Annuities/Quantum", icon: "pi pi-fw pi-file", to: "/agent/learn/products/annuities-quantum" },
                                 { label: "Global View Investment Platform", icon: "pi pi-fw pi-file", to: "/agent/learn/products/global-view-investment-platform" },
                                 { label: "NEW Insurance SnapView (ISV)", icon: "pi pi-fw pi-file", to: "/agent/learn/products/new-insurance-snapview-isv" },
-                                { label: "Carriers", icon: "pi pi-fw pi-file", to: "/agent/learn/products/carriers" },
-                                { label: "Referral Partners", icon: "pi pi-fw pi-file", to: "/agent/learn/products/referral-partners" },
-                                { label: "Puerto Rico", icon: "pi pi-fw pi-file", to: "/agent/learn/products/puerto-rico" },
+                                {
+                                    label: "Carriers",
+                                    icon: "pi pi-fw pi-folder",
+                                    items: carrierLearnMenuItems(),
+                                },
+                                {
+                                    label: "Referral Partners",
+                                    icon: "pi pi-fw pi-folder",
+                                    items: referralPartnersLearnMenuItems(),
+                                },
+                                {
+                                    label: "Puerto Rico",
+                                    icon: "pi pi-fw pi-folder",
+                                    items: puertoRicoLearnMenuItems(),
+                                },
                             ],
                         },
                         {
                             label: "Departments",
                             icon: "pi pi-fw pi-sitemap",
                             items: [
-                                { label: "Broker Support", icon: "pi pi-fw pi-comments", to: "/agent/learn/departments/broker-support" },
-                                { label: "Commissions", icon: "pi pi-fw pi-clock", to: "/agent/learn/departments/commissions" },
-                                { label: "Contracting", icon: "pi pi-fw pi-pencil", to: "/agent/learn/departments/contracting" },
-                                { label: "Compliance", icon: "pi pi-fw pi-file", to: "/agent/learn/departments/compliance" },
+                                {
+                                    label: "Broker Support",
+                                    icon: "pi pi-fw pi-folder",
+                                    items: brokerSupportLearnMenuItems(),
+                                },
+                                {
+                                    label: "Commissions",
+                                    icon: "pi pi-fw pi-folder",
+                                    items: commissionsLearnMenuItems(),
+                                },
+                                {
+                                    label: "Contracting",
+                                    icon: "pi pi-fw pi-folder",
+                                    items: contractingLearnMenuItems(),
+                                },
+                                {
+                                    label: "Compliance",
+                                    icon: "pi pi-fw pi-folder",
+                                    items: complianceLearnMenuItems(),
+                                },
                                 { label: "Marketing", icon: "pi pi-fw pi-star", to: "/agent/learn/departments/marketing" },
-                                { label: "New & Pending Business", icon: "pi pi-fw pi-file", to: "/agent/learn/departments/new-pending-business" },
+                                {
+                                    label: "New & Pending Business",
+                                    icon: "pi pi-fw pi-folder",
+                                    items: newPendingBusinessLearnMenuItems(),
+                                },
                             ],
                         },
                         {
@@ -562,8 +604,16 @@ const AppMenu = () => {
                             label: "Resources",
                             icon: "pi pi-fw pi-folder",
                             items: [
-                                { label: "Resources", icon: "pi pi-fw pi-folder", to: "/agent/learn/resources/resources" },
-                                { label: "Forms", icon: "pi pi-fw pi-file", to: "/agent/learn/resources/forms" },
+                                {
+                                    label: "Resources",
+                                    icon: "pi pi-fw pi-folder",
+                                    items: resourcesHubLearnMenuItems(),
+                                },
+                                {
+                                    label: "Forms",
+                                    icon: "pi pi-fw pi-folder",
+                                    items: formsLearnMenuItems(),
+                                },
                                 { label: "My CRM", icon: "pi pi-fw pi-filter", to: "/agent/learn/resources/my-crm" },
                                 { label: "Experior Connect - Workvivo", icon: "pi pi-fw pi-users", to: "/agent/learn/resources/experior-connect-workvivo" },
                                 { label: "Experior Connect - Workvivo Getting Started", icon: "pi pi-fw pi-file", to: "/agent/learn/resources/experior-connect-workvivo-getting-started" },

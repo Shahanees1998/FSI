@@ -38,6 +38,7 @@ export async function PUT(
           ? {
               update: {
                 licenseNumber: body.agentProfile.licenseNumber ?? null,
+                fundServCode: body.agentProfile.fundServCode ?? null,
                 agencyName: body.agentProfile.agencyName ?? null,
                 city: body.agentProfile.city ?? null,
                 state: body.agentProfile.state ?? null,

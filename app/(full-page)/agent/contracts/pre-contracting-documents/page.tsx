@@ -1,13 +1,10 @@
+import PreContractingDocumentsView from "@/components/contracts/PreContractingDocumentsView";
 import { requireCurrentUser } from "@/lib/serverAuth";
 
 export default async function AgentPreContractingDocumentsPage() {
-    await requireCurrentUser("AGENT");
+    const user = await requireCurrentUser("AGENT");
+    const npnDisplay = user.agentProfile?.licenseNumber?.trim() || null;
 
-    return (
-        <div className="surface-card border-round border-1 surface-border p-4">
-            <h1 className="mt-0 mb-2">Pre-contracting Documents</h1>
-            <p className="text-600 m-0">Dummy content for now.</p>
-        </div>
-    );
+    return <PreContractingDocumentsView npnDisplay={npnDisplay} />;
 }
 

@@ -60,6 +60,8 @@ model AgentProfile {
   userId                String      @unique @db.ObjectId
   agentCode             String      @unique
   licenseNumber         String?
+  /** FundServ / dealer code shown on the Contracting (My Contracts) carrier grid header when set. */
+  fundServCode          String?
   agencyName            String?
   address               String?
   city                  String?

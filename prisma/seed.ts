@@ -55,6 +55,7 @@ async function main() {
         create: {
           agentCode: "AGT-1001",
           licenseNumber: "TX-AG-44591",
+          fundServCode: "A13713",
           agencyName: "Freedom Shield Insurance",
           city: "Houston",
           state: "TX",

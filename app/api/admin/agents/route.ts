@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
           create: {
             agentCode: body.agentCode || `AGT-${Date.now()}`,
             licenseNumber: body.licenseNumber || null,
+            fundServCode: body.fundServCode || null,
             agencyName: body.agencyName || "Freedom Shield Insurance",
             city: body.city || null,
             state: body.state || null,

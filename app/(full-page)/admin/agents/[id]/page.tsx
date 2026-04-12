@@ -39,6 +39,7 @@ export default async function AdminAgentDetailPage({
           <p className="mb-2"><span className="font-semibold">Job title:</span> {agent.jobTitle || "Not provided"}</p>
           <p className="mb-2"><span className="font-semibold">Location:</span> {agent.location || "Not provided"}</p>
           <p className="mb-2"><span className="font-semibold">License:</span> {agent.agentProfile?.licenseNumber || "Not provided"}</p>
+          <p className="mb-2"><span className="font-semibold">FundServ code:</span> {agent.agentProfile?.fundServCode || "Not provided"}</p>
           <p className="mb-2"><span className="font-semibold">Agency:</span> {agent.agentProfile?.agencyName || "Not provided"}</p>
           <p className="mb-0"><span className="font-semibold">Created:</span> {new Date(agent.createdAt).toLocaleString()}</p>
         </div>

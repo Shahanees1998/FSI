@@ -15,7 +15,20 @@ import UsaOnboardingProcessView from "@/components/learn/getting-started/UsaOnbo
 import ContestsView from "@/components/learn/ContestsView";
 import DesertOasisContest2027View from "@/components/learn/DesertOasisContest2027View";
 import LeadTrainingGuidesView from "@/components/learn/LeadTrainingGuidesView";
+import AnnuitiesQuantumView from "@/components/learn/products/AnnuitiesQuantumView";
+import GlobalViewInvestmentPlatformView from "@/components/learn/products/GlobalViewInvestmentPlatformView";
+import InsuranceSnapViewIsvView from "@/components/learn/products/InsuranceSnapViewIsvView";
+import HealthInsuranceProductsHubView from "@/components/learn/products/HealthInsuranceProductsHubView";
+import CarriersHubView from "@/components/learn/products/CarriersHubView";
+import CarriersSubpageView from "@/components/learn/products/CarriersSubpageView";
+import PuertoRicoHubView from "@/components/learn/products/PuertoRicoHubView";
+import PuertoRicoSubpageView from "@/components/learn/products/PuertoRicoSubpageView";
+import ReferralPartnersHubView from "@/components/learn/products/ReferralPartnersHubView";
+import ReferralPartnersSubpageView from "@/components/learn/products/ReferralPartnersSubpageView";
 import LifeInsuranceProductsHubView from "@/components/learn/products/LifeInsuranceProductsHubView";
+import DevelopmentComingSoonView from "@/components/learn/development/DevelopmentComingSoonView";
+import DevelopmentPopUpsView from "@/components/learn/development/DevelopmentPopUpsView";
+import DevelopmentReleasesView from "@/components/learn/development/DevelopmentReleasesView";
 import PurchaseLeadsView from "@/components/learn/PurchaseLeadsView";
 import UpcomingMeetingsView from "@/components/learn/UpcomingMeetingsView";
 import ContactsSectionView from "@/components/learn/contacts/ContactsSectionView";
@@ -34,10 +47,41 @@ import OneMillionHierarchyClubView from "@/components/learn/whats-new/OneMillion
 import PersonalBonusQualifiersView from "@/components/learn/whats-new/PersonalBonusQualifiersView";
 import RecordBreakersView from "@/components/learn/whats-new/RecordBreakersView";
 import WhatsNewSectionView from "@/components/learn/whats-new/WhatsNewSectionView";
+import BrokerSupportHubView from "@/components/learn/departments/BrokerSupportHubView";
+import BrokerSupportSubpageView from "@/components/learn/departments/BrokerSupportSubpageView";
+import CommissionsHubView from "@/components/learn/departments/CommissionsHubView";
+import CommissionsSubpageView from "@/components/learn/departments/CommissionsSubpageView";
+import ComplianceHubView from "@/components/learn/departments/ComplianceHubView";
+import ComplianceSubpageView from "@/components/learn/departments/ComplianceSubpageView";
+import MarketingHubView from "@/components/learn/departments/MarketingHubView";
+import NewPendingBusinessHubView from "@/components/learn/departments/NewPendingBusinessHubView";
+import NewPendingBusinessSubpageView from "@/components/learn/departments/NewPendingBusinessSubpageView";
+import ContractingHubView from "@/components/learn/departments/ContractingHubView";
+import ContractingSubpageView from "@/components/learn/departments/ContractingSubpageView";
+import { BROKER_SUPPORT_LEARN_TITLES } from "@/lib/learn/departmentsBrokerSupportNav";
+import { COMMISSIONS_LEARN_TITLES } from "@/lib/learn/departmentsCommissionsNav";
+import { COMPLIANCE_LEARN_TITLES } from "@/lib/learn/departmentsComplianceNav";
+import { CONTRACTING_LEARN_TITLES } from "@/lib/learn/departmentsContractingNav";
+import { NEW_PENDING_BUSINESS_LEARN_TITLES } from "@/lib/learn/departmentsNewPendingBusinessNav";
+import { CARRIER_LEARN_TITLES } from "@/lib/learn/carriersNav";
+import { PUERTO_RICO_LEARN_TITLES } from "@/lib/learn/puertoRicoNav";
+import { REFERRAL_PARTNER_LEARN_TITLES } from "@/lib/learn/referralPartnersNav";
+import FormsHubView from "@/components/learn/resources/FormsHubView";
+import MyCrmView from "@/components/learn/resources/MyCrmView";
+import ExperiorConnectWorkvivoView from "@/components/learn/resources/ExperiorConnectWorkvivoView";
+import ExperiorConnectWorkvivoGettingStartedView from "@/components/learn/resources/ExperiorConnectWorkvivoGettingStartedView";
+import FormsSubpageView from "@/components/learn/resources/FormsSubpageView";
+import ResourcesHubSubpageView from "@/components/learn/resources/ResourcesHubSubpageView";
+import ResourcesHubView from "@/components/learn/resources/ResourcesHubView";
+import { FORMS_LEARN_TITLES } from "@/lib/learn/resourcesFormsNav";
+import { RESOURCES_HUB_LEARN_TITLES } from "@/lib/learn/resourcesHubNav";
 import { requireCurrentUser } from "@/lib/serverAuth";
 import { redirect } from "next/navigation";
 
 const EXPERIOR_ACADEMY_EXTERNAL_URL = "https://experioracademyus.learnworlds.com/";
+const DEFAULT_EXPERIOR_WORKVIVO_LOGIN_URL = "https://experiorfinancial.workvivo.us/login";
+const DEFAULT_WORKVIVO_IOS_APP_URL = "https://apps.apple.com/us/app/workvivo/id1147631784";
+const DEFAULT_WORKVIVO_ANDROID_APP_URL = "https://play.google.com/store/apps/details?id=com.workvivo.workvivo";
 const CALENDAR_INTEGRATION_EXPLAINER_VIDEO_URL =
     "https://www.youtube.com/watch?v=eW_wsVBcIvI&t=2s";
 
@@ -119,19 +163,29 @@ const LEARN_TITLES: Record<string, string> = {
     "products/global-view-investment-platform": "Global View Investment Platform",
     "products/new-insurance-snapview-isv": "NEW Insurance SnapView (ISV)",
     "products/carriers": "Carriers",
+    ...CARRIER_LEARN_TITLES,
     "products/referral-partners": "Referral Partners",
+    ...REFERRAL_PARTNER_LEARN_TITLES,
     "products/puerto-rico": "Puerto Rico",
+    ...PUERTO_RICO_LEARN_TITLES,
     "departments/broker-support": "Broker Support",
+    ...BROKER_SUPPORT_LEARN_TITLES,
     "departments/commissions": "Commissions",
+    ...COMMISSIONS_LEARN_TITLES,
     "departments/contracting": "Contracting",
+    ...CONTRACTING_LEARN_TITLES,
     "departments/compliance": "Compliance",
-    "departments/marketing": "Marketing",
+    ...COMPLIANCE_LEARN_TITLES,
+    "departments/marketing": "Marketing Hub",
     "departments/new-pending-business": "New & Pending Business",
+    ...NEW_PENDING_BUSINESS_LEARN_TITLES,
     "development/releases": "Releases",
     "development/coming-soon": "Coming Soon",
     "development/pop-ups": "Pop-Ups",
     "resources/resources": "Resources",
+    ...RESOURCES_HUB_LEARN_TITLES,
     "resources/forms": "Forms",
+    ...FORMS_LEARN_TITLES,
     "resources/my-crm": "My CRM",
     "resources/experior-connect-workvivo": "Experior Connect - Workvivo",
     "resources/experior-connect-workvivo-getting-started": "Experior Connect - Workvivo Getting Started",
@@ -407,6 +461,202 @@ export default async function AgentLearnDetailPage({
         return (
             <LifeInsuranceProductsHubView
                 quotingToolsUrl={process.env.NEXT_PUBLIC_LIFE_QUOTING_TOOLS_URL?.trim() ?? null}
+            />
+        );
+    }
+
+    if (key === "products/health-insurance-products") {
+        return (
+            <HealthInsuranceProductsHubView
+                newHealthPartnersUrl={process.env.NEXT_PUBLIC_NEW_HEALTH_PARTNERS_URL?.trim() ?? null}
+                c2gUrl={process.env.NEXT_PUBLIC_C2G_HEALTH_URL?.trim() ?? null}
+            />
+        );
+    }
+
+    if (key === "products/annuities-quantum") {
+        return (
+            <AnnuitiesQuantumView
+                advisorPortalUrl={process.env.NEXT_PUBLIC_QUANTUM_ADVISOR_PORTAL_URL?.trim() ?? null}
+            />
+        );
+    }
+
+    if (key === "products/global-view-investment-platform") {
+        return (
+            <GlobalViewInvestmentPlatformView
+                compensationGridVideoId={process.env.NEXT_PUBLIC_GLOBAL_VIEW_COMPENSATION_VIDEO_ID?.trim() ?? null}
+                trifectaRecruitingVideoId={process.env.NEXT_PUBLIC_GLOBAL_VIEW_TRIFECTA_RECRUITING_VIDEO_ID?.trim() ?? null}
+            />
+        );
+    }
+
+    if (key === "products/new-insurance-snapview-isv") {
+        return <InsuranceSnapViewIsvView />;
+    }
+
+    if (key === "products/carriers") {
+        return <CarriersHubView />;
+    }
+
+    if (key.startsWith("products/carriers/")) {
+        const carrierTitle = CARRIER_LEARN_TITLES[key];
+        if (carrierTitle) {
+            return <CarriersSubpageView title={carrierTitle} />;
+        }
+    }
+
+    if (key === "products/referral-partners") {
+        return <ReferralPartnersHubView />;
+    }
+
+    if (key.startsWith("products/referral-partners/")) {
+        const referralTitle = REFERRAL_PARTNER_LEARN_TITLES[key];
+        if (referralTitle) {
+            return <ReferralPartnersSubpageView title={referralTitle} />;
+        }
+    }
+
+    if (key === "products/puerto-rico") {
+        return <PuertoRicoHubView />;
+    }
+
+    if (key.startsWith("products/puerto-rico/")) {
+        const prTitle = PUERTO_RICO_LEARN_TITLES[key];
+        if (prTitle) {
+            return <PuertoRicoSubpageView title={prTitle} />;
+        }
+    }
+
+    if (key === "departments/broker-support") {
+        return <BrokerSupportHubView />;
+    }
+
+    if (key.startsWith("departments/broker-support/")) {
+        const bsTitle = BROKER_SUPPORT_LEARN_TITLES[key];
+        if (bsTitle) {
+            return <BrokerSupportSubpageView title={bsTitle} />;
+        }
+    }
+
+    if (key === "departments/commissions") {
+        return <CommissionsHubView />;
+    }
+
+    if (key.startsWith("departments/commissions/")) {
+        const commTitle = COMMISSIONS_LEARN_TITLES[key];
+        if (commTitle) {
+            return <CommissionsSubpageView title={commTitle} />;
+        }
+    }
+
+    if (key === "departments/contracting") {
+        return <ContractingHubView />;
+    }
+
+    if (key.startsWith("departments/contracting/")) {
+        const contractingTitle = CONTRACTING_LEARN_TITLES[key];
+        if (contractingTitle) {
+            return <ContractingSubpageView title={contractingTitle} />;
+        }
+    }
+
+    if (key === "departments/compliance") {
+        return <ComplianceHubView />;
+    }
+
+    if (key.startsWith("departments/compliance/")) {
+        const complianceTitle = COMPLIANCE_LEARN_TITLES[key];
+        if (complianceTitle) {
+            return <ComplianceSubpageView title={complianceTitle} />;
+        }
+    }
+
+    if (key === "departments/marketing") {
+        return (
+            <MarketingHubView
+                experiorFactorTicketsUrl={process.env.NEXT_PUBLIC_EXPERIOR_FACTOR_TICKETS_URL?.trim() ?? null}
+                promotionsCompensationGuideUrl={
+                    process.env.NEXT_PUBLIC_MARKETING_PROMOTIONS_COMPENSATION_GUIDE_URL?.trim() ?? null
+                }
+                promotionTrackUrl={process.env.NEXT_PUBLIC_MARKETING_PROMOTION_TRACK_URL?.trim() ?? null}
+            />
+        );
+    }
+
+    if (key === "departments/new-pending-business") {
+        return <NewPendingBusinessHubView />;
+    }
+
+    if (key.startsWith("departments/new-pending-business/")) {
+        const npbTitle = NEW_PENDING_BUSINESS_LEARN_TITLES[key];
+        if (npbTitle) {
+            return <NewPendingBusinessSubpageView title={npbTitle} />;
+        }
+    }
+
+    if (key === "development/releases") {
+        return <DevelopmentReleasesView />;
+    }
+
+    if (key === "development/coming-soon") {
+        return <DevelopmentComingSoonView />;
+    }
+
+    if (key === "development/pop-ups") {
+        return <DevelopmentPopUpsView />;
+    }
+
+    if (key === "resources/resources") {
+        return <ResourcesHubView />;
+    }
+
+    if (key.startsWith("resources/resources/")) {
+        const resTitle = RESOURCES_HUB_LEARN_TITLES[key];
+        if (resTitle) {
+            return <ResourcesHubSubpageView title={resTitle} />;
+        }
+    }
+
+    if (key === "resources/forms") {
+        return <FormsHubView />;
+    }
+
+    if (key.startsWith("resources/forms/")) {
+        const formsTitle = FORMS_LEARN_TITLES[key];
+        if (formsTitle) {
+            return <FormsSubpageView title={formsTitle} />;
+        }
+    }
+
+    if (key === "resources/my-crm") {
+        return <MyCrmView crmUrl={process.env.NEXT_PUBLIC_EXPERIOR_CRM_URL?.trim() ?? null} />;
+    }
+
+    if (key === "resources/experior-connect-workvivo") {
+        const workvivoUrl =
+            process.env.NEXT_PUBLIC_EXPERIOR_WORKVIVO_URL?.trim() || DEFAULT_EXPERIOR_WORKVIVO_LOGIN_URL;
+        return <ExperiorConnectWorkvivoView loginUrl={workvivoUrl} />;
+    }
+
+    if (key === "resources/experior-connect-workvivo-getting-started") {
+        const desktopLoginUrl =
+            process.env.NEXT_PUBLIC_EXPERIOR_WORKVIVO_URL?.trim() || DEFAULT_EXPERIOR_WORKVIVO_LOGIN_URL;
+        const iosAppUrl = process.env.NEXT_PUBLIC_EXPERIOR_WORKVIVO_IOS_URL?.trim() || DEFAULT_WORKVIVO_IOS_APP_URL;
+        const androidAppUrl =
+            process.env.NEXT_PUBLIC_EXPERIOR_WORKVIVO_ANDROID_URL?.trim() || DEFAULT_WORKVIVO_ANDROID_APP_URL;
+        const dashboardImageSrc = process.env.NEXT_PUBLIC_WORKVIVO_DASHBOARD_IMAGE_SRC?.trim() ?? null;
+        const profileTutorialYoutubeId = process.env.NEXT_PUBLIC_WORKVIVO_PROFILE_TUTORIAL_YOUTUBE_ID?.trim() ?? null;
+        const createPostTutorialYoutubeId =
+            process.env.NEXT_PUBLIC_WORKVIVO_CREATE_POST_TUTORIAL_YOUTUBE_ID?.trim() ?? null;
+        return (
+            <ExperiorConnectWorkvivoGettingStartedView
+                desktopLoginUrl={desktopLoginUrl}
+                iosAppUrl={iosAppUrl}
+                androidAppUrl={androidAppUrl}
+                dashboardImageSrc={dashboardImageSrc}
+                profileTutorialYoutubeId={profileTutorialYoutubeId}
+                createPostTutorialYoutubeId={createPostTutorialYoutubeId}
             />
         );
     }
