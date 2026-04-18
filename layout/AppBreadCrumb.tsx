@@ -1,4 +1,5 @@
 import type { AppBreadcrumbProps } from "@/types/index";
+import { APP_NAME } from "@/lib/appBranding";
 import { usePathname } from "next/navigation";
 
 const formatSegment = (segment: string) =>
@@ -15,7 +16,7 @@ const AppBreadcrumb = ({ className }: AppBreadcrumbProps) => {
             <nav className="layout-breadcrumb">
                 <ol>
                     {parts.length === 0 ? (
-                        <li>Freedom Shield Insurance</li>
+                        <li>{APP_NAME}</li>
                     ) : (
                         parts.map((part, index) => (
                             <li key={`${part}-${index}`}>

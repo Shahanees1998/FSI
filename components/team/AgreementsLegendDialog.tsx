@@ -101,7 +101,7 @@ export default function AgreementsLegendDialog({ visible, onHide }: Props) {
                         <li className="flex align-items-start gap-2">
                             <span
                                 className="flex-shrink-0 border-circle mt-1"
-                                style={{ width: "0.75rem", height: "0.75rem", background: "#22c55e", border: "1px solid #16a34a" }}
+                                style={{ width: "0.75rem", height: "0.75rem", background: "#d4a574", border: "1px solid #16a34a" }}
                                 aria-hidden
                             />
                             <span>- Agent&apos;s document is approved.</span>

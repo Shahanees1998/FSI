@@ -40,7 +40,7 @@ function LoginContent() {
         <AuthSplitLayout>
             <div className="auth-form-content">
                 <div className="mb-4">
-                    <h1 className="text-2xl font-bold mb-2 text-white m-0">Sign in to FSI</h1>
+                    <h1 className="text-2xl font-bold mb-2 text-white m-0">Sign in to JS Investment</h1>
                     <span className="text-white-alpha-90 font-medium">
                         Access your back-office dashboard, commissions, and support tools.
                     </span>

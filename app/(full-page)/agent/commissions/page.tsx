@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AgentCommissionsDemoSection from "@/components/commissions/AgentCommissionsDemoSection";
 import PaginationControls from "@/components/portal/PaginationControls";
 import { listCommissionsForUser } from "@/lib/portalData";
 import { SearchParamRecord } from "@/lib/portalPagination";
@@ -18,6 +19,7 @@ export default async function AgentCommissionsPage({
     const total = result.totals.total;
 
     return (
+        <div className="flex flex-column gap-4">
         <div className="surface-card border-round border-1 surface-border p-4">
             <div className="flex justify-content-between align-items-start mb-4">
                 <div>
@@ -81,6 +83,8 @@ export default async function AgentCommissionsPage({
             </div>
             {result.data.length === 0 && <p className="text-600 mb-0">No commission records found.</p>}
             <PaginationControls pathname="/agent/commissions" searchParams={searchParams} pagination={result.pagination} />
+        </div>
+        <AgentCommissionsDemoSection />
         </div>
     );
 }

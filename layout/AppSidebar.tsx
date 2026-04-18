@@ -5,6 +5,7 @@ import { LayoutContext } from "./context/layoutcontext";
 import { MenuProvider } from "./context/menucontext";
 import { LayoutState } from "../types/layout";
 import { useAuth } from "@/hooks/useAuth";
+import { APP_NAME } from "@/lib/appBranding";
 
 const AppSidebar = () => {
     const { setLayoutState } = useContext(LayoutContext);
@@ -19,27 +20,16 @@ const AppSidebar = () => {
 
     const dashboardPath =
         user?.role === "ADMIN" ? "/admin" : user?.role === "CARRIER" ? "/carrier" : "/agent";
-    const title =
-        user?.role === "ADMIN"
-            ? "FSI Admin"
-            : user?.role === "CARRIER"
-              ? "Carrier Portal"
-              : "Agent Portal";
 
     return (
         <>
             <div className="sidebar-header">
                 <Link
-                    style={{ display: "flex", alignItems: "center", color: "#ffffff" }}
                     href={dashboardPath}
-                    className="app-logo flex items-center justify-content-center gap-3"
+                    className="app-logo flex align-items-center justify-content-center px-2 py-2 no-underline text-center"
+                    style={{ color: "#ffffff" }}
                 >
-                    <img
-                        src="/images/logo.png"
-                        alt="Freedom Shield Insurance"
-                        style={{ height: "72px", filter: "brightness(0) invert(1)" }}
-                    />
-               
+                    <span className="text-xl font-bold line-height-3 white-space-nowrap">{APP_NAME}</span>
                 </Link>
                 <button
                     className="layout-sidebar-anchor p-link z-2 mb-2"

@@ -58,13 +58,13 @@ export default function ChecklistLicensedView() {
                         <strong>F&amp;G</strong>.
                     </li>
                     <li className="mb-3 pl-2">
-                        Learn how to do a discovery for clients — see{" "}
-                        <Link href="/agent/efa/training" className="text-blue-600 font-medium no-underline hover:underline">
-                            EFA training
+                        Learn how to do a discovery for clients — see the{" "}
+                        <Link href="/agent/learn" className="text-blue-600 font-medium no-underline hover:underline">
+                            Learn
                         </Link>{" "}
-                        or the{" "}
-                        <Link href="/agent/efa/green-sheet" className="text-blue-600 font-medium no-underline hover:underline">
-                            Green Sheet
+                        hub or add a{" "}
+                        <Link href="/agent/clients/create" className="text-blue-600 font-medium no-underline hover:underline">
+                            client profile
                         </Link>
                         .
                     </li>

@@ -1,0 +1,148 @@
+/** Sample tickets for /agent/tickets (illustrative only). */
+
+export type DemoTicketRow = {
+  id: string;
+  category: string;
+  subject: string;
+  description: string;
+  status: string;
+  priority: string;
+  updatedAt: string;
+  requester: { firstName: string; lastName: string; email: string };
+  assignedTo: { firstName: string; lastName: string; email: string } | null;
+};
+
+export const DEMO_TICKETS: DemoTicketRow[] = [
+  {
+    id: "demo-tkt-1",
+    category: "COMMISSION",
+    subject: "Missing March statement line item",
+    description: "Policy NB-2025-88421 shows in portal but no commission row for March payout.",
+    status: "IN_PROGRESS",
+    priority: "HIGH",
+    updatedAt: "2026-04-16",
+    requester: { firstName: "Sarah", lastName: "Mitchell", email: "s.mitchell@email.com" },
+    assignedTo: { firstName: "Support", lastName: "Team", email: "support@example.com" },
+  },
+  {
+    id: "demo-tkt-2",
+    category: "CARRIER",
+    subject: "Contracting packet returned — unclear NIPR print",
+    description: "Carrier asked for clearer NIPR screenshot. Need guidance on acceptable format.",
+    status: "WAITING_ON_AGENT",
+    priority: "MEDIUM",
+    updatedAt: "2026-04-15",
+    requester: { firstName: "James", lastName: "Chen", email: "j.chen@email.com" },
+    assignedTo: null,
+  },
+  {
+    id: "demo-tkt-3",
+    category: "TECHNICAL",
+    subject: "Cannot upload PDF on policy submission step 4",
+    description: "Browser shows spinner then fails; file is under 5MB and PDF.",
+    status: "OPEN",
+    priority: "URGENT",
+    updatedAt: "2026-04-14",
+    requester: { firstName: "Emily", lastName: "Rodriguez", email: "e.rodriguez@email.com" },
+    assignedTo: { firstName: "Support", lastName: "Team", email: "support@example.com" },
+  },
+  {
+    id: "demo-tkt-4",
+    category: "COMPLIANCE",
+    subject: "Reg 187 training proof upload",
+    description: "Confirming which certificate image is acceptable for NY business.",
+    status: "RESOLVED",
+    priority: "LOW",
+    updatedAt: "2026-04-12",
+    requester: { firstName: "Michael", lastName: "O'Brien", email: "m.obrien@email.com" },
+    assignedTo: { firstName: "Compliance", lastName: "Desk", email: "compliance@example.com" },
+  },
+  {
+    id: "demo-tkt-5",
+    category: "GENERAL",
+    subject: "Office hours for licensing questions",
+    description: "What are the current blocks for live licensing Q&A this week?",
+    status: "CLOSED",
+    priority: "LOW",
+    updatedAt: "2026-04-10",
+    requester: { firstName: "Priya", lastName: "Patel", email: "p.patel@email.com" },
+    assignedTo: { firstName: "Support", lastName: "Team", email: "support@example.com" },
+  },
+  {
+    id: "demo-tkt-6",
+    category: "COMMISSION",
+    subject: "Duplicate payment suspected — April batch",
+    description: "Same policy number appears twice in paid report with identical amounts.",
+    status: "OPEN",
+    priority: "HIGH",
+    updatedAt: "2026-04-09",
+    requester: { firstName: "David", lastName: "Kim", email: "d.kim@email.com" },
+    assignedTo: { firstName: "Finance", lastName: "Ops", email: "finance@example.com" },
+  },
+  {
+    id: "demo-tkt-7",
+    category: "CARRIER",
+    subject: "Appointment confirmation delay — Summit Assurance",
+    description: "Submitted Upline change 10 days ago; portal still shows pending.",
+    status: "WAITING_ON_CARRIER",
+    priority: "MEDIUM",
+    updatedAt: "2026-04-08",
+    requester: { firstName: "Lisa", lastName: "Thompson", email: "l.thompson@email.com" },
+    assignedTo: { firstName: "Support", lastName: "Team", email: "support@example.com" },
+  },
+  {
+    id: "demo-tkt-8",
+    category: "TECHNICAL",
+    subject: "Mobile layout — ticket list overflow",
+    description: "On iPhone SE the filter row overlaps the first card slightly.",
+    status: "IN_PROGRESS",
+    priority: "LOW",
+    updatedAt: "2026-04-07",
+    requester: { firstName: "Robert", lastName: "Garcia", email: "r.garcia@email.com" },
+    assignedTo: { firstName: "Support", lastName: "Team", email: "support@example.com" },
+  },
+  {
+    id: "demo-tkt-9",
+    category: "GENERAL",
+    subject: "Request carrier marketing kit link",
+    description: "Need current PDF kit for Northbridge term products.",
+    status: "RESOLVED",
+    priority: "MEDIUM",
+    updatedAt: "2026-04-05",
+    requester: { firstName: "Anna", lastName: "Novak", email: "a.novak@email.com" },
+    assignedTo: null,
+  },
+  {
+    id: "demo-tkt-10",
+    category: "COMMISSION",
+    subject: "Chargeback notation on May preview",
+    description: "Negative line on preview — need explanation before posting.",
+    status: "OPEN",
+    priority: "HIGH",
+    updatedAt: "2026-04-04",
+    requester: { firstName: "Chris", lastName: "Walker", email: "c.walker@email.com" },
+    assignedTo: { firstName: "Finance", lastName: "Ops", email: "finance@example.com" },
+  },
+  {
+    id: "demo-tkt-11",
+    category: "COMPLIANCE",
+    subject: "AML refresh course deadline",
+    description: "Confirm if prior year completion still valid for this licensing year.",
+    status: "WAITING_ON_AGENT",
+    priority: "MEDIUM",
+    updatedAt: "2026-04-03",
+    requester: { firstName: "Maria", lastName: "Santos", email: "m.santos@email.com" },
+    assignedTo: { firstName: "Compliance", lastName: "Desk", email: "compliance@example.com" },
+  },
+  {
+    id: "demo-tkt-12",
+    category: "CARRIER",
+    subject: "Product training cert not showing complete",
+    description: "Completed IUL module; profile still shows 80%.",
+    status: "IN_PROGRESS",
+    priority: "LOW",
+    updatedAt: "2026-04-02",
+    requester: { firstName: "Kevin", lastName: "Brooks", email: "k.brooks@email.com" },
+    assignedTo: { firstName: "Support", lastName: "Team", email: "support@example.com" },
+  },
+];

@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import { withAdminAuth, AuthenticatedRequest } from "@/lib/authMiddleware";
 import { prisma } from "@/lib/prisma";
+import { APP_DEFAULT_AGENCY_NAME } from "@/lib/appBranding";
 
 export async function GET(request: NextRequest) {
   return withAdminAuth(request, async () => {
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
                 agentProfile: {
                   create: {
                     agentCode: agentCode || `AGT-${Date.now()}`,
-                    agencyName: "Freedom Shield Insurance",
+                    agencyName: APP_DEFAULT_AGENCY_NAME,
                   },
                 },
               }

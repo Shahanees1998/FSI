@@ -33,7 +33,7 @@ export default async function CarrierConversationDetailPage({
     return (
         <MessagingWorkspace
             title="Messages"
-            subtitle="Coordinate with FSI administrators and agents who carry your products. Search covers subjects, people, and message text. Updates appear live."
+            subtitle="Coordinate with JS Investment administrators and agents who carry your products. Search covers subjects, people, and message text. Updates appear live."
             basePath="/carrier/messages"
             currentUser={{
                 id: user.id,

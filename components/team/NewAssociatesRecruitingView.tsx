@@ -9,7 +9,7 @@ const OPEN_DEBOUNCE_MS = 800;
 
 export default function NewAssociatesRecruitingView() {
     useEffect(() => {
-        const key = "fsi-new-associates-pdf-open";
+        const key = "JS Investment-new-associates-pdf-open";
         const now = Date.now();
         const last = Number(sessionStorage.getItem(key) || 0);
         if (now - last < OPEN_DEBOUNCE_MS) return;

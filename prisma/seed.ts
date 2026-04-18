@@ -1,5 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import {
+  APP_DEFAULT_AGENCY_NAME,
+  APP_DEFAULT_SUPPORT_EMAIL,
+  APP_NAME,
+  APP_PORTAL_NAME,
+} from "../lib/appBranding";
 
 const prisma = new PrismaClient();
 
@@ -24,9 +30,9 @@ async function main() {
 
   const admin = await prisma.user.create({
     data: {
-      email: "admin@freedomshieldinsurance.com",
+      email: "admin@jsinvestment.com",
       password: hashedPassword,
-      firstName: "FSI",
+      firstName: "JS Investment",
       lastName: "Administrator",
       phone: "5551000001",
       role: "ADMIN",
@@ -40,7 +46,7 @@ async function main() {
 
   const agentOne = await prisma.user.create({
     data: {
-      email: "agent.sarah@fsi-demo.com",
+      email: "agent.sarah@JS Investment-demo.com",
       password: hashedPassword,
       firstName: "Sarah",
       lastName: "Miles",
@@ -56,7 +62,7 @@ async function main() {
           agentCode: "AGT-1001",
           licenseNumber: "TX-AG-44591",
           fundServCode: "A13713",
-          agencyName: "Freedom Shield Insurance",
+          agencyName: APP_DEFAULT_AGENCY_NAME,
           city: "Houston",
           state: "TX",
           country: "USA",
@@ -71,7 +77,7 @@ async function main() {
 
   const agentTwo = await prisma.user.create({
     data: {
-      email: "agent.daniel@fsi-demo.com",
+      email: "agent.daniel@JS Investment-demo.com",
       password: hashedPassword,
       firstName: "Daniel",
       lastName: "Reed",
@@ -86,7 +92,7 @@ async function main() {
         create: {
           agentCode: "AGT-1002",
           licenseNumber: "TX-AG-55293",
-          agencyName: "Freedom Shield Insurance",
+          agencyName: APP_DEFAULT_AGENCY_NAME,
           city: "Austin",
           state: "TX",
           country: "USA",
@@ -101,7 +107,7 @@ async function main() {
 
   const carrierOne = await prisma.user.create({
     data: {
-      email: "carrier.liberty@fsi-demo.com",
+      email: "carrier.liberty@JS Investment-demo.com",
       password: hashedPassword,
       firstName: "Liberty",
       lastName: "National",
@@ -116,7 +122,7 @@ async function main() {
         create: {
           carrierCode: "CAR-2001",
           carrierName: "Liberty National Insurance",
-          contactEmail: "carrier.liberty@fsi-demo.com",
+          contactEmail: "carrier.liberty@JS Investment-demo.com",
           contactPhone: "5551000004",
           website: "https://example.com/liberty-national",
           status: "ACTIVE",
@@ -130,7 +136,7 @@ async function main() {
 
   const carrierTwo = await prisma.user.create({
     data: {
-      email: "carrier.atlas@fsi-demo.com",
+      email: "carrier.atlas@JS Investment-demo.com",
       password: hashedPassword,
       firstName: "Atlas",
       lastName: "Health",
@@ -145,7 +151,7 @@ async function main() {
         create: {
           carrierCode: "CAR-2002",
           carrierName: "Atlas Health Assurance",
-          contactEmail: "carrier.atlas@fsi-demo.com",
+          contactEmail: "carrier.atlas@JS Investment-demo.com",
           contactPhone: "5551000005",
           website: "https://example.com/atlas-health",
           status: "ACTIVE",
@@ -188,7 +194,7 @@ async function main() {
       {
         conversationId: conversation.id,
         senderId: admin.id,
-        body: "Welcome to the new Freedom Shield carrier collaboration workspace.",
+        body: `Welcome to the new ${APP_NAME} carrier collaboration workspace.`,
         messageType: "SYSTEM",
       },
       {
@@ -338,14 +344,14 @@ async function main() {
       {
         userId: agentOne.id,
         title: "Ticket updated",
-        message: "FSI operations responded to your commission support ticket.",
+        message: "JS Investment operations responded to your commission support ticket.",
         type: "TICKET",
         link: "/agent/tickets",
       },
       {
         userId: carrierOne.id,
         title: "New carrier conversation",
-        message: "A new conversation was opened with FSI and an assigned agent.",
+        message: `A new conversation was opened with ${APP_NAME} and an assigned agent.`,
         type: "MESSAGE",
         link: "/carrier/messages",
       },
@@ -354,7 +360,7 @@ async function main() {
 
   await prisma.announcement.create({
     data: {
-      title: "Welcome to the FSI Portal MVP",
+      title: `Welcome to the ${APP_NAME} Portal MVP`,
       content: "Use the portal to monitor commissions, collaborate with carriers, and manage support tickets in one place.",
       audience: "ALL",
       createdById: admin.id,
@@ -364,9 +370,9 @@ async function main() {
 
   await prisma.systemSettings.create({
     data: {
-      siteName: "Freedom Shield Insurance Portal",
-      siteDescription: "Back-office workspace for agents, carriers, and FSI administrators.",
-      supportEmail: "support@freedomshieldinsurance.com",
+      siteName: APP_PORTAL_NAME,
+      siteDescription: `Back-office workspace for agents, carriers, and ${APP_NAME} administrators.`,
+      supportEmail: APP_DEFAULT_SUPPORT_EMAIL,
       supportPhone: "1-800-555-0147",
       commissionDisclaimer: "Commission data is provisional until final carrier statements are reconciled.",
       notificationsEnabled: true,
@@ -391,7 +397,7 @@ async function main() {
     ],
   });
 
-  console.log("FSI demo data seeded successfully.");
+  console.log("JS Investment demo data seeded successfully.");
 }
 
 main()

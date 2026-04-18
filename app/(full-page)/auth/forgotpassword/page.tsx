@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
                 <div className="mb-4">
                     <h1 className="text-2xl font-bold mb-2 text-white m-0">Reset your password</h1>
                     <span className="text-white-alpha-90 font-medium">
-                        Enter the email tied to your FSI portal account.
+                        Enter the email tied to your JS Investment portal account.
                     </span>
                 </div>
                 <label className="block text-white mb-2">Email</label>

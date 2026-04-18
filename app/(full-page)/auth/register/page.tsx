@@ -81,7 +81,7 @@ export default function RegisterPage() {
         <AuthSplitLayout>
             <div className="auth-form-content">
                 <div className="mb-4">
-                    <h1 className="text-2xl font-bold mb-2 text-white m-0">Create your FSI account</h1>
+                    <h1 className="text-2xl font-bold mb-2 text-white m-0">Create your JS Investment account</h1>
                     <span className="text-white-alpha-90 font-medium">
                         Join the portal as an agent or carrier and start working immediately.
                     </span>

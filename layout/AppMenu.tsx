@@ -11,7 +11,19 @@ import { puertoRicoLearnMenuItems } from "@/lib/learn/puertoRicoNav";
 import { referralPartnersLearnMenuItems } from "@/lib/learn/referralPartnersNav";
 import AppSubMenu from "./AppSubMenu";
 import { useAuth } from "@/hooks/useAuth";
-import { canAccessSection } from "@/lib/rolePermissions";
+import { canAccessSection, isAdminRole } from "@/lib/rolePermissions";
+
+/** Set to `true` to show the full Learn menu for agents in the sidebar again. */
+const SHOW_AGENT_LEARN_MENU = false;
+
+/** Set to `true` to show the Contracts menu for agents in the sidebar again. */
+const SHOW_AGENT_CONTRACTS_MENU = false;
+
+/** Set to `true` to show the Reports menu for agents in the sidebar again. */
+const SHOW_AGENT_REPORTS_MENU = false;
+
+/** Set to `true` to show the My Business submenu for agents in the sidebar again. */
+const SHOW_AGENT_MY_BUSINESS_MENU = false;
 
 const AppMenu = () => {
     const { user } = useAuth();
@@ -55,36 +67,51 @@ const AppMenu = () => {
                         { label: "Spanish Tutorials", icon: "pi pi-fw pi-globe", to: "/agent/new-agents/spanish-tutorials" },
                     ],
                 },
+                ...(SHOW_AGENT_MY_BUSINESS_MENU
+                    ? [
+                          {
+                              label: "My Business",
+                              icon: "pi pi-fw pi-briefcase",
+                              items: [
+                                  {
+                                      label: "New Business Transmittals",
+                                      icon: "pi pi-fw pi-send",
+                                      to: "/agent/my-business/new-business-transmittals",
+                                  },
+                                  { label: "Insurance", icon: "pi pi-fw pi-shield", to: "/agent/my-business/insurance" },
+                                  { label: "Annuities", icon: "pi pi-fw pi-wallet", to: "/agent/my-business/annuities" },
+                                  { label: "Trail", icon: "pi pi-fw pi-chart-line", to: "/agent/my-business/trail" },
+                                  { label: "Renewals", icon: "pi pi-fw pi-refresh", to: "/agent/my-business/renewals" },
+                                  { label: "Health & Dental", icon: "pi pi-fw pi-heart", to: "/agent/my-business/health-dental" },
+                                  { label: "Group", icon: "pi pi-fw pi-users", to: "/agent/my-business/group" },
+                                  { label: "Unlicensed", icon: "pi pi-fw pi-ban", to: "/agent/my-business/unlicensed" },
+                                  {
+                                      label: "Additional Commission",
+                                      icon: "pi pi-fw pi-plus-circle",
+                                      to: "/agent/my-business/additional-commission",
+                                  },
+                                  {
+                                      label: "Documents Manager",
+                                      icon: "pi pi-fw pi-folder",
+                                      to: "/agent/my-business/documents-manager",
+                                  },
+                              ],
+                          },
+                      ]
+                    : []),
                 {
-                    label: "My Business",
-                    icon: "pi pi-fw pi-briefcase",
+                    label: "Client Profiles",
+                    icon: "pi pi-fw pi-id-card",
                     items: [
-                        { label: "New Business Transmittals", icon: "pi pi-fw pi-send", to: "/agent/my-business/new-business-transmittals" },
-                        { label: "Insurance", icon: "pi pi-fw pi-shield", to: "/agent/my-business/insurance" },
-                        { label: "Annuities", icon: "pi pi-fw pi-wallet", to: "/agent/my-business/annuities" },
-                        { label: "Trail", icon: "pi pi-fw pi-chart-line", to: "/agent/my-business/trail" },
-                        { label: "Renewals", icon: "pi pi-fw pi-refresh", to: "/agent/my-business/renewals" },
-                        { label: "Health & Dental", icon: "pi pi-fw pi-heart", to: "/agent/my-business/health-dental" },
-                        { label: "Group", icon: "pi pi-fw pi-users", to: "/agent/my-business/group" },
-                        { label: "Unlicensed", icon: "pi pi-fw pi-ban", to: "/agent/my-business/unlicensed" },
-                        { label: "Additional Commission", icon: "pi pi-fw pi-plus-circle", to: "/agent/my-business/additional-commission" },
-                        { label: "Documents Manager", icon: "pi pi-fw pi-folder", to: "/agent/my-business/documents-manager" },
+                        { label: "All clients", icon: "pi pi-fw pi-list", to: "/agent/clients" },
+                        { label: "New client", icon: "pi pi-fw pi-plus", to: "/agent/clients/create" },
                     ],
                 },
+                { label: "Companies", icon: "pi pi-fw pi-sitemap", to: "/agent/companies" },
                 {
-                    label: "EFA",
-                    icon: "pi pi-fw pi-file",
-                    items: [
-                        { label: "★EFA Training★", icon: "pi pi-fw pi-star", to: "/agent/efa/training" },
-                        { label: "EFA Data Sheets", icon: "pi pi-fw pi-file", to: "/agent/efa/data-sheets" },
-                        { label: "EFA Data Input (full version)", icon: "pi pi-fw pi-pencil", to: "/agent/efa/data-input-full" },
-                        { label: "EFA Data Input (Lite)", icon: "pi pi-fw pi-pencil", to: "/agent/efa/data-input-lite" },
-                        { label: "EFAs Completed", icon: "pi pi-fw pi-check", to: "/agent/efa/efas-completed" },
-                        { label: "EFA Completed (Lite)", icon: "pi pi-fw pi-check-circle", to: "/agent/efa/efa-completed-lite" },
-                        { label: "Your Financial Picture", icon: "pi pi-fw pi-chart-pie", to: "/agent/efa/your-financial-picture" },
-                        { label: "Green Sheet", icon: "pi pi-fw pi-book", to: "/agent/efa/green-sheet" },
-                        { label: "Pre-Application Info Gather", icon: "pi pi-fw pi-list", to: "/agent/efa/pre-application-info-gather" },
-                    ],
+                    label: "Policy submission",
+                    icon: "pi pi-fw pi-file-edit",
+                    to: "/agent/policy-submission",
                 },
                 {
                     label: "Team",
@@ -120,17 +147,25 @@ const AppMenu = () => {
                         { label: "Reassigned Clients", icon: "pi pi-fw pi-users", to: "/agent/team/reassigned-clients", badge: 0 },
                     ],
                 },
-                {
-                    label: "Reports",
-                    icon: "pi pi-fw pi-chart-bar",
-                    items: [
-                        { label: "Pending Reports", icon: "pi pi-fw pi-clock", to: "/agent/reports/pending" },
-                        { label: "Paid Reports", icon: "pi pi-fw pi-check", to: "/agent/reports/paid" },
-                        { label: "Escrow Account", icon: "pi pi-fw pi-wallet", to: "/agent/reports/escrow-account" },
-                        { label: "Roll Ups", icon: "pi pi-fw pi-sort-alt", to: "/agent/reports/roll-ups" },
-                        { label: "Debts", icon: "pi pi-fw pi-exclamation-triangle", to: "/agent/reports/debts" },
-                    ],
-                },
+                ...(SHOW_AGENT_REPORTS_MENU
+                    ? [
+                          {
+                              label: "Reports",
+                              icon: "pi pi-fw pi-chart-bar",
+                              items: [
+                                  {
+                                      label: "Pending Reports",
+                                      icon: "pi pi-fw pi-clock",
+                                      to: "/agent/reports/pending",
+                                  },
+                                  { label: "Paid Reports", icon: "pi pi-fw pi-check", to: "/agent/reports/paid" },
+                                  { label: "Escrow Account", icon: "pi pi-fw pi-wallet", to: "/agent/reports/escrow-account" },
+                                  { label: "Roll Ups", icon: "pi pi-fw pi-sort-alt", to: "/agent/reports/roll-ups" },
+                                  { label: "Debts", icon: "pi pi-fw pi-exclamation-triangle", to: "/agent/reports/debts" },
+                              ],
+                          },
+                      ]
+                    : []),
                 {
                     label: "Scoreboard",
                     icon: "pi pi-fw pi-chart-line",
@@ -141,17 +176,27 @@ const AppMenu = () => {
                         { label: "Settled Investments FAQ", icon: "pi pi-fw pi-question-circle", to: "/agent/scoreboard/settled-investments-faq" },
                     ],
                 },
-                {
-                    label: "Contracts",
-                    icon: "pi pi-fw pi-book",
-                    items: [
-                        { label: "Pre-contracting Documents", icon: "pi pi-fw pi-file", to: "/agent/contracts/pre-contracting-documents" },
-                        { label: "My Contracts", icon: "pi pi-fw pi-book", to: "/agent/contracts/my-contracts" },
-                        { label: "Team Contracts", icon: "pi pi-fw pi-users", to: "/agent/contracts/team-contracts" },
-                        { label: "Corporate", icon: "pi pi-fw pi-building", to: "/agent/contracts/corporate" },
-                    ],
-                },
-                {
+                ...(SHOW_AGENT_CONTRACTS_MENU
+                    ? [
+                          {
+                              label: "Contracts",
+                              icon: "pi pi-fw pi-book",
+                              items: [
+                                  {
+                                      label: "Pre-contracting Documents",
+                                      icon: "pi pi-fw pi-file",
+                                      to: "/agent/contracts/pre-contracting-documents",
+                                  },
+                                  { label: "My Contracts", icon: "pi pi-fw pi-book", to: "/agent/contracts/my-contracts" },
+                                  { label: "Team Contracts", icon: "pi pi-fw pi-users", to: "/agent/contracts/team-contracts" },
+                                  { label: "Corporate", icon: "pi pi-fw pi-building", to: "/agent/contracts/corporate" },
+                              ],
+                          },
+                      ]
+                    : []),
+                ...(SHOW_AGENT_LEARN_MENU
+                    ? [
+                          {
                     label: "Learn",
                     icon: "pi pi-fw pi-bookmark",
                     items: [
@@ -621,6 +666,8 @@ const AppMenu = () => {
                         },
                     ],
                 },
+                      ]
+                    : []),
             ],
         });
     }
@@ -667,12 +714,14 @@ const AppMenu = () => {
         });
     }
 
-    if (canAccessSection(user.role, "agents") || canAccessSection(user.role, "carriers")) {
+    /* Administration is admin-only; use role check so Agents / Companies / etc. always appear together. */
+    if (isAdminRole(user.role)) {
         model.push({
             label: "Administration",
             icon: "pi pi-cog",
             items: [
                 { label: "Agents", icon: "pi pi-fw pi-users", to: "/admin/agents" },
+                { label: "Companies", icon: "pi pi-fw pi-sitemap", to: "/admin/companies" },
                 { label: "Carriers", icon: "pi pi-fw pi-building", to: "/admin/carriers" },
                 { label: "Insurer Stats", icon: "pi pi-fw pi-chart-line", to: "/admin/insurer-stats" },
                 { label: "Settings", icon: "pi pi-fw pi-cog", to: "/admin/settings" },

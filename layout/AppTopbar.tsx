@@ -9,6 +9,7 @@ import { Button } from "primereact/button";
 import AppBreadcrumb from "./AppBreadCrumb";
 import { LayoutContext } from "./context/layoutcontext";
 import { useAuth } from "@/hooks/useAuth";
+import { APP_NAME } from "@/lib/appBranding";
 
 const AppTopbar = forwardRef<AppTopbarRef>((_props, ref) => {
     const { onMenuToggle, showProfileSidebar } = useContext(LayoutContext);
@@ -20,7 +21,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((_props, ref) => {
         menubutton: menubuttonRef.current,
     }));
 
-    const initials = `${user?.firstName?.[0] ?? "F"}${user?.lastName?.[0] ?? "S"}`;
+    const initials = `${user?.firstName?.[0] ?? "J"}${user?.lastName?.[0] ?? "S"}`;
 
     const dashboardPath =
         user?.role === "ADMIN" ? "/admin" : user?.role === "CARRIER" ? "/carrier" : "/agent";
@@ -49,11 +50,11 @@ const AppTopbar = forwardRef<AppTopbarRef>((_props, ref) => {
                 <div className="flex align-items-center gap-3">
                     <div className="hidden md:block text-right">
                         <div className="font-semibold text-sm">
-                            {user ? `${user.firstName} ${user.lastName}` : "Freedom Shield User"}
+                            {user ? `${user.firstName} ${user.lastName}` : `${APP_NAME} User`}
                         </div>
                         <div className="text-600 text-xs">
                             {user?.role === "ADMIN"
-                                ? "FSI Administration"
+                                ? `${APP_NAME} Administration`
                                 : user?.role === "CARRIER"
                                   ? "Carrier Partner"
                                   : "Licensed Agent"}

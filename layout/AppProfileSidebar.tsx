@@ -3,6 +3,7 @@ import { useContext } from "react";
 import { useRouter } from "next/navigation";
 import { LayoutContext } from "./context/layoutcontext";
 import { useAuth } from "@/hooks/useAuth";
+import { APP_NAME } from "@/lib/appBranding";
 
 const AppProfileSidebar = () => {
     const { layoutState, setLayoutState } = useContext(LayoutContext);
@@ -39,12 +40,12 @@ const AppProfileSidebar = () => {
             <div className="flex flex-column gap-4">
                 <div>
                     <div className="text-900 font-semibold text-xl">
-                        {user ? `${user.firstName} ${user.lastName}` : "Freedom Shield User"}
+                        {user ? `${user.firstName} ${user.lastName}` : `${APP_NAME} User`}
                     </div>
                     <div className="text-600 mt-2">{user?.email}</div>
                     <div className="text-600 mt-1">
                         {user?.role === "ADMIN"
-                            ? "FSI Administration"
+                            ? `${APP_NAME} Administration`
                             : user?.role === "CARRIER"
                               ? "Carrier Partner"
                               : "Licensed Agent"}
@@ -76,7 +77,7 @@ const AppProfileSidebar = () => {
                     <i className="pi pi-power-off text-xl text-primary"></i>
                     <div className="ml-3">
                         <span className="font-semibold block">Sign out</span>
-                        <span className="text-color-secondary">End your current FSI portal session.</span>
+                        <span className="text-color-secondary">End your current JS Investment portal session.</span>
                     </div>
                 </button>
             </div>

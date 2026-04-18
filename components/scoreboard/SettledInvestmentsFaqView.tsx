@@ -1,36 +1,45 @@
 import Link from "next/link";
 
-const h2 = "text-xl font-semibold text-900 m-0 mb-2";
-const body = "text-700 line-height-3 m-0 mb-4";
-const ul = "text-700 line-height-3 m-0 mb-4 pl-4 flex flex-column gap-2";
-const link = "text-blue-600 font-medium no-underline hover:underline";
+const h2 = "text-lg md:text-xl font-semibold text-900 m-0 mb-2";
+const body = "text-700 line-height-3 m-0 mb-4 text-sm md:text-base";
+const ul = "text-700 line-height-3 m-0 mb-4 pl-4 flex flex-column gap-2 text-sm md:text-base";
+const link = "text-primary font-medium no-underline hover:underline";
 
 export default function SettledInvestmentsFaqView() {
     return (
-        <div className="surface-card border-round border-1 surface-border overflow-hidden">
-            <div className="p-4 md:p-5 lg:p-6" style={{ maxWidth: "52rem" }}>
-                <h1 className="text-2xl md:text-3xl font-bold text-900 m-0 mb-2">Settled Investments FAQ</h1>
-                <p className="text-600 text-sm md:text-base m-0 mb-5">
-                    Agent guide: <strong>Settled investments / annuities</strong> on the scoreboard—how <strong>Submitted</strong> and{" "}
-                    <strong>Amount Paid</strong> work, what data is included, and how personal vs. team totals roll up.
-                </p>
+        <div className="surface-card border-round border-1 surface-border overflow-hidden w-full">
+            <div className="p-3 md:p-4 lg:p-5 w-full">
+                <header className="mb-5 md:mb-6 pb-4 md:pb-5 border-bottom-1 surface-border">
+                    <h1 className="text-2xl md:text-3xl font-bold text-900 m-0 mb-3">Settled Investments FAQ</h1>
+                    <p className="text-600 text-sm md:text-base m-0 line-height-3">
+                        Agent guide: <strong>Settled investments / annuities</strong> on the scoreboard—how <strong>Submitted</strong> and{" "}
+                        <strong>Amount Paid</strong> work, what data is included, and how personal vs. team totals roll up.
+                    </p>
+                </header>
 
                 <div
-                    className="border-round-xl p-4 md:p-5 mb-5 text-center"
+                    className="border-round-xl p-5 md:p-6 mb-6 md:mb-7 text-center w-full"
                     style={{
                         background: "linear-gradient(115deg, #0f766e 0%, #14b8a6 50%, #5eead4 100%)",
                         boxShadow: "0 8px 24px rgba(15, 118, 110, 0.25)",
                     }}
                 >
-                    <p className="m-0 text-white font-bold text-lg md:text-xl" style={{ letterSpacing: "0.06em" }}>
+                    <p
+                        className="m-0 text-white font-black line-height-3"
+                        style={{
+                            fontSize: "clamp(1.25rem, 3vw, 1.75rem)",
+                            letterSpacing: "0.08em",
+                            textShadow: "0 2px 10px rgba(15, 23, 42, 0.2)",
+                        }}
+                    >
                         SCOREBOARD
                     </p>
-                    <p className="m-0 mt-2 text-white font-semibold text-sm md:text-base opacity-90">
+                    <p className="m-0 mt-2 md:mt-3 text-white font-semibold text-sm md:text-base opacity-95 max-w-screen-md mx-auto line-height-3">
                         Settled investments &amp; annuities — agent guide
                     </p>
                 </div>
 
-                <section className="mb-5">
+                <section className="mb-5 md:mb-6">
                     <h2 className={h2}>What&apos;s new</h2>
                     <p className={body}>
                         The scoreboard includes a control (typically a dropdown) to switch between <strong>Submitted</strong> (deals
@@ -130,21 +139,27 @@ export default function SettledInvestmentsFaqView() {
                     </ol>
                 </section>
 
-                <section className="pt-3 border-top-1 surface-border">
-                    <p className="text-700 text-sm m-0">
-                        Open the live scoreboard:{" "}
+                <section className="pt-4 md:pt-5 mt-1 border-top-1 surface-border">
+                    <p className="text-600 text-xs md:text-sm font-medium uppercase m-0 mb-3" style={{ letterSpacing: "0.04em" }}>
+                        Open the live scoreboard
+                    </p>
+                    <div className="flex flex-wrap gap-x-4 gap-y-2 align-items-center">
                         <Link href="/agent/scoreboard/company" className={link}>
                             Company scoreboard
                         </Link>
-                        {" · "}
+                        <span className="text-500 hidden sm:inline" aria-hidden>
+                            |
+                        </span>
                         <Link href="/agent/scoreboard/personal" className={link}>
                             Personal scoreboard
                         </Link>
-                        {" · "}
+                        <span className="text-500 hidden sm:inline" aria-hidden>
+                            |
+                        </span>
                         <Link href="/agent/scoreboard/training" className={link}>
                             Scoreboard training
                         </Link>
-                    </p>
+                    </div>
                 </section>
             </div>
         </div>

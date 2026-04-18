@@ -1,0 +1,148 @@
+/** Sample companies for /agent/companies demo table (not persisted). */
+
+export type DemoCompanyRow = {
+  id: string;
+  name: string;
+  location: string | null;
+  department: string | null;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  createdAt: string;
+  _count: { agents: number };
+};
+
+export const DEMO_AGENT_COMPANIES: DemoCompanyRow[] = [
+  {
+    id: "demo-co-1",
+    name: "Acme Insurance Group",
+    location: "Northeast HQ",
+    department: "Life & health",
+    city: "Boston",
+    state: "MA",
+    country: "USA",
+    createdAt: new Date("2026-01-10").toISOString(),
+    _count: { agents: 12 },
+  },
+  {
+    id: "demo-co-2",
+    name: "Summit Financial Partners",
+    location: "West Coast",
+    department: "Annuities",
+    city: "San Francisco",
+    state: "CA",
+    country: "USA",
+    createdAt: new Date("2026-02-02").toISOString(),
+    _count: { agents: 8 },
+  },
+  {
+    id: "demo-co-3",
+    name: "Harbor Life & Health",
+    location: "Southeast",
+    department: "Life & health",
+    city: "Miami",
+    state: "FL",
+    country: "USA",
+    createdAt: new Date("2026-02-18").toISOString(),
+    _count: { agents: 15 },
+  },
+  {
+    id: "demo-co-4",
+    name: "Metro Brokerage Network",
+    location: "Central",
+    department: "Group benefits",
+    city: "Chicago",
+    state: "IL",
+    country: "USA",
+    createdAt: new Date("2026-03-01").toISOString(),
+    _count: { agents: 22 },
+  },
+  {
+    id: "demo-co-5",
+    name: "Prairie Mutual Group",
+    location: "Plains region",
+    department: "Life & health",
+    city: "Dallas",
+    state: "TX",
+    country: "USA",
+    createdAt: new Date("2026-03-12").toISOString(),
+    _count: { agents: 6 },
+  },
+  {
+    id: "demo-co-6",
+    name: "Pacific Advisors LLC",
+    location: "Northwest",
+    department: "Wealth",
+    city: "Seattle",
+    state: "WA",
+    country: "USA",
+    createdAt: new Date("2026-03-20").toISOString(),
+    _count: { agents: 9 },
+  },
+  {
+    id: "demo-co-7",
+    name: "Desert Sun Insurance",
+    location: "Southwest",
+    department: "Annuities",
+    city: "Phoenix",
+    state: "AZ",
+    country: "USA",
+    createdAt: new Date("2026-03-22").toISOString(),
+    _count: { agents: 4 },
+  },
+  {
+    id: "demo-co-8",
+    name: "Atlantic Brokerage Co.",
+    location: "Mid-Atlantic",
+    department: "Group benefits",
+    city: "Philadelphia",
+    state: "PA",
+    country: "USA",
+    createdAt: new Date("2026-04-01").toISOString(),
+    _count: { agents: 11 },
+  },
+  {
+    id: "demo-co-9",
+    name: "Northern Shield MGA",
+    location: "Canada",
+    department: "Life & health",
+    city: "Toronto",
+    state: "ON",
+    country: "Canada",
+    createdAt: new Date("2026-04-05").toISOString(),
+    _count: { agents: 7 },
+  },
+  {
+    id: "demo-co-10",
+    name: "Capitol Risk Partners",
+    location: "Capital region",
+    department: "Compliance",
+    city: "Washington",
+    state: "DC",
+    country: "USA",
+    createdAt: new Date("2026-04-08").toISOString(),
+    _count: { agents: 3 },
+  },
+  {
+    id: "demo-co-11",
+    name: "Lakeside General Agency",
+    location: "Great Lakes",
+    department: "Life & health",
+    city: "Detroit",
+    state: "MI",
+    country: "USA",
+    createdAt: new Date("2026-04-10").toISOString(),
+    _count: { agents: 5 },
+  },
+  {
+    id: "demo-co-12",
+    name: "Bayou Benefits Group",
+    location: "Gulf",
+    department: "Group benefits",
+    city: "New Orleans",
+    state: "LA",
+    country: "USA",
+    createdAt: new Date("2026-04-12").toISOString(),
+    _count: { agents: 2 },
+  },
+];

@@ -5,7 +5,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "fsi-development-secret-change-me"
+  process.env.JWT_SECRET || "JS Investment-development-secret-change-me"
 );
 
 const ACCESS_TOKEN_EXPIRY = "7d";
@@ -77,7 +77,7 @@ export class AuthService {
     }
 
     if (user.status !== "ACTIVE") {
-      throw new Error("Account is not active. Please contact the FSI administrator.");
+      throw new Error("Account is not active. Please contact the JS Investment administrator.");
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);

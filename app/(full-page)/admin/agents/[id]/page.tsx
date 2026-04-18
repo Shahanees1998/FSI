@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getUserDirectoryDetail } from "@/lib/portalData";
+import AgentCompanyPicker from "@/components/portal/AgentCompanyPicker";
+import { getUserDirectoryDetail, listActiveCompanies } from "@/lib/portalData";
 import { requireCurrentUser } from "@/lib/serverAuth";
 
 export default async function AdminAgentDetailPage({
@@ -9,11 +10,18 @@ export default async function AdminAgentDetailPage({
   params: { id: string };
 }) {
   await requireCurrentUser("ADMIN");
-  const agent = await getUserDirectoryDetail("AGENT", params.id);
+  const [agent, companies] = await Promise.all([
+    getUserDirectoryDetail("AGENT", params.id),
+    listActiveCompanies(),
+  ]);
 
   if (!agent) {
     notFound();
   }
+
+  const profile = agent.agentProfile as typeof agent.agentProfile & {
+    company?: { id: string; name: string } | null;
+  };
 
   return (
     <div className="grid">
@@ -41,7 +49,19 @@ export default async function AdminAgentDetailPage({
           <p className="mb-2"><span className="font-semibold">License:</span> {agent.agentProfile?.licenseNumber || "Not provided"}</p>
           <p className="mb-2"><span className="font-semibold">FundServ code:</span> {agent.agentProfile?.fundServCode || "Not provided"}</p>
           <p className="mb-2"><span className="font-semibold">Agency:</span> {agent.agentProfile?.agencyName || "Not provided"}</p>
-          <p className="mb-0"><span className="font-semibold">Created:</span> {new Date(agent.createdAt).toLocaleString()}</p>
+          <p className="mb-2">
+            <span className="font-semibold">Company:</span>{" "}
+            {profile?.company?.name || "Not assigned"}
+          </p>
+          <p className="mb-4"><span className="font-semibold">Created:</span> {new Date(agent.createdAt).toLocaleString()}</p>
+          <div className="border-top-1 surface-border pt-4">
+            <h4 className="mt-0 mb-3">Change company</h4>
+            <AgentCompanyPicker
+              agentId={agent.id}
+              initialCompanyId={profile?.companyId ?? null}
+              companies={companies}
+            />
+          </div>
         </div>
       </div>
       <div className="col-12 lg:col-7">

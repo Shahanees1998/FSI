@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AuthService, refreshAccessToken } from "./auth";
 import { getAuthCookieOptions } from "./authCookieOptions";
-import { isAdminRole } from "./rolePermissions";
+import { isAdminRole, UserRole } from "./rolePermissions";
 
 export interface AuthenticatedRequest extends NextRequest {
   user?: Awaited<ReturnType<typeof AuthService.verifyToken>>;
@@ -67,6 +67,19 @@ export async function withAdminAuth(
   return withAuth(req, async (authenticatedReq) => {
     if (!authenticatedReq.user || !isAdminRole(authenticatedReq.user.role)) {
       return NextResponse.json({ error: "Admin access required" }, { status: 403 });
+    }
+
+    return handler(authenticatedReq);
+  });
+}
+
+export async function withAgentAuth(
+  req: NextRequest,
+  handler: (req: AuthenticatedRequest) => Promise<NextResponse>
+): Promise<NextResponse> {
+  return withAuth(req, async (authenticatedReq) => {
+    if (!authenticatedReq.user || authenticatedReq.user.role !== UserRole.AGENT) {
+      return NextResponse.json({ error: "Agent access required" }, { status: 403 });
     }
 
     return handler(authenticatedReq);

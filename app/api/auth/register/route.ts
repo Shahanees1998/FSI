@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { AuthService } from "@/lib/auth";
 import { getAuthCookieOptions } from "@/lib/authCookieOptions";
+import { APP_DEFAULT_AGENCY_NAME } from "@/lib/appBranding";
 
 export async function POST(request: NextRequest) {
   try {
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
               agentProfile: {
                 create: {
                   agentCode: `AGT-${Date.now()}`,
-                  agencyName: agencyName ? String(agencyName).trim() : "Freedom Shield Insurance",
+                  agencyName: agencyName ? String(agencyName).trim() : APP_DEFAULT_AGENCY_NAME,
                 },
               },
             }

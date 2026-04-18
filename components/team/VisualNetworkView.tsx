@@ -55,7 +55,7 @@ function NetworkNode({ node, onToggleCircle }: { node: TreeNodeData; onToggleCir
             style={
                 isRoot
                     ? { background: "#dc2626", minWidth: "11rem" }
-                    : { border: "2px solid #22c55e", minWidth: "11rem" }
+                    : { border: "2px solid #d4a574", minWidth: "11rem" }
             }
         >
             {node.hasChildren && (

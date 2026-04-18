@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "primereact/button";
 import { Password } from "primereact/password";
 import { AuthSplitLayout } from "@/components/auth/AuthSplitLayout";
+import { APP_NAME } from "@/lib/appBranding";
 
 function ResetPasswordContent() {
     const router = useRouter();
@@ -38,7 +39,7 @@ function ResetPasswordContent() {
                 <div className="mb-4">
                     <h1 className="text-2xl font-bold mb-2 text-white m-0">Choose a new password</h1>
                     <span className="text-white-alpha-90 font-medium">
-                        Secure your Freedom Shield Insurance account with a fresh password.
+                        Secure your {APP_NAME} account with a fresh password.
                     </span>
                 </div>
                 <label className="block text-white mb-2">New password</label>

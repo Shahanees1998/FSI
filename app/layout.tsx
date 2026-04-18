@@ -1,5 +1,6 @@
 import { Poppins } from "next/font/google";
 import { ClientProviders } from "./ClientProviders";
+import { APP_NAME, APP_PORTAL_NAME } from "@/lib/appBranding";
 
 import "primeflex/primeflex.css";
 import "primeicons/primeicons.css";
@@ -17,8 +18,8 @@ const poppins = Poppins({
 });
 
 export const metadata = {
-    title: "Freedom Shield Insurance Portal",
-    description: "Back-office platform for Freedom Shield Insurance agents, carriers, and administrators.",
+    title: APP_PORTAL_NAME,
+    description: `Back-office platform for ${APP_NAME} agents, carriers, and administrators.`,
 };
 
 interface RootLayoutProps {
@@ -36,7 +37,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <link rel="icon" href="/favicon.ico" sizes="any" />
                 <link rel="icon" href="/favicon.png" type="image/png" sizes="32x32" />
-                <link rel="apple-touch-icon" href="/images/logo.png" />
+                <link rel="apple-touch-icon" href="/favicon.png" />
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
                 <link

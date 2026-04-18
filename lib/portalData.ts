@@ -52,6 +52,13 @@ export async function listUsersByRole(
                       OR: [
                         { agentCode: buildContainsFilter(query) },
                         { licenseNumber: buildContainsFilter(query) },
+                        {
+                          company: {
+                            is: {
+                              name: buildContainsFilter(query),
+                            },
+                          },
+                        },
                       ],
                     },
                   },
@@ -74,7 +81,7 @@ export async function listUsersByRole(
 
   const include =
     role === "AGENT"
-      ? ({ agentProfile: true } satisfies Prisma.UserInclude)
+      ? ({ agentProfile: { include: { company: true } } } satisfies Prisma.UserInclude)
       : ({ carrierProfile: true } satisfies Prisma.UserInclude);
 
   const [total, data] = await Promise.all([
@@ -102,7 +109,14 @@ export async function getUserDirectoryDetail(
       isDeleted: false,
     },
     include: {
-      agentProfile: role === "AGENT",
+      agentProfile:
+        role === "AGENT"
+          ? {
+              include: {
+                company: true,
+              },
+            }
+          : false,
       carrierProfile: role === "CARRIER",
       requestedTickets: {
         take: 5,
@@ -781,4 +795,72 @@ export async function createNotificationAndBroadcast(input: {
   });
 
   return notification;
+}
+
+export async function listCompanies(queryParams: QueryParams) {
+  const pagination = parsePagination(queryParams, { defaultPageSize: 10 });
+  const query = normalizeSearchTerm(getSearchValue(queryParams, "q"));
+  const stateFilter = normalizeSearchTerm(getSearchValue(queryParams, "state"));
+  const countryFilter = normalizeSearchTerm(getSearchValue(queryParams, "country"));
+  const departmentFilter = normalizeSearchTerm(getSearchValue(queryParams, "department"));
+
+  const where: Prisma.CompanyWhereInput = {
+    deletedAt: null,
+    ...(stateFilter ? { state: stateFilter } : {}),
+    ...(countryFilter ? { country: { contains: countryFilter } } : {}),
+    ...(departmentFilter ? { department: { contains: departmentFilter } } : {}),
+    ...(query
+      ? {
+          OR: [
+            { name: buildContainsFilter(query) },
+            { location: buildContainsFilter(query) },
+            { department: buildContainsFilter(query) },
+            { city: buildContainsFilter(query) },
+            { country: buildContainsFilter(query) },
+          ],
+        }
+      : {}),
+  };
+
+  const [total, data] = await Promise.all([
+    prisma.company.count({ where }),
+    prisma.company.findMany({
+      where,
+      orderBy: { name: "asc" },
+      skip: pagination.skip,
+      take: pagination.pageSize,
+      include: {
+        _count: { select: { agents: true } },
+      },
+    }),
+  ]);
+
+  return buildPagedResult(data, total, pagination);
+}
+
+export async function getCompanyById(id: string, options?: { allowDeleted?: boolean }) {
+  return prisma.company.findFirst({
+    where: {
+      id,
+      ...(options?.allowDeleted ? {} : { deletedAt: null }),
+    },
+    include: {
+      _count: { select: { agents: true } },
+    },
+  });
+}
+
+/** For agent forms and filters; excludes soft-deleted companies. */
+export async function listActiveCompanies(limit = 200) {
+  return prisma.company.findMany({
+    where: { deletedAt: null },
+    orderBy: { name: "asc" },
+    take: limit,
+    select: {
+      id: true,
+      name: true,
+      location: true,
+      department: true,
+    },
+  });
 }

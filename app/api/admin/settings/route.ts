@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withAdminAuth } from "@/lib/authMiddleware";
 import { prisma } from "@/lib/prisma";
+import { APP_DEFAULT_SUPPORT_EMAIL, APP_PORTAL_NAME } from "@/lib/appBranding";
 
 export async function GET(request: NextRequest) {
   return withAdminAuth(request, async () => {
@@ -8,9 +9,9 @@ export async function GET(request: NextRequest) {
       (await prisma.systemSettings.findFirst()) ||
       (await prisma.systemSettings.create({
         data: {
-          siteName: "Freedom Shield Insurance Portal",
+          siteName: APP_PORTAL_NAME,
           siteDescription: "Back-office workspace for agents, carriers, and administrators.",
-          supportEmail: "support@freedomshieldinsurance.com",
+          supportEmail: APP_DEFAULT_SUPPORT_EMAIL,
           notificationsEnabled: true,
         },
       }));

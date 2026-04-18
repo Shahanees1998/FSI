@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 
 const RECRUITING_PAGES: Record<string, string> = {
     "aoa-online-sign-up": "AOA (Online Sign Up)",
-    "compound-recruiting": "Compound Recruiting",
     "new-associates": "New Associates",
     "ed-ownership-program": "ED Ownership Program",
     beam: "BEAM",

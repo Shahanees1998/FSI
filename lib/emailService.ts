@@ -1,4 +1,5 @@
 import sgMail from "@sendgrid/mail";
+import { APP_NAME } from "@/lib/appBranding";
 
 if (process.env.SENDGRID_API_KEY) {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -23,8 +24,8 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
       email:
         process.env.SENDGRID_FROM_EMAIL ||
         process.env.FROM_EMAIL ||
-        "noreply@freedomshieldinsurance.com",
-      name: process.env.SENDGRID_FROM_NAME || "Freedom Shield Insurance",
+        "noreply@jsinvestment.com",
+      name: process.env.SENDGRID_FROM_NAME || APP_NAME,
     },
     subject: options.subject,
     text: options.text || options.html.replace(/<[^>]*>/g, ""),
@@ -42,10 +43,10 @@ export async function sendPasswordResetEmail(
 
   await sendEmail({
     to: email,
-    subject: "Reset your Freedom Shield Insurance password",
+    subject: `Reset your ${APP_NAME} password`,
     html: `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1f2937; max-width: 600px; margin: 0 auto; padding: 24px;">
-        <h1 style="margin-top: 0;">Freedom Shield Insurance</h1>
+        <h1 style="margin-top: 0;">${APP_NAME}</h1>
         <p>Hello ${firstName || "there"},</p>
         <p>We received a request to reset your portal password. Use the secure link below to continue.</p>
         <p style="margin: 24px 0;">

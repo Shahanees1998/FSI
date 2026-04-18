@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
+import { APP_NAME, APP_PORTAL_NAME } from "@/lib/appBranding";
 
 const AUTH_IMAGE_URL =
     "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1200&q=80";
@@ -15,14 +15,9 @@ export function AuthSplitLayout({ children }: { children: React.ReactNode }) {
             >
                 <div className="w-full max-w-md">
                     <div className="auth-logo-wrap flex justify-content-center mb-5">
-                        <Image
-                            src="/images/logo.png"
-                            alt="Freedom Shield Insurance"
-                            width={320}
-                            height={128}
-                            priority
-                            className="auth-form-logo"
-                        />
+                        <span className="text-3xl md:text-4xl font-semibold text-white text-center line-height-3">
+                            {APP_NAME}
+                        </span>
                     </div>
                     {children}
                 </div>
@@ -45,7 +40,7 @@ export function AuthSplitLayout({ children }: { children: React.ReactNode }) {
                 />
                 <div className="relative z-1 flex flex-column justify-content-end p-6 text-white auth-split-image-text">
                     <p className="auth-split-image-title font-semibold mb-2">
-                        Freedom Shield Insurance Portal
+                        {APP_PORTAL_NAME}
                     </p>
                     <p className="text-white-alpha-90 auth-split-image-desc line-height-3 m-0">
                         Securely manage agent operations, carrier communication,

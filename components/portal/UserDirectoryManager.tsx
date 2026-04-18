@@ -7,6 +7,7 @@ import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import ListEmptyState from "@/components/portal/ListEmptyState";
 import PaginationControls from "@/components/portal/PaginationControls";
+import { APP_DEFAULT_AGENCY_NAME } from "@/lib/appBranding";
 import { PaginationMeta, SearchParamRecord } from "@/lib/portalPagination";
 
 interface DirectoryUser {
@@ -20,6 +21,12 @@ interface DirectoryUser {
     agentProfile?: {
         agentCode?: string;
         licenseNumber?: string | null;
+        company?: {
+            id: string;
+            name: string;
+            location?: string | null;
+            department?: string | null;
+        } | null;
     } | null;
     carrierProfile?: {
         carrierCode?: string;
@@ -35,6 +42,7 @@ export default function UserDirectoryManager({
     searchParams,
     pagination,
     filters,
+    companies = [],
 }: {
     mode: "agent" | "carrier";
     initialUsers: DirectoryUser[];
@@ -45,6 +53,7 @@ export default function UserDirectoryManager({
         q?: string;
         status?: string;
     };
+    companies?: { id: string; name: string; location?: string | null; department?: string | null }[];
 }) {
     const [users, setUsers] = useState(initialUsers);
     const [message, setMessage] = useState<string | null>(null);
@@ -58,6 +67,7 @@ export default function UserDirectoryManager({
         location: "",
         agentCode: "",
         licenseNumber: "",
+        companyId: "",
         carrierCode: "",
         carrierName: "",
     });
@@ -75,8 +85,9 @@ export default function UserDirectoryManager({
             body: JSON.stringify({
                 ...form,
                 role: isAgent ? "AGENT" : "CARRIER",
-                agencyName: "Freedom Shield Insurance",
+                agencyName: APP_DEFAULT_AGENCY_NAME,
                 contactEmail: form.email,
+                ...(isAgent && form.companyId ? { companyId: form.companyId } : {}),
             }),
         });
         const payload = await response.json();
@@ -96,6 +107,7 @@ export default function UserDirectoryManager({
             location: "",
             agentCode: "",
             licenseNumber: "",
+            companyId: "",
             carrierCode: "",
             carrierName: "",
         });
@@ -192,6 +204,23 @@ export default function UserDirectoryManager({
                                 }
                             />
                         </div>
+                        {isAgent && companies.length > 0 && (
+                            <div className="col-12">
+                                <label className="block mb-2">Company</label>
+                                <Dropdown
+                                    className="w-full"
+                                    value={form.companyId}
+                                    options={[
+                                        { label: "No company", value: "" },
+                                        ...companies.map((c) => ({
+                                            label: [c.name, c.location, c.department].filter(Boolean).join(" · "),
+                                            value: c.id,
+                                        })),
+                                    ]}
+                                    onChange={(e) => setForm((prev) => ({ ...prev, companyId: e.value }))}
+                                />
+                            </div>
+                        )}
                     </div>
                     <Button label={`Create ${isAgent ? "agent" : "carrier"}`} className="mt-3" onClick={createUser} />
                     {message && <p className="mt-3 mb-0 font-medium">{message}</p>}
@@ -242,6 +271,11 @@ export default function UserDirectoryManager({
                                                         ? `${user.agentProfile?.agentCode || "No code"}${user.agentProfile?.licenseNumber ? ` | ${user.agentProfile.licenseNumber}` : ""}`
                                                         : `${user.carrierProfile?.carrierName || "No carrier name"} | ${user.carrierProfile?.carrierCode || "No code"}`}
                                                 </div>
+                                                {isAgent && user.agentProfile?.company?.name && (
+                                                    <div className="text-600 text-sm mt-1">
+                                                        Company: {user.agentProfile.company.name}
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="text-right">
                                                 <div className="text-600 text-sm mb-2">{user.jobTitle || "No title"}</div>

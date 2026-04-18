@@ -145,7 +145,7 @@ export default function StartConversationDialog({
             dismissableMask
         >
             <p className="text-600 mt-0 line-height-3">
-                Search people you are allowed to message. Admins can reach anyone; agents see FSI admins and
+                Search people you are allowed to message. Admins can reach anyone; agents see JS Investment admins and
                 carriers in their preferred list; carriers see admins and contracted agents.
             </p>
             <label className="block mb-2 font-medium">Find people</label>
