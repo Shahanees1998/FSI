@@ -41,5 +41,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: next-js-build
-          path: ${{ github.workspace }}/.next
+          path: .next
           if-no-files-found: error
