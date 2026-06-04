@@ -29,8 +29,20 @@ jobs:
       - name: Build Next.js App
         run: npm run build
 
+      - name: Debug Build Output
+        run: |
+          echo "Current directory:"
+          pwd
+
+          echo "Root files:"
+          ls -la
+
+          echo "Searching for .next:"
+          find . -type d -name ".next"
+
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: next-js-build
           path: .next
+          if-no-files-found: warn
