@@ -20,8 +20,7 @@ jobs:
           cache: npm
 
       - name: Create .env file
-        run: |
-          echo "${{ secrets.ENV_FILE }}" > .env
+        run: echo "${{ secrets.ENV_FILE }}" > .env
 
       - name: Install Dependencies
         run: npm install
@@ -32,14 +31,25 @@ jobs:
       - name: Build Next.js App
         run: npm run build
 
-      - name: Verify Build Output
+      - name: HARD DEBUG - Find .next location
         run: |
-          echo "Checking .next folder..."
-          ls -la .next
+          echo "=== FULL DIRECTORY TREE (TOP LEVEL) ==="
+          ls -la
 
-      - name: Upload Build Artifacts
+          echo "=== SEARCHING FOR .next ANYWHERE ==="
+          find . -type d -name ".next"
+
+          echo "=== CHECKING ROOT .next ==="
+          if [ -d ".next" ]; then
+            echo ".next FOUND in root"
+            ls -la .next
+          else
+            echo ".next NOT in root"
+          fi
+
+      - name: Upload Build Artifacts (SAFE MODE)
         uses: actions/upload-artifact@v4
         with:
           name: next-js-build
-          path: .next
+          path: "**/.next/**"
           if-no-files-found: error
