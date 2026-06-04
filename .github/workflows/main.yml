@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - name: Install Dependencies
@@ -25,8 +25,20 @@ jobs:
       - name: Build Next.js App
         run: npm run build
 
-      - name: Store Build Artifacts
+      - name: Verify Build Output
+        run: |
+          echo "Current directory:"
+          pwd
+          echo ""
+          echo "Root files:"
+          ls -la
+          echo ""
+          echo "Checking for .next directory:"
+          ls -la .next
+
+      - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: next-js-build
-          path: .next/
+          path: .next
+          if-no-files-found: error
