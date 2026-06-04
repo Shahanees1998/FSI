@@ -19,26 +19,18 @@ jobs:
           node-version: 24
           cache: npm
 
+      - name: Create .env file
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
+
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build Next.js App
         run: npm run build
-
-      - name: Verify Build Output
-        run: |
-          echo "Current directory:"
-          pwd
-          echo ""
-          echo "Root files:"
-          ls -la
-          echo ""
-          echo "Checking for .next directory:"
-          ls -la .next
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: next-js-build
           path: .next
-          if-no-files-found: error
