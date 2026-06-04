@@ -26,23 +26,20 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
       - name: Build Next.js App
         run: npm run build
 
-      - name: Debug Build Output
+      - name: Verify Build Output
         run: |
-          echo "Current directory:"
-          pwd
-
-          echo "Root files:"
-          ls -la
-
-          echo "Searching for .next:"
-          find . -type d -name ".next"
+          echo "Checking .next folder:"
+          ls -la .next
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: next-js-build
-          path: .next/
-          if-no-files-found: warn
+          path: .next
+          if-no-files-found: error
