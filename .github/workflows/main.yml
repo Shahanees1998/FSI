@@ -34,12 +34,12 @@ jobs:
 
       - name: Verify Build Output
         run: |
-          echo "Checking .next folder:"
+          echo "Checking .next folder..."
           ls -la .next
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: next-js-build
-          path: .next
+          path: ${{ github.workspace }}/.next
           if-no-files-found: error
