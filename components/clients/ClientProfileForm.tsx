@@ -23,6 +23,9 @@ const COUNTRIES = [{ label: "USA", value: "USA" }];
 
 const US_STATES = [{ label: "Select State", value: "" }, ...US_STATE_OPTIONS];
 
+const CLIENT_FORM_CANCEL_CLASS =
+  "p-button p-component p-button-sm p-button-outlined p-button-secondary client-profile-btn no-underline";
+
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return <small className="p-error block mt-1">{message}</small>;
@@ -293,6 +296,72 @@ function PersonBlock({
   );
 }
 
+function ClientProfileAvatar({
+  imageUrl,
+  uploading,
+  disabled,
+  onPickFile,
+}: {
+  imageUrl: string;
+  uploading: boolean;
+  disabled: boolean;
+  onPickFile: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className="client-profile-avatar border-none p-0 cursor-pointer"
+      onClick={onPickFile}
+      disabled={disabled || uploading}
+      aria-label={imageUrl ? "Edit client photo" : "Add client photo"}
+    >
+      {imageUrl ? (
+        <img src={imageUrl} alt="" className="client-profile-avatar-image" />
+      ) : (
+        <span className="client-profile-avatar-placeholder flex flex-column align-items-center justify-content-center gap-2">
+          <i className="pi pi-user text-4xl text-500" />
+          <span className="text-sm text-600">Add photo</span>
+        </span>
+      )}
+      <span className="client-profile-avatar-overlay">
+        {uploading ? (
+          <i className="pi pi-spin pi-spinner text-white text-2xl" />
+        ) : (
+          <>
+            <i className="pi pi-pencil text-white text-lg" />
+            <span className="text-white text-sm font-medium">Edit</span>
+          </>
+        )}
+      </span>
+    </button>
+  );
+}
+
+function ClientTextField({
+  label,
+  required,
+  error,
+  icon,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  error?: string;
+  icon: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="field mb-3">
+      <label className="block mb-1">
+        {label}
+        {required ? <span className="text-red-500"> *</span> : null}
+      </label>
+      <IconInput icon={icon}>{children}</IconInput>
+      <FieldError message={error} />
+    </div>
+  );
+}
+
 function buildPayload(
   client: {
     firstName: string;
@@ -498,33 +567,6 @@ export default function ClientProfileForm({ mode, profileId, initial }: Props) {
     }
   };
 
-  const removeClientImage = async () => {
-    if (!profileImagePublicId && !profileImageUrl) return;
-
-    setUploadingImage(true);
-    try {
-      if (profileImagePublicId) {
-        const response = await fetch("/api/agent/client-profiles/image", {
-          method: "DELETE",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ key: profileImagePublicId }),
-        });
-        const payload = await response.json();
-        if (!response.ok) {
-          showToast("error", payload.error || "Unable to remove client image.");
-          return;
-        }
-      }
-
-      setProfileImageUrl("");
-      setProfileImagePublicId("");
-      showToast("success", "Client photo removed.");
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -610,355 +652,306 @@ export default function ClientProfileForm({ mode, profileId, initial }: Props) {
     <div className="client-profile-form">
       <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center gap-3 mb-4">
         <h1 className="text-2xl font-semibold m-0 text-900">Personal Information</h1>
-        <div className="flex gap-2">
-          <Link href="/agent/clients" className="p-button p-component p-button-secondary font-medium no-underline">
-            Cancel
+        <div className="flex gap-2 flex-wrap">
+          <Link href="/agent/clients" className={CLIENT_FORM_CANCEL_CLASS}>
+            <span className="p-button-label">Cancel</span>
           </Link>
-          <Button label="SAVE" className="p-button-success" type="button" onClick={save} loading={saving} disabled={saving || uploadingImage} />
+          <Button
+            label="Save"
+            type="button"
+            size="small"
+            severity="success"
+            className="client-profile-btn"
+            onClick={save}
+            loading={saving}
+            disabled={saving || uploadingImage}
+          />
         </div>
       </div>
 
       <div className="surface-card border-round border-1 surface-border p-4 mb-3">
         <div className="font-semibold text-900 mb-3">Client:</div>
-        <div className="grid">
-          <div className="col-12 md:col-3">
-            <div
-              className="border-1 surface-border border-round p-3 text-center transition-colors transition-duration-150 surface-50"
-              style={{ minHeight: "200px" }}
-            >
-              {profileImageUrl ? (
-                <div className="flex flex-column align-items-center justify-content-center gap-2 h-full">
-                  <img
-                    src={profileImageUrl}
-                    alt=""
-                    className="border-circle"
-                    style={{ width: "6rem", height: "6rem", objectFit: "cover" }}
-                  />
-                  <span className="text-sm text-600">Client photo</span>
-                </div>
-              ) : (
-                <div className="flex flex-column align-items-center justify-content-center gap-2 h-full text-600">
-                  <i className="pi pi-user text-4xl" />
-                  <span className="font-medium text-900">Image</span>
-                  <span className="text-sm line-height-3">Optional — JPEG, PNG, GIF, or WebP up to 5MB.</span>
-                </div>
-              )}
-            </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-              className="hidden"
-              onChange={handleImageSelect}
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+          className="hidden"
+          onChange={handleImageSelect}
+        />
+
+        <div className="client-profile-client-top">
+          <div className="client-profile-image-col">
+            <ClientProfileAvatar
+              imageUrl={profileImageUrl}
+              uploading={uploadingImage}
+              disabled={saving}
+              onPickFile={() => fileInputRef.current?.click()}
             />
-            <div className="flex flex-wrap gap-2 mt-2">
-              <Button
-                type="button"
-                label={uploadingImage ? "Uploading..." : "Upload photo"}
-                icon="pi pi-upload"
-                size="small"
-                disabled={uploadingImage || saving}
-                onClick={() => fileInputRef.current?.click()}
-              />
-              {profileImageUrl ? (
-                <Button
-                  type="button"
-                  label="Remove"
-                  icon="pi pi-trash"
-                  size="small"
-                  outlined
-                  severity="secondary"
-                  disabled={uploadingImage || saving}
-                  onClick={() => void removeClientImage()}
+          </div>
+
+          <div className="client-profile-fields-beside grid">
+            <div className="col-12 md:col-6">
+              <ClientTextField label="First Name" required error={errors.firstName} icon="pi-user">
+                <InputText
+                  className={fieldClass(Boolean(errors.firstName))}
+                  placeholder="Please enter first name"
+                  value={firstName}
+                  onChange={(e) => {
+                    setFirstName(e.target.value);
+                    clearError("firstName");
+                  }}
                 />
-              ) : null}
+              </ClientTextField>
+            </div>
+            <div className="col-12 md:col-6">
+              <ClientTextField label="Middle Name" error={errors.middleName} icon="pi-user">
+                <InputText
+                  className={fieldClass(Boolean(errors.middleName))}
+                  placeholder="Please enter middle name"
+                  value={middleName}
+                  onChange={(e) => {
+                    setMiddleName(e.target.value);
+                    clearError("middleName");
+                  }}
+                />
+              </ClientTextField>
+            </div>
+            <div className="col-12 md:col-6">
+              <ClientTextField label="Last Name" required error={errors.lastName} icon="pi-user">
+                <InputText
+                  className={fieldClass(Boolean(errors.lastName))}
+                  placeholder="Please enter last name"
+                  value={lastName}
+                  onChange={(e) => {
+                    setLastName(e.target.value);
+                    clearError("lastName");
+                  }}
+                />
+              </ClientTextField>
+            </div>
+            <div className="col-12 md:col-6">
+              <ClientTextField label="Preferred First Name" required error={errors.preferredFirstName} icon="pi-gift">
+                <InputText
+                  className={fieldClass(Boolean(errors.preferredFirstName))}
+                  placeholder="Please enter first name"
+                  value={preferredFirstName}
+                  onChange={(e) => {
+                    setPreferredFirstName(e.target.value);
+                    clearError("preferredFirstName");
+                  }}
+                />
+              </ClientTextField>
+            </div>
+            <div className="col-12 md:col-6">
+              <div className="field mb-3">
+                <label className="block mb-1">
+                  Sex <span className="text-red-500">*</span>
+                </label>
+                <div className="flex align-items-center gap-4">
+                  <div className="flex align-items-center gap-2">
+                    <input
+                      id={`${baseId}-client-male`}
+                      name="client-sex"
+                      type="radio"
+                      value="male"
+                      checked={clientSex === "male"}
+                      onChange={(e) => {
+                        setClientSex(e.target.value);
+                        clearError("sex");
+                      }}
+                    />
+                    <label htmlFor={`${baseId}-client-male`}>Male</label>
+                  </div>
+                  <div className="flex align-items-center gap-2">
+                    <input
+                      id={`${baseId}-client-female`}
+                      name="client-sex"
+                      type="radio"
+                      value="female"
+                      checked={clientSex === "female"}
+                      onChange={(e) => {
+                        setClientSex(e.target.value);
+                        clearError("sex");
+                      }}
+                    />
+                    <label htmlFor={`${baseId}-client-female`}>Female</label>
+                  </div>
+                </div>
+                <FieldError message={errors.sex} />
+              </div>
+            </div>
+            <div className="col-12 md:col-6">
+              <div className="field mb-3">
+                <label className="block mb-1">
+                  Birth Date <span className="text-red-500">*</span>
+                </label>
+                <div className="flex align-items-center gap-2 flex-wrap">
+                  <Calendar
+                    value={birthDate}
+                    onChange={(e) => {
+                      setBirthDate((e.value as Date | null) ?? null);
+                      clearError("birthDate");
+                    }}
+                    showIcon
+                    dateFormat="mm/dd/yy"
+                    className={classNames("flex-grow-1", { "p-invalid": Boolean(errors.birthDate) })}
+                    inputClassName="w-full"
+                  />
+                  <span className="p-input-icon-right">
+                    <InputText value={clientAge} readOnly placeholder="Age" className="w-6rem surface-100" />
+                    <i className="pi pi-question-circle text-500" />
+                  </span>
+                </div>
+                <FieldError message={errors.birthDate} />
+              </div>
             </div>
           </div>
-          <div className="col-12 md:col-9">
-            <div className="grid">
-              <div className="col-12 lg:col-6">
-                <div className="field mb-3">
-                  <label className="block mb-1">
-                    First Name <span className="text-red-500">*</span>
-                  </label>
-                  <IconInput icon="pi-user">
-                    <InputText
-                      className={fieldClass(Boolean(errors.firstName))}
-                      placeholder="Please enter first name"
-                      value={firstName}
-                      onChange={(e) => {
-                        setFirstName(e.target.value);
-                        clearError("firstName");
-                      }}
-                    />
-                  </IconInput>
-                  <FieldError message={errors.firstName} />
-                </div>
-              </div>
-              <div className="col-12 lg:col-6">
-                <div className="field mb-3">
-                  <label className="block mb-1">City</label>
-                  <IconInput icon="pi-building">
-                    <InputText
-                      className={fieldClass(Boolean(errors.city))}
-                      placeholder="Please enter city"
-                      value={city}
-                      onChange={(e) => {
-                        setCity(e.target.value);
-                        clearError("city");
-                      }}
-                    />
-                  </IconInput>
-                  <FieldError message={errors.city} />
-                </div>
-              </div>
+        </div>
 
-              <div className="col-12 lg:col-6">
-                <div className="field mb-3">
-                  <label className="block mb-1">Middle Name</label>
-                  <IconInput icon="pi-user">
-                    <InputText
-                      className={fieldClass(Boolean(errors.middleName))}
-                      placeholder="Please enter middle name"
-                      value={middleName}
-                      onChange={(e) => {
-                        setMiddleName(e.target.value);
-                        clearError("middleName");
-                      }}
-                    />
-                  </IconInput>
-                  <FieldError message={errors.middleName} />
-                </div>
-              </div>
-              <div className="col-12 lg:col-6">
-                <div className="field mb-3">
-                  <label className="block mb-1">State</label>
-                  <Dropdown
-                    value={state}
-                    options={US_STATES}
-                    onChange={(e) => {
-                      setState(e.value);
-                      clearError("state");
-                    }}
-                    className={classNames("w-full", { "p-invalid": Boolean(errors.state) })}
-                    optionLabel="label"
-                    optionValue="value"
-                    placeholder="Select State"
-                  />
-                  <FieldError message={errors.state} />
-                </div>
-              </div>
-
-              <div className="col-12 lg:col-6">
-                <div className="field mb-3">
-                  <label className="block mb-1">
-                    Last Name <span className="text-red-500">*</span>
-                  </label>
-                  <IconInput icon="pi-user">
-                    <InputText
-                      className={fieldClass(Boolean(errors.lastName))}
-                      placeholder="Please enter last name"
-                      value={lastName}
-                      onChange={(e) => {
-                        setLastName(e.target.value);
-                        clearError("lastName");
-                      }}
-                    />
-                  </IconInput>
-                  <FieldError message={errors.lastName} />
-                </div>
-              </div>
-              <div className="col-12 lg:col-6">
-                <div className="field mb-3">
-                  <label className="block mb-1">Email</label>
-                  <IconInput icon="pi-envelope">
-                    <InputText
-                      className={fieldClass(Boolean(errors.email))}
-                      type="email"
-                      placeholder="Please enter email"
-                      value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        clearError("email");
-                      }}
-                    />
-                  </IconInput>
-                  <FieldError message={errors.email} />
-                </div>
-              </div>
-
-              <div className="col-12 lg:col-6">
-                <div className="field mb-3">
-                  <label className="block mb-1">
-                    Preferred First Name <span className="text-red-500">*</span>
-                  </label>
-                  <IconInput icon="pi-gift">
-                    <InputText
-                      className={fieldClass(Boolean(errors.preferredFirstName))}
-                      placeholder="Please enter first name"
-                      value={preferredFirstName}
-                      onChange={(e) => {
-                        setPreferredFirstName(e.target.value);
-                        clearError("preferredFirstName");
-                      }}
-                    />
-                  </IconInput>
-                  <FieldError message={errors.preferredFirstName} />
-                </div>
-              </div>
-              <div className="col-12 lg:col-6">
-                <div className="field mb-3">
-                  <label className="block mb-1">
-                    Phone <span className="text-red-500">*</span>
-                  </label>
-                  <div className="flex align-items-stretch gap-2">
-                    <Dropdown
-                      value={phoneType}
-                      options={PHONE_TYPES}
-                      onChange={(e) => {
-                        setPhoneType(e.value);
-                        clearError("phoneType");
-                      }}
-                      className={classNames("w-8rem", { "p-invalid": Boolean(errors.phoneType) })}
-                      optionLabel="label"
-                      optionValue="value"
-                    />
-                    <IconInput icon="pi-phone" className="flex-grow-1">
-                      <InputText
-                        className={fieldClass(Boolean(errors.phone))}
-                        placeholder="Please enter phone"
-                        value={phone}
-                        onChange={(e) => {
-                          setPhone(e.target.value);
-                          clearError("phone");
-                        }}
-                      />
-                    </IconInput>
-                  </div>
-                  <FieldError message={errors.phoneType || errors.phone} />
-                </div>
-              </div>
-
-              <div className="col-12 lg:col-6">
-                <div className="field mb-3">
-                  <label className="block mb-1">
-                    Sex <span className="text-red-500">*</span>
-                  </label>
-                  <div className="flex align-items-center gap-4">
-                    <div className="flex align-items-center gap-2">
-                      <input
-                        id={`${baseId}-client-male`}
-                        name="client-sex"
-                        type="radio"
-                        value="male"
-                        checked={clientSex === "male"}
-                        onChange={(e) => {
-                          setClientSex(e.target.value);
-                          clearError("sex");
-                        }}
-                      />
-                      <label htmlFor={`${baseId}-client-male`}>Male</label>
-                    </div>
-                    <div className="flex align-items-center gap-2">
-                      <input
-                        id={`${baseId}-client-female`}
-                        name="client-sex"
-                        type="radio"
-                        value="female"
-                        checked={clientSex === "female"}
-                        onChange={(e) => {
-                          setClientSex(e.target.value);
-                          clearError("sex");
-                        }}
-                      />
-                      <label htmlFor={`${baseId}-client-female`}>Female</label>
-                    </div>
-                  </div>
-                  <FieldError message={errors.sex} />
-                </div>
-              </div>
-              <div className="col-12 lg:col-6">
-                <div className="field mb-3">
-                  <label className="block mb-1">Address</label>
-                  <IconInput icon="pi-home">
-                    <InputText
-                      className={fieldClass(Boolean(errors.address))}
-                      placeholder="Please enter address"
-                      value={address}
-                      onChange={(e) => {
-                        setAddress(e.target.value);
-                        clearError("address");
-                      }}
-                    />
-                  </IconInput>
-                  <FieldError message={errors.address} />
-                </div>
-              </div>
-
-              <div className="col-12 lg:col-6">
-                <div className="field mb-3">
-                  <label className="block mb-1">
-                    Birth Date <span className="text-red-500">*</span>
-                  </label>
-                  <div className="flex align-items-center gap-2 flex-wrap">
-                    <Calendar
-                      value={birthDate}
-                      onChange={(e) => {
-                        setBirthDate((e.value as Date | null) ?? null);
-                        clearError("birthDate");
-                      }}
-                      showIcon
-                      dateFormat="mm/dd/yy"
-                      className={classNames("flex-grow-1", { "p-invalid": Boolean(errors.birthDate) })}
-                      inputClassName="w-full"
-                    />
-                    <span className="p-input-icon-right">
-                      <InputText value={clientAge} readOnly placeholder="Age" className="w-6rem surface-100" />
-                      <i className="pi pi-question-circle text-500" />
-                    </span>
-                  </div>
-                  <FieldError message={errors.birthDate} />
-                </div>
-              </div>
-              <div className="col-12 lg:col-6">
-                <div className="field mb-3">
-                  <label className="block mb-1">Country</label>
-                  <Dropdown
-                    value={country}
-                    options={COUNTRIES}
-                    onChange={(e) => setCountry(e.value)}
-                    className="w-full"
-                    optionLabel="label"
-                    optionValue="value"
-                  />
-                </div>
-              </div>
-
-              <div className="col-12 lg:col-6">
-                <div className="field mb-3">
-                  <label className="block mb-1">Zip Code</label>
-                  <IconInput icon="pi-globe">
-                    <InputText
-                      className={fieldClass(Boolean(errors.zipCode))}
-                      placeholder="Please enter postal code / zip code"
-                      value={zipCode}
-                      onChange={(e) => {
-                        setZipCode(e.target.value);
-                        clearError("zipCode");
-                      }}
-                    />
-                  </IconInput>
-                  <FieldError message={errors.zipCode} />
-                </div>
-              </div>
+        <div className="client-profile-fields-full grid">
+          <div className="col-12 md:col-4">
+            <ClientTextField label="City" error={errors.city} icon="pi-building">
+              <InputText
+                className={fieldClass(Boolean(errors.city))}
+                placeholder="Please enter city"
+                value={city}
+                onChange={(e) => {
+                  setCity(e.target.value);
+                  clearError("city");
+                }}
+              />
+            </ClientTextField>
+          </div>
+          <div className="col-12 md:col-4">
+            <div className="field mb-3">
+              <label className="block mb-1">State</label>
+              <Dropdown
+                value={state}
+                options={US_STATES}
+                onChange={(e) => {
+                  setState(e.value);
+                  clearError("state");
+                }}
+                className={classNames("w-full", { "p-invalid": Boolean(errors.state) })}
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select State"
+              />
+              <FieldError message={errors.state} />
             </div>
+          </div>
+          <div className="col-12 md:col-4">
+            <ClientTextField label="Email" error={errors.email} icon="pi-envelope">
+              <InputText
+                className={fieldClass(Boolean(errors.email))}
+                type="email"
+                placeholder="Please enter email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  clearError("email");
+                }}
+              />
+            </ClientTextField>
+          </div>
+          <div className="col-12 md:col-4">
+            <div className="field mb-3">
+              <label className="block mb-1">
+                Phone <span className="text-red-500">*</span>
+              </label>
+              <div className="flex align-items-stretch gap-2">
+                <Dropdown
+                  value={phoneType}
+                  options={PHONE_TYPES}
+                  onChange={(e) => {
+                    setPhoneType(e.value);
+                    clearError("phoneType");
+                  }}
+                  className={classNames("w-8rem", { "p-invalid": Boolean(errors.phoneType) })}
+                  optionLabel="label"
+                  optionValue="value"
+                />
+                <IconInput icon="pi-phone" className="flex-grow-1">
+                  <InputText
+                    className={fieldClass(Boolean(errors.phone))}
+                    placeholder="Please enter phone"
+                    value={phone}
+                    onChange={(e) => {
+                      setPhone(e.target.value);
+                      clearError("phone");
+                    }}
+                  />
+                </IconInput>
+              </div>
+              <FieldError message={errors.phoneType || errors.phone} />
+            </div>
+          </div>
+          <div className="col-12 md:col-4">
+            <ClientTextField label="Address" error={errors.address} icon="pi-home">
+              <InputText
+                className={fieldClass(Boolean(errors.address))}
+                placeholder="Please enter address"
+                value={address}
+                onChange={(e) => {
+                  setAddress(e.target.value);
+                  clearError("address");
+                }}
+              />
+            </ClientTextField>
+          </div>
+          <div className="col-12 md:col-4">
+            <div className="field mb-3">
+              <label className="block mb-1">Country</label>
+              <Dropdown
+                value={country}
+                options={COUNTRIES}
+                onChange={(e) => setCountry(e.value)}
+                className="w-full"
+                optionLabel="label"
+                optionValue="value"
+              />
+            </div>
+          </div>
+          <div className="col-12 md:col-4">
+            <ClientTextField label="Zip Code" error={errors.zipCode} icon="pi-globe">
+              <InputText
+                className={fieldClass(Boolean(errors.zipCode))}
+                placeholder="Please enter postal code / zip code"
+                value={zipCode}
+                onChange={(e) => {
+                  setZipCode(e.target.value);
+                  clearError("zipCode");
+                }}
+              />
+            </ClientTextField>
           </div>
         </div>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-4">
-        <Button label="ADD CHILD" className="p-button-success" type="button" onClick={addChild} />
-        <Button label="ADD SPOUSE" className="p-button-success" type="button" onClick={() => setShowSpouse(true)} />
+        <Button
+          label="Add child"
+          type="button"
+          size="small"
+          outlined
+          severity="success"
+          icon="pi pi-plus"
+          className="client-profile-btn"
+          onClick={addChild}
+        />
+        {!showSpouse ? (
+          <Button
+            label="Add spouse"
+            type="button"
+            size="small"
+            outlined
+            severity="success"
+            icon="pi pi-plus"
+            className="client-profile-btn"
+            onClick={() => setShowSpouse(true)}
+          />
+        ) : null}
       </div>
 
       {showSpouse && (
@@ -1040,10 +1033,19 @@ export default function ClientProfileForm({ mode, profileId, initial }: Props) {
       </div>
 
       <div className="flex justify-content-end gap-2 mt-4 pt-3 border-top-1 surface-border">
-        <Link href="/agent/clients" className="p-button p-component p-button-secondary font-medium no-underline">
-          Cancel
+        <Link href="/agent/clients" className={CLIENT_FORM_CANCEL_CLASS}>
+          <span className="p-button-label">Cancel</span>
         </Link>
-        <Button label="SAVE" className="p-button-success" type="button" onClick={save} loading={saving} disabled={saving || uploadingImage} />
+        <Button
+          label="Save"
+          type="button"
+          size="small"
+          severity="success"
+          className="client-profile-btn"
+          onClick={save}
+          loading={saving}
+          disabled={saving || uploadingImage}
+        />
       </div>
     </div>
   );
