@@ -1,0 +1,55 @@
+name: FSI Autobuild with Cache
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  create-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Create .env file
+        run: echo "${{ secrets.ENV_FILE }}" > .env
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Build Next.js App
+        run: npm run build
+
+      - name: HARD DEBUG - Find .next location
+        run: |
+          echo "=== FULL DIRECTORY TREE (TOP LEVEL) ==="
+          ls -la
+
+          echo "=== SEARCHING FOR .next ANYWHERE ==="
+          find . -type d -name ".next"
+
+          echo "=== CHECKING ROOT .next ==="
+          if [ -d ".next" ]; then
+            echo ".next FOUND in root"
+            ls -la .next
+          else
+            echo ".next NOT in root"
+          fi
+
+      - name: Upload Build Artifacts (SAFE MODE)
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-js-build
+          path: ./.next
+          if-no-files-found: error
