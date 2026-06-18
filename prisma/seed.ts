@@ -6,10 +6,13 @@ import {
   APP_NAME,
   APP_PORTAL_NAME,
 } from "../lib/appBranding";
+import { buildPortalContentSeedData } from "../lib/portalContentSeeds";
 
 const prisma = new PrismaClient();
 
 async function main() {
+  await prisma.agentWorkspaceRecord.deleteMany();
+  await prisma.portalContent.deleteMany();
   await prisma.adminLog.deleteMany();
   await prisma.fcmToken.deleteMany();
   await prisma.notification.deleteMany();
@@ -21,6 +24,7 @@ async function main() {
   await prisma.insurerStat.deleteMany();
   await prisma.commissionRecord.deleteMany();
   await prisma.announcement.deleteMany();
+  await prisma.agentProfile.updateMany({ data: { recruiterProfileId: null } });
   await prisma.agentProfile.deleteMany();
   await prisma.carrierProfile.deleteMany();
   await prisma.systemSettings.deleteMany();
@@ -174,6 +178,7 @@ async function main() {
     where: { id: agentTwo.agentProfile!.id },
     data: {
       preferredCarrierIds: [carrierOne.carrierProfile!.id],
+      recruiterProfileId: agentOne.agentProfile!.id,
     },
   });
 
@@ -298,6 +303,32 @@ async function main() {
         notes: "Awaiting carrier approval.",
         updatedById: admin.id,
       },
+      {
+        agentId: agentOne.id,
+        carrierProfileId: carrierOne.carrierProfile!.id,
+        policyNumber: "POL-10003",
+        clientName: "Robert Chen",
+        productLine: "Term Life",
+        amount: 320,
+        status: "DISPUTED",
+        statementMonth: new Date("2026-01-01T00:00:00.000Z"),
+        effectiveDate: new Date("2025-12-10T00:00:00.000Z"),
+        notes: "Carrier dispute — chargeback under review.",
+        updatedById: admin.id,
+      },
+      {
+        agentId: agentTwo.id,
+        carrierProfileId: carrierTwo.carrierProfile!.id,
+        policyNumber: "POL-20002",
+        clientName: "Dana Price",
+        productLine: "Whole Life",
+        amount: 540,
+        status: "DISPUTED",
+        statementMonth: new Date("2026-02-01T00:00:00.000Z"),
+        effectiveDate: new Date("2026-01-05T00:00:00.000Z"),
+        notes: "Chargeback under review — potential roll-up to upline.",
+        updatedById: admin.id,
+      },
     ],
   });
 
@@ -393,6 +424,155 @@ async function main() {
         action: "COMMISSION_UPDATED",
         entityType: "COMMISSION_RECORD",
         description: "Seeded initial commission statement records for MVP dashboard.",
+      },
+    ],
+  });
+
+  await prisma.agentWorkspaceRecord.createMany({
+    data: [
+      {
+        agentId: agentOne.id,
+        recordType: "INSURANCE",
+        clientName: "Sidney Moreira",
+        policyNumber: "PENDING-NBT-91564",
+        associate: "Jo Cleine Spinola",
+        company: "National Life Group",
+        status: "Pending",
+        amount: 1200,
+        recordDate: new Date("2026-03-30T00:00:00.000Z"),
+        metadata: {
+          shareAssociate: "Jo Cleine Spinola JC investment Group LLC",
+          enteredPremium: 1200,
+          calculatedPremium: 0,
+          hasSubDeal: false,
+        },
+      },
+      {
+        agentId: agentOne.id,
+        recordType: "INSURANCE",
+        clientName: "Johsue Castillo",
+        policyNumber: "L2262970",
+        associate: "Jo Cleine Spinola",
+        company: "National Life Group",
+        status: "Paid",
+        amount: 7200,
+        recordDate: new Date("2026-03-13T00:00:00.000Z"),
+        paidDate: new Date("2026-03-26T00:00:00.000Z"),
+        metadata: {
+          shareAssociate: "Jo Cleine Spinola JC investment Group LLC",
+          enteredPremium: 7200,
+          calculatedPremium: 7200,
+          hasSubDeal: false,
+        },
+      },
+      {
+        agentId: agentOne.id,
+        recordType: "REPORT_PAID",
+        associate: "Jo Cleine Spinola",
+        amount: 1705.27,
+        status: "Active",
+        paidDate: new Date("2026-03-01T00:00:00.000Z"),
+        metadata: {
+          rank: 1,
+          bracketCode: "JO SPI-A13713",
+          insurance: "+$4,799.99 / -$2,992.89",
+          renewals: "-$84.61",
+          escrow: "$17.22",
+          type: "General",
+        },
+      },
+      {
+        agentId: agentOne.id,
+        recordType: "SCOREBOARD_COMPANY",
+        associate: "Jo Cleine Spinola",
+        amount: 125000,
+        status: "Active",
+        metadata: { rank: 1, level: "ED", executiveDirector: "Leonor Carvalho" },
+      },
+      {
+        agentId: agentOne.id,
+        recordType: "SCOREBOARD_PERSONAL",
+        amount: 45000,
+        status: "On track",
+        metadata: { metric: "Personal production", period: "Q1 2026", goal: "$50,000" },
+      },
+      {
+        agentId: agentOne.id,
+        recordType: "TEAM_AGREEMENT",
+        associate: "Carlos Gomez",
+        status: "Active",
+        recordDate: new Date("2024-12-12T00:00:00.000Z"),
+        metadata: {
+          recruiter: "Jo Cleine Spinola",
+          fieldDirector: "Jo Cleine Spinola",
+          agreementLabel: "Completed ADA",
+        },
+      },
+      {
+        agentId: agentOne.id,
+        recordType: "TEAM_INVITEE",
+        associate: "Maria Santos",
+        status: "Invited",
+        recordDate: new Date("2026-02-15T00:00:00.000Z"),
+        metadata: { email: "maria.santos@example.com", phone: "+1 (716) 555-0188" },
+      },
+      {
+        agentId: agentOne.id,
+        recordType: "CARRIER_CONTRACT",
+        company: "Aflac",
+        status: "Not Loaded",
+        metadata: { rank: "PLATINUM", fpbStatus: "No FPB Needed", contractStatus: "Not Loaded", states: "TX" },
+      },
+      {
+        agentId: agentOne.id,
+        recordType: "CARRIER_CONTRACT",
+        company: "American National",
+        status: "Approved",
+        metadata: { rank: "PLATINUM", fpbStatus: "No FPB Needed", contractStatus: "Approved", states: "NY, FL" },
+      },
+      {
+        agentId: agentOne.id,
+        recordType: "REPORT_ESCROW",
+        amount: 250.5,
+        status: "Posted",
+        recordDate: new Date("2026-03-10T00:00:00.000Z"),
+        metadata: { transactionType: "Credit", description: "Escrow release" },
+      },
+      {
+        agentId: agentOne.id,
+        recordType: "ANNUITIES",
+        clientName: "Robert Chen",
+        policyNumber: "ANN-44021",
+        company: "Nationwide",
+        amount: 50000,
+        status: "Issued",
+        recordDate: new Date("2026-01-15T00:00:00.000Z"),
+      },
+      {
+        agentId: agentOne.id,
+        recordType: "NEW_BUSINESS_TRANSMITTAL",
+        clientName: "Elena Vasquez",
+        policyNumber: "NBT-88019",
+        company: "National Life Group",
+        associate: "Jo Cleine Spinola",
+        status: "Submitted",
+        recordDate: new Date("2026-03-13T00:00:00.000Z"),
+      },
+    ],
+  });
+
+  await prisma.portalContent.createMany({
+    data: [
+      ...buildPortalContentSeedData(admin.id),
+      {
+        slug: "development/pop-ups",
+        category: "POPUP",
+        title: "Welcome to the portal",
+        body: "New commission reporting and team recruiting tools are now live in your agent workspace.",
+        published: true,
+        publishedAt: new Date(),
+        metadata: { popupCategory: "Announcement" },
+        createdById: admin.id,
       },
     ],
   });

@@ -6,26 +6,20 @@ import { Checkbox } from "primereact/checkbox";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { classNames } from "primereact/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 4;
 
 const STEPS = [
     { title: "Contact Information", key: "contact" },
     { title: "Personal Information", key: "personal" },
     { title: "Home Address", key: "address" },
-    { title: "Additional Details", key: "extra4" },
-    { title: "Review", key: "extra5" },
-    { title: "Confirmation", key: "extra6" },
-    { title: "Complete", key: "extra7" },
+    { title: "Review & Submit", key: "review" },
 ];
 
 const COUNTRY_OPTIONS = [{ label: "USA", value: "USA" }];
 
-const RECRUITER_OPTIONS = [
-    { label: "Jo Cleine Spinola (FS Code: A13713)", value: "a13713" },
-    { label: "Select recruiter…", value: "" },
-];
+const RECRUITER_OPTIONS = [{ label: "Select recruiter…", value: "" }];
 
 const STATE_OPTIONS = [
     { label: "Select State", value: "" },
@@ -98,17 +92,94 @@ export default function AoaOnlineSignUpWizard() {
     const [legalAsPreferred, setLegalAsPreferred] = useState(false);
     const [splitRecruiting, setSplitRecruiting] = useState(false);
     const [country, setCountry] = useState("USA");
-    const [recruiter, setRecruiter] = useState("a13713");
+    const [recruiter, setRecruiter] = useState("");
+    const [recruiterOptions, setRecruiterOptions] = useState(RECRUITER_OPTIONS);
     const [residenceState, setResidenceState] = useState("");
     const [dob, setDob] = useState<Date | null>(null);
+    const [firstLegalName, setFirstLegalName] = useState("");
+    const [middleLegalName, setMiddleLegalName] = useState("");
+    const [lastLegalName, setLastLegalName] = useState("");
+    const [firstPreferredName, setFirstPreferredName] = useState("");
+    const [lastPreferredName, setLastPreferredName] = useState("");
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
+    const [streetAddress, setStreetAddress] = useState("");
+    const [city, setCity] = useState("");
+    const [zipCode, setZipCode] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+    const [message, setMessage] = useState<string | null>(null);
+    const [completed, setCompleted] = useState(false);
+    const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+    useEffect(() => {
+        fetch("/api/agent/recruiting/aoa")
+            .then((r) => r.json())
+            .then((payload) => {
+                if (payload.recruiters?.length) {
+                    setRecruiterOptions([
+                        { label: "Select recruiter…", value: "" },
+                        ...payload.recruiters.map((r: { label: string; value: string }) => ({
+                            label: r.label,
+                            value: r.value,
+                        })),
+                    ]);
+                }
+            })
+            .catch(() => {});
+    }, []);
 
     const canBack = step > 1;
 
+    const recruiterLabel = recruiterOptions.find((o) => o.value === recruiter)?.label ?? "—";
+
+    const canContinue =
+        step === 1
+            ? Boolean(firstLegalName.trim() && lastLegalName.trim() && email.trim())
+            : step === 4
+              ? acceptedTerms && !completed
+              : true;
+
     const goNext = () => {
-        if (step < TOTAL_STEPS) setStep((s) => s + 1);
+        if (step < TOTAL_STEPS && canContinue) setStep((s) => s + 1);
     };
     const goBack = () => {
         if (canBack) setStep((s) => s - 1);
+    };
+
+    const submitApplication = async () => {
+        setSubmitting(true);
+        setMessage(null);
+        try {
+            const response = await fetch("/api/agent/recruiting/aoa", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    firstLegalName,
+                    middleLegalName,
+                    lastLegalName,
+                    firstPreferredName: legalAsPreferred ? firstLegalName : firstPreferredName,
+                    lastPreferredName: legalAsPreferred ? lastLegalName : lastPreferredName,
+                    email,
+                    phone,
+                    birthDate: dob?.toISOString(),
+                    streetAddress,
+                    city,
+                    state: residenceState,
+                    zipCode,
+                    recruiterProfileId: recruiter || null,
+                    country,
+                    splitRecruiting,
+                }),
+            });
+            const payload = await response.json();
+            if (!response.ok) throw new Error(payload.error || "Submission failed.");
+            setCompleted(true);
+            setMessage(payload.message || "Application submitted successfully.");
+        } catch (error) {
+            setMessage(error instanceof Error ? error.message : "Submission failed.");
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const cardClass =
@@ -126,15 +197,15 @@ export default function AoaOnlineSignUpWizard() {
                     <FormGrid>
                         <div>
                             <FieldLabel>First Legal Name</FieldLabel>
-                            <InputText className="aoa-control w-full" placeholder="Kristin" />
+                            <InputText className="aoa-control w-full" placeholder="Kristin" value={firstLegalName} onChange={(e) => setFirstLegalName(e.target.value)} />
                         </div>
                         <div>
                             <FieldLabel>Middle Legal Name</FieldLabel>
-                            <InputText className="aoa-control w-full" placeholder="Elise" />
+                            <InputText className="aoa-control w-full" placeholder="Elise" value={middleLegalName} onChange={(e) => setMiddleLegalName(e.target.value)} />
                         </div>
                         <div>
                             <FieldLabel>Last Legal Name</FieldLabel>
-                            <InputText className="aoa-control w-full" placeholder="Simmons" />
+                            <InputText className="aoa-control w-full" placeholder="Simmons" value={lastLegalName} onChange={(e) => setLastLegalName(e.target.value)} />
                         </div>
                         <div className="aoa-span-all aoa-choice-row">
                             <Checkbox
@@ -148,15 +219,15 @@ export default function AoaOnlineSignUpWizard() {
                         </div>
                         <div>
                             <FieldLabel>First Preferred Name</FieldLabel>
-                            <InputText className="aoa-control w-full" placeholder="Kristin" />
+                            <InputText className="aoa-control w-full" placeholder="Kristin" value={firstPreferredName} onChange={(e) => setFirstPreferredName(e.target.value)} />
                         </div>
                         <div>
                             <FieldLabel>Last Preferred Name</FieldLabel>
-                            <InputText className="aoa-control w-full" placeholder="Simmons" />
+                            <InputText className="aoa-control w-full" placeholder="Simmons" value={lastPreferredName} onChange={(e) => setLastPreferredName(e.target.value)} />
                         </div>
                         <div className="aoa-span-all">
                             <FieldLabel>Current email</FieldLabel>
-                            <InputText className="aoa-control w-full" placeholder="example@experior.com" type="email" />
+                            <InputText className="aoa-control w-full" placeholder="example@experior.com" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                         </div>
                         <div>
                             <FieldLabel>Country</FieldLabel>
@@ -173,7 +244,7 @@ export default function AoaOnlineSignUpWizard() {
                             <FieldLabel>Recruiter</FieldLabel>
                             <Dropdown
                                 value={recruiter}
-                                options={RECRUITER_OPTIONS.filter((o) => o.value !== "")}
+                                options={recruiterOptions.filter((o) => o.value !== "")}
                                 onChange={(e) => setRecruiter(e.value)}
                                 className="aoa-control w-full"
                                 optionLabel="label"
@@ -211,7 +282,7 @@ export default function AoaOnlineSignUpWizard() {
                     <FormGrid>
                         <div>
                             <FieldLabel>Phone number</FieldLabel>
-                            <InputText className="aoa-control w-full" placeholder="Enter phone number" type="tel" />
+                            <InputText className="aoa-control w-full" placeholder="Enter phone number" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
                         </div>
                         <div>
                             <FieldLabel>Date Of Birth</FieldLabel>
@@ -232,11 +303,11 @@ export default function AoaOnlineSignUpWizard() {
                     <FormGrid>
                         <div className="aoa-span-all">
                             <FieldLabel>Street Address</FieldLabel>
-                            <InputText className="aoa-control w-full" placeholder="Enter Street" />
+                            <InputText className="aoa-control w-full" placeholder="Enter Street" value={streetAddress} onChange={(e) => setStreetAddress(e.target.value)} />
                         </div>
                         <div>
                             <FieldLabel>City name</FieldLabel>
-                            <InputText className="aoa-control w-full" placeholder="Enter City" />
+                            <InputText className="aoa-control w-full" placeholder="Enter City" value={city} onChange={(e) => setCity(e.target.value)} />
                         </div>
                         <div>
                             <FieldLabel>Residence State</FieldLabel>
@@ -252,16 +323,59 @@ export default function AoaOnlineSignUpWizard() {
                         </div>
                         <div>
                             <FieldLabel>Zip code</FieldLabel>
-                            <InputText className="aoa-control w-full" placeholder="Enter Zip Code" />
+                            <InputText className="aoa-control w-full" placeholder="Enter Zip Code" value={zipCode} onChange={(e) => setZipCode(e.target.value)} />
                         </div>
                     </FormGrid>
                 )}
 
-                {step > 3 && (
-                    <div className="text-center py-4">
-                        <p className="text-600 m-0">
-                            Step {step} — placeholder for remaining AOA flow. Use Continue to advance.
-                        </p>
+                {step === 4 && !completed && (
+                    <FormGrid>
+                        <p className="aoa-span-all text-700 m-0 font-semibold">Review your application before submitting.</p>
+                        <div className="surface-50 border-round p-3">
+                            <p className="m-0 mb-2 font-bold text-900">Contact</p>
+                            <p className="m-0 text-sm text-700">
+                                {firstLegalName} {middleLegalName} {lastLegalName}
+                                <br />
+                                Preferred: {legalAsPreferred ? `${firstLegalName} ${lastLegalName}` : `${firstPreferredName || "—"} ${lastPreferredName || "—"}`}
+                                <br />
+                                {email} · {country}
+                                <br />
+                                Recruiter: {recruiterLabel}
+                                {splitRecruiting ? " · Split recruiting" : ""}
+                            </p>
+                        </div>
+                        <div className="surface-50 border-round p-3">
+                            <p className="m-0 mb-2 font-bold text-900">Personal</p>
+                            <p className="m-0 text-sm text-700">
+                                Phone: {phone || "—"}
+                                <br />
+                                Date of birth: {dob ? dob.toLocaleDateString() : "—"}
+                            </p>
+                        </div>
+                        <div className="surface-50 border-round p-3 aoa-span-all">
+                            <p className="m-0 mb-2 font-bold text-900">Home address</p>
+                            <p className="m-0 text-sm text-700">
+                                {streetAddress || "—"}, {city || "—"}, {residenceState || "—"} {zipCode || "—"}
+                            </p>
+                        </div>
+                        <div className="aoa-span-all aoa-choice-row">
+                            <Checkbox
+                                inputId="aoa-terms"
+                                checked={acceptedTerms}
+                                onChange={(e) => setAcceptedTerms(!!e.checked)}
+                            />
+                            <label htmlFor="aoa-terms" className="text-sm text-800 cursor-pointer line-height-3">
+                                I confirm the information above is accurate and authorize Experior to create an invited associate account.
+                                Credentials will be sent to the email provided.
+                            </label>
+                        </div>
+                    </FormGrid>
+                )}
+
+                {step === 4 && completed && (
+                    <div className="text-center py-2">
+                        <p className="text-green-700 font-semibold m-0">{message}</p>
+                        <p className="text-600 text-sm mt-2 mb-0">The associate will appear in Team → Invitees.</p>
                     </div>
                 )}
 
@@ -281,20 +395,23 @@ export default function AoaOnlineSignUpWizard() {
                             className={classNames("p-button-warning font-bold", !canBack ? "w-full" : "flex-grow-1")}
                             style={{ minWidth: "12rem" }}
                             onClick={goNext}
+                            disabled={!canContinue}
                         />
-                    ) : (
+                    ) : completed ? null : (
                         <Button
                             type="button"
-                            label="Finish"
+                            label={submitting ? "Submitting…" : "Submit application"}
                             className="p-button-warning font-bold w-full"
                             style={{ minWidth: "12rem" }}
-                            onClick={() => {}}
+                            onClick={submitApplication}
+                            disabled={submitting || !acceptedTerms}
+                            loading={submitting}
                         />
                     )}
                 </div>
-                {step === TOTAL_STEPS && (
-                    <p className="text-center text-sm text-600 mt-2 mb-0">You have reached the final step (UI only).</p>
-                )}
+                {message && !completed && step === TOTAL_STEPS ? (
+                    <p className="text-red-600 text-sm text-center mt-2 mb-0">{message}</p>
+                ) : null}
             </div>
             </div>
 

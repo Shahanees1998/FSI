@@ -1,11 +1,14 @@
 import { requireCurrentUser } from "@/lib/serverAuth";
-import { redirect } from "next/navigation";
+import { renderRecruitingCmsPage } from "@/lib/recruitingCmsPage";
 
-/** Team → Recruiting → Why Choose Experior (Spanish subtitles): YouTube video. */
 const WHY_CHOOSE_EXPERIOR_SPANISH_URL = "https://www.youtube.com/watch?v=SoGwY1KqDBc";
 
 export default async function WhyChooseExperiorSpanishSubtitlesPage() {
     await requireCurrentUser("AGENT");
-    redirect(WHY_CHOOSE_EXPERIOR_SPANISH_URL);
+    return renderRecruitingCmsPage(
+        "why-choose-experior-spanish-subtitles",
+        "Why Choose Experior | Spanish Subtitles",
+        undefined,
+        WHY_CHOOSE_EXPERIOR_SPANISH_URL
+    );
 }
-

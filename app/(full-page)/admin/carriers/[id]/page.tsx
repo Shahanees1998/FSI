@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AdminCarrierProfileForm from "@/components/portal/AdminCarrierProfileForm";
 import { getUserDirectoryDetail } from "@/lib/portalData";
 import { requireCurrentUser } from "@/lib/serverAuth";
 
@@ -34,13 +35,19 @@ export default async function AdminCarrierDetailPage({
       </div>
       <div className="col-12 lg:col-5">
         <div className="surface-card border-round border-1 surface-border p-4 h-full">
-          <h3 className="mt-0">Profile snapshot</h3>
-          <p className="mb-2"><span className="font-semibold">Carrier name:</span> {carrier.carrierProfile?.carrierName || "Not provided"}</p>
-          <p className="mb-2"><span className="font-semibold">Contact email:</span> {carrier.carrierProfile?.contactEmail || "Not provided"}</p>
-          <p className="mb-2"><span className="font-semibold">Contact phone:</span> {carrier.carrierProfile?.contactPhone || "Not provided"}</p>
-          <p className="mb-2"><span className="font-semibold">Website:</span> {carrier.carrierProfile?.website || "Not provided"}</p>
-          <p className="mb-2"><span className="font-semibold">Job title:</span> {carrier.jobTitle || "Not provided"}</p>
-          <p className="mb-0"><span className="font-semibold">Created:</span> {new Date(carrier.createdAt).toLocaleString()}</p>
+          <h3 className="mt-0">Edit profile</h3>
+          <AdminCarrierProfileForm
+            carrierId={carrier.id}
+            initial={{
+              firstName: carrier.firstName,
+              lastName: carrier.lastName,
+              phone: carrier.phone,
+              status: carrier.status,
+              jobTitle: carrier.jobTitle,
+              location: carrier.location,
+              carrierProfile: carrier.carrierProfile,
+            }}
+          />
         </div>
       </div>
       <div className="col-12 lg:col-7">

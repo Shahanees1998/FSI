@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
+import { useToast } from "@/store/toast.context";
 
 export default function AgentCompanyPicker({
   agentId,
@@ -14,7 +15,7 @@ export default function AgentCompanyPicker({
   companies: { id: string; name: string; location?: string | null; department?: string | null }[];
 }) {
   const [companyId, setCompanyId] = useState<string>(initialCompanyId ?? "");
-  const [message, setMessage] = useState<string | null>(null);
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
 
   const options = [
@@ -27,7 +28,6 @@ export default function AgentCompanyPicker({
 
   const save = async () => {
     setLoading(true);
-    setMessage(null);
     const response = await fetch(`/api/admin/agents/${agentId}`, {
       method: "PUT",
       credentials: "include",
@@ -39,10 +39,10 @@ export default function AgentCompanyPicker({
     setLoading(false);
     const payload = await response.json();
     if (!response.ok) {
-      setMessage(payload.error || "Unable to update company.");
+      showToast("error", payload.error || "Unable to update company.");
       return;
     }
-    setMessage("Company assignment saved.");
+    showToast("success", "Company assignment saved.");
   };
 
   return (
@@ -57,7 +57,6 @@ export default function AgentCompanyPicker({
         />
         <div className="flex flex-wrap gap-2 align-items-center mt-3">
           <Button label="Save assignment" onClick={save} loading={loading} disabled={loading} size="small" />
-          {message && <span className="text-sm font-medium">{message}</span>}
         </div>
       </div>
     </div>

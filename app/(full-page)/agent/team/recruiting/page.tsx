@@ -1,13 +1,19 @@
+import PortalHubView from "@/components/portal/PortalHubView";
+import { RECRUITING_HUB_SECTIONS } from "@/lib/hubConfigs";
 import { requireCurrentUser } from "@/lib/serverAuth";
 
 export default async function AgentTeamRecruitingPage() {
-    await requireCurrentUser("AGENT");
+  await requireCurrentUser("AGENT");
 
-    return (
-        <div className="surface-card border-round border-1 surface-border p-4">
-            <h1 className="mt-0 mb-2">Recruiting</h1>
-            <p className="text-600 m-0">Dummy content for now.</p>
-        </div>
-    );
+  return (
+    <PortalHubView
+      title="Recruiting"
+      description="AOA sign-up, recruiting media, graphics, and new associate resources."
+      sections={RECRUITING_HUB_SECTIONS}
+      helpLinks={[
+        { href: "/agent/team/invitees", label: "View invitees" },
+        { href: "/agent/team/visual-network", label: "Visual network" },
+      ]}
+    />
+  );
 }
-

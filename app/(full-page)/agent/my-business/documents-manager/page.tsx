@@ -1,13 +1,12 @@
-import DocumentsManagerView from "@/components/my-business/DocumentsManagerView";
+import { renderAgentWorkspacePageForAgent } from "@/lib/renderAgentWorkspacePage";
 import { requireCurrentUser } from "@/lib/serverAuth";
+import { SearchParamRecord } from "@/lib/portalPagination";
 
-export default async function AgentMyBusinessDocumentsManagerPage() {
-    await requireCurrentUser("AGENT");
-
-    return (
-        <div className="surface-card border-round border-1 surface-border p-3 md:p-4">
-            <DocumentsManagerView />
-        </div>
-    );
+export default async function AgentMyBusinessDocumentsManagerPage({
+  searchParams = {},
+}: {
+  searchParams?: SearchParamRecord;
+}) {
+  const user = await requireCurrentUser("AGENT");
+  return renderAgentWorkspacePageForAgent(user.id, "DOCUMENT", searchParams);
 }
-

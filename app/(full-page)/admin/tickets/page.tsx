@@ -17,7 +17,7 @@ export default async function AdminTicketsPage({
     return (
         <TicketWorkspace
             initialTickets={result.data}
-            canCreate={false}
+            canCreate={true}
             pathname="/admin/tickets"
             searchParams={searchParams}
             pagination={result.pagination}

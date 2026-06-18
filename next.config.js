@@ -28,7 +28,17 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    domains: [],
+    domains: ["s3-bucket-devhood.s3.eu-north-1.amazonaws.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.s3.*.amazonaws.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.s3.amazonaws.com",
+      },
+    ],
     unoptimized: true, // For Vercel deployment compatibility
   },
   experimental: {

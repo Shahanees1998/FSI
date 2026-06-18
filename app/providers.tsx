@@ -4,6 +4,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ReactNode } from "react";
 import { ToastProvider } from "@/store/toast.context";
 import ClientOnly from "@/components/ClientOnly";
+import FloatingSupportWidget from "@/components/support/FloatingSupportWidget";
 
 interface ProvidersProps {
   children: ReactNode;
@@ -15,6 +16,7 @@ export function Providers({ children }: ProvidersProps) {
       <ClientOnly>
         <ToastProvider>
           {children}
+          <FloatingSupportWidget />
         </ToastProvider>
       </ClientOnly>
     </AuthProvider>

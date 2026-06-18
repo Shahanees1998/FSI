@@ -1,5 +1,4 @@
 import TicketWorkspace from "@/components/portal/TicketWorkspace";
-import AgentTicketsDemoSection from "@/components/tickets/AgentTicketsDemoSection";
 import { listTicketsForUser } from "@/lib/portalData";
 import { SearchParamRecord } from "@/lib/portalPagination";
 import { requireCurrentUser } from "@/lib/serverAuth";
@@ -16,21 +15,18 @@ export default async function AgentTicketsPage({
     );
 
     return (
-        <div className="flex flex-column gap-4">
-            <TicketWorkspace
-                initialTickets={result.data}
-                canCreate
-                pathname="/agent/tickets"
-                searchParams={searchParams}
-                pagination={result.pagination}
-                filters={{
-                    q: typeof searchParams.q === "string" ? searchParams.q : undefined,
-                    status: typeof searchParams.status === "string" ? searchParams.status : undefined,
-                    priority: typeof searchParams.priority === "string" ? searchParams.priority : undefined,
-                    category: typeof searchParams.category === "string" ? searchParams.category : undefined,
-                }}
-            />
-            <AgentTicketsDemoSection />
-        </div>
+        <TicketWorkspace
+            initialTickets={result.data}
+            canCreate
+            pathname="/agent/tickets"
+            searchParams={searchParams}
+            pagination={result.pagination}
+            filters={{
+                q: typeof searchParams.q === "string" ? searchParams.q : undefined,
+                status: typeof searchParams.status === "string" ? searchParams.status : undefined,
+                priority: typeof searchParams.priority === "string" ? searchParams.priority : undefined,
+                category: typeof searchParams.category === "string" ? searchParams.category : undefined,
+            }}
+        />
     );
 }

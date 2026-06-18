@@ -1,14 +1,12 @@
-import TeamReassignedClientsView from "@/components/team/TeamReassignedClientsView";
+import { renderAgentWorkspacePageForAgent } from "@/lib/renderAgentWorkspacePage";
 import { requireCurrentUser } from "@/lib/serverAuth";
+import { SearchParamRecord } from "@/lib/portalPagination";
 
-export default async function AgentTeamReassignedClientsPage() {
-    await requireCurrentUser("AGENT");
-
-    return (
-        <div className="surface-card border-round border-1 surface-border overflow-hidden p-0">
-            <div className="p-3 md:p-4">
-                <TeamReassignedClientsView />
-            </div>
-        </div>
-    );
+export default async function AgentTeamReassignedClientsPage({
+  searchParams = {},
+}: {
+  searchParams?: SearchParamRecord;
+}) {
+  const user = await requireCurrentUser("AGENT");
+  return renderAgentWorkspacePageForAgent(user.id, "TEAM_REASSIGNED_CLIENT", searchParams);
 }

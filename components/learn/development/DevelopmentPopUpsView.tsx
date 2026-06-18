@@ -5,7 +5,7 @@ import { Button } from "primereact/button";
 import { Column } from "primereact/column";
 import { DataTable, DataTableFilterMeta } from "primereact/datatable";
 import { Dropdown } from "primereact/dropdown";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 type PopUpRow = {
     id: string;
@@ -32,8 +32,11 @@ function emptyFilters(): DataTableFilterMeta {
     };
 }
 
-export default function DevelopmentPopUpsView() {
-    const rows = useMemo<PopUpRow[]>(() => [], []);
+export default function DevelopmentPopUpsView({
+    rows = [],
+}: {
+    rows?: PopUpRow[];
+}) {
     const [filters, setFilters] = useState<DataTableFilterMeta>(() => emptyFilters());
 
     const clear = () => setFilters(emptyFilters());

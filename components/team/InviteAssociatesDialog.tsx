@@ -6,12 +6,14 @@ import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { classNames } from "primereact/utils";
+import { useToast } from "@/store/toast.context";
 
-const RECRUITER_OPTIONS = [
-    { label: "Jo Cleine Spinola (FS Code: A13713)", value: "a13713" },
-    { label: "Another Recruiter (FS Code: B20001)", value: "b20001" },
-];
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+type RecruiterOption = { label: string; value: string };
 
 type Props = {
     visible: boolean;
@@ -19,21 +21,110 @@ type Props = {
 };
 
 export default function InviteAssociatesDialog({ visible, onHide }: Props) {
+    const router = useRouter();
+    const { showToast } = useToast();
     const [aoaLanguage, setAoaLanguage] = useState<"english" | "spanish">("english");
     const [splitRecruiting, setSplitRecruiting] = useState(false);
-    const [recruiter, setRecruiter] = useState<string | null>("a13713");
+    const [recruiterProfileId, setRecruiterProfileId] = useState<string | null>(null);
     const [message, setMessage] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [middleName, setMiddleName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [email, setEmail] = useState("");
+    const [recruiters, setRecruiters] = useState<RecruiterOption[]>([]);
+    const [submitting, setSubmitting] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
+    useEffect(() => {
+        if (!visible) return;
+        let cancelled = false;
+        (async () => {
+            try {
+                const res = await fetch("/api/agent/recruiting/aoa");
+                if (!res.ok) return;
+                const data = (await res.json()) as { recruiters?: RecruiterOption[] };
+                if (!cancelled && data.recruiters?.length) {
+                    setRecruiters(data.recruiters);
+                    setRecruiterProfileId((current) => current ?? data.recruiters![0].value);
+                }
+            } catch {
+                /* optional recruiters list */
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [visible]);
+
+    const resetForm = () => {
+        setFirstName("");
+        setMiddleName("");
+        setLastName("");
+        setEmail("");
+        setMessage("");
+        setErrors({});
+        setAoaLanguage("english");
+        setSplitRecruiting(false);
+    };
+
+    const handleSend = async () => {
+        const nextErrors: Record<string, string> = {};
+        if (!firstName.trim()) nextErrors.firstName = "First name is required.";
+        if (!lastName.trim()) nextErrors.lastName = "Last name is required.";
+        if (!email.trim()) {
+            nextErrors.email = "Email is required.";
+        } else if (!EMAIL_RE.test(email.trim())) {
+            nextErrors.email = "Enter a valid email address.";
+        }
+
+        if (Object.keys(nextErrors).length > 0) {
+            setErrors(nextErrors);
+            showToast("warn", "Check required fields", Object.values(nextErrors)[0]);
+            return;
+        }
+
+        setErrors({});
+        setSubmitting(true);
+        try {
+            const res = await fetch("/api/agent/team/invites", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    firstName: firstName.trim(),
+                    middleName: middleName.trim(),
+                    lastName: lastName.trim(),
+                    email: email.trim(),
+                    recruiterProfileId,
+                    message,
+                    aoaLanguage,
+                    splitRecruiting,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                showToast("error", data.error || "Failed to send invite.");
+                return;
+            }
+            showToast("success", "Invite sent successfully.");
+            resetForm();
+            onHide();
+            router.refresh();
+        } catch {
+            showToast("error", "Failed to send invite.");
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
     const footer = (
         <div className="flex justify-content-end gap-2">
-            <Button label="CANCEL" className="p-button-warning font-bold" type="button" onClick={onHide} />
+            <Button label="CANCEL" className="p-button-warning font-bold" type="button" onClick={onHide} disabled={submitting} />
             <Button
-                label="SEND"
+                label={submitting ? "SENDING…" : "SEND"}
                 className="p-button-warning font-bold"
                 type="button"
-                onClick={() => {
-                    onHide();
-                }}
+                onClick={handleSend}
+                loading={submitting}
             />
         </div>
     );
@@ -87,22 +178,79 @@ export default function InviteAssociatesDialog({ visible, onHide }: Props) {
 
                 <div className="grid">
                     <div className="col-12 md:col-4">
-                        <label className="block text-sm font-bold text-800 mb-1">First Name</label>
-                        <InputText className="w-full surface-100 border-none" placeholder="Enter first name" />
+                        <label className="block text-sm font-bold text-800 mb-1">
+                            First Name <span className="text-red-500">*</span>
+                        </label>
+                        <InputText
+                            className={classNames("w-full surface-100 border-none", { "p-invalid": errors.firstName })}
+                            placeholder="Enter first name"
+                            value={firstName}
+                            onChange={(e) => {
+                                setFirstName(e.target.value);
+                                if (errors.firstName) {
+                                    setErrors((prev) => {
+                                        const next = { ...prev };
+                                        delete next.firstName;
+                                        return next;
+                                    });
+                                }
+                            }}
+                        />
+                        {errors.firstName ? <small className="p-error block mt-1">{errors.firstName}</small> : null}
                     </div>
                     <div className="col-12 md:col-4">
                         <label className="block text-sm font-bold text-800 mb-1">Middle Name</label>
-                        <InputText className="w-full surface-100 border-none" placeholder="Enter middle name" />
+                        <InputText
+                            className="w-full surface-100 border-none"
+                            placeholder="Enter middle name"
+                            value={middleName}
+                            onChange={(e) => setMiddleName(e.target.value)}
+                        />
                     </div>
                     <div className="col-12 md:col-4">
-                        <label className="block text-sm font-bold text-800 mb-1">Last Name</label>
-                        <InputText className="w-full surface-100 border-none" placeholder="Enter last name" />
+                        <label className="block text-sm font-bold text-800 mb-1">
+                            Last Name <span className="text-red-500">*</span>
+                        </label>
+                        <InputText
+                            className={classNames("w-full surface-100 border-none", { "p-invalid": errors.lastName })}
+                            placeholder="Enter last name"
+                            value={lastName}
+                            onChange={(e) => {
+                                setLastName(e.target.value);
+                                if (errors.lastName) {
+                                    setErrors((prev) => {
+                                        const next = { ...prev };
+                                        delete next.lastName;
+                                        return next;
+                                    });
+                                }
+                            }}
+                        />
+                        {errors.lastName ? <small className="p-error block mt-1">{errors.lastName}</small> : null}
                     </div>
                 </div>
 
                 <div>
-                    <label className="block text-sm font-bold text-800 mb-1">Email</label>
-                    <InputText className="w-full surface-100 border-none" type="email" placeholder="Enter email address" />
+                    <label className="block text-sm font-bold text-800 mb-1">
+                        Email <span className="text-red-500">*</span>
+                    </label>
+                    <InputText
+                        className={classNames("w-full surface-100 border-none", { "p-invalid": errors.email })}
+                        type="email"
+                        placeholder="Enter email address"
+                        value={email}
+                        onChange={(e) => {
+                            setEmail(e.target.value);
+                            if (errors.email) {
+                                setErrors((prev) => {
+                                    const next = { ...prev };
+                                    delete next.email;
+                                    return next;
+                                });
+                            }
+                        }}
+                    />
+                    {errors.email ? <small className="p-error block mt-1">{errors.email}</small> : null}
                 </div>
 
                 <div className="flex align-items-center gap-2">
@@ -119,9 +267,9 @@ export default function InviteAssociatesDialog({ visible, onHide }: Props) {
                 <div>
                     <label className="block text-sm font-bold text-800 mb-1">Recruiter</label>
                     <Dropdown
-                        value={recruiter}
-                        options={RECRUITER_OPTIONS}
-                        onChange={(e) => setRecruiter(e.value)}
+                        value={recruiterProfileId}
+                        options={recruiters}
+                        onChange={(e) => setRecruiterProfileId(e.value)}
                         optionLabel="label"
                         optionValue="value"
                         filter

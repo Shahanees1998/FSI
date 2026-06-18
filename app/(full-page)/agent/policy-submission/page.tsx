@@ -1,11 +1,15 @@
 import Link from "next/link";
-import AgentPolicySubmissionDemoSection from "@/components/policy-submission/AgentPolicySubmissionDemoSection";
 import PolicySubmissionDeleteButton from "@/components/policy-submission/PolicySubmissionDeleteButton";
+import ListEmptyState from "@/components/portal/ListEmptyState";
 import PaginationControls from "@/components/portal/PaginationControls";
 import {
-  PORTAL_FILTER_ACTIONS_CLASS,
   PORTAL_FILTER_FORM_CLASS,
   PORTAL_FILTER_LABEL_CLASS,
+  PortalFilterApplyButton,
+  PortalFilterActions,
+  PortalFilterInput,
+  PortalFilterResetLink,
+  PortalFilterSelect,
   PortalListHeader,
   PortalListPageCard,
   PortalListTable,
@@ -54,47 +58,57 @@ export default async function AgentPolicySubmissionListPage({
           <input type="hidden" name="page" value="1" />
           <div className="col-12 md:col-4">
             <label className={PORTAL_FILTER_LABEL_CLASS}>Search</label>
-            <input
-              type="search"
+            <PortalFilterInput
+              inputType="search"
               name="q"
               placeholder="Summary text…"
               defaultValue={q || ""}
-              className="p-inputtext p-component w-full"
             />
           </div>
           <div className="col-12 md:col-4">
             <label className={PORTAL_FILTER_LABEL_CLASS}>Status</label>
-            <select name="status" className="w-full p-inputtext p-component" defaultValue={status || ""}>
+            <PortalFilterSelect name="status" defaultValue={status || ""}>
               <option value="">Any status</option>
               <option value="DRAFT">Draft</option>
               <option value="SUBMITTED">Submitted</option>
-            </select>
+            </PortalFilterSelect>
           </div>
           <div className="col-12 md:col-4">
             <label className={PORTAL_FILTER_LABEL_CLASS}>Progress</label>
-            <select name="progress" className="w-full p-inputtext p-component" defaultValue={progress || ""}>
+            <PortalFilterSelect name="progress" defaultValue={progress || ""}>
               <option value="">Any progress</option>
               <option value="low">0–33%</option>
               <option value="mid">34–66%</option>
               <option value="high">67–100%</option>
-            </select>
+            </PortalFilterSelect>
           </div>
-          <div className={PORTAL_FILTER_ACTIONS_CLASS}>
-            <button type="submit" className="p-button p-component">
-              <span className="p-button-label">Apply filters</span>
-            </button>
-            <Link href="/agent/policy-submission" className="p-button p-component p-button-text">
-              <span className="p-button-label">Reset</span>
-            </Link>
-          </div>
+          <PortalFilterActions>
+            <PortalFilterApplyButton />
+            <PortalFilterResetLink href="/agent/policy-submission" />
+          </PortalFilterActions>
         </form>
+      </PortalListPageCard>
+
+      <PortalListPageCard>
+        <p className="text-sm text-700 m-0 mb-3">
+          Showing {result.data.length === 0 ? 0 : (result.pagination.page - 1) * result.pagination.pageSize + 1}–
+          {Math.min(result.pagination.page * result.pagination.pageSize, result.pagination.total)} of{" "}
+          {result.pagination.total} submissions.
+        </p>
 
         {result.data.length === 0 ? (
-          <p className="text-600 mb-0">
-            {hasFilters
-              ? "No policy submissions match your filters."
-              : "No policy submissions yet. Create one to get started."}
-          </p>
+          <ListEmptyState
+            iconClass="pi pi-file-edit"
+            title={hasFilters ? "No policy submissions match your filters" : "No policy submissions yet"}
+            body={
+              hasFilters
+                ? "Try clearing search, status, or progress filters, then click Apply filters again."
+                : "Start a new life, critical illness, or disability insurance submission. Complete applicant, company, client, and document sections before submitting."
+            }
+            secondary={
+              hasFilters ? undefined : 'Click "New policy submission" above to get started.'
+            }
+          />
         ) : (
           <PortalListTableWrap>
             <PortalListTable>
@@ -144,8 +158,6 @@ export default async function AgentPolicySubmissionListPage({
 
         <PaginationControls pathname="/agent/policy-submission" searchParams={searchParams} pagination={result.pagination} />
       </PortalListPageCard>
-
-      <AgentPolicySubmissionDemoSection />
     </div>
   );
 }

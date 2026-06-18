@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "primereact/button";
-import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
 import CompanyCreateForm from "@/components/portal/CompanyCreateForm";
+import ListEmptyState from "@/components/portal/ListEmptyState";
 import {
-  PORTAL_FILTER_ACTIONS_CLASS,
   PORTAL_FILTER_FORM_CLASS,
   PORTAL_FILTER_LABEL_CLASS,
+  PortalFilterApplyButton,
+  PortalFilterActions,
+  PortalFilterInput,
+  PortalFilterResetLink,
   PortalListHeader,
   PortalListPageCard,
   PortalListTable,
@@ -20,7 +22,6 @@ import {
 } from "@/components/portal/PortalListLayout";
 import PaginationControls from "@/components/portal/PaginationControls";
 import { PaginationMeta, SearchParamRecord } from "@/lib/portalPagination";
-import { US_STATE_OPTIONS } from "@/lib/usStates";
 
 export type CompanyListItem = {
   id: string;
@@ -65,107 +66,96 @@ export default function CompaniesManager({
   const createCompanyUrl = isAgent ? "/api/agent/companies" : "/api/admin/companies";
 
   const filterForm = (
-    <form
-      className={isAgent ? PORTAL_FILTER_FORM_CLASS : "grid m-0 gap-2 w-full"}
-      action={pathname}
-      method="get"
-    >
+    <form className={PORTAL_FILTER_FORM_CLASS} action={pathname} method="get">
       <input type="hidden" name="page" value="1" />
       <div className="col-12 md:col-6 lg:col-3">
         <label className={PORTAL_FILTER_LABEL_CLASS}>Search</label>
-        {isAgent ? (
-          <input
-            type="search"
-            name="q"
-            placeholder="Name, location, department…"
-            defaultValue={filters.q || ""}
-            className="p-inputtext p-component w-full"
-          />
-        ) : (
-          <InputText name="q" className="w-full" placeholder="Name, location, department…" defaultValue={filters.q || ""} />
-        )}
+        <PortalFilterInput
+          inputType="search"
+          name="q"
+          placeholder="Name, location, department…"
+          defaultValue={filters.q || ""}
+        />
       </div>
       <div className="col-12 md:col-6 lg:col-3">
         <label className={PORTAL_FILTER_LABEL_CLASS}>State</label>
-        <select name="state" className="w-full p-inputtext p-component" defaultValue={filters.state || ""}>
-          <option value="">Any state</option>
-          {US_STATE_OPTIONS.map((s) => (
-            <option key={s.value} value={s.value}>
-              {s.label}
-            </option>
-          ))}
-        </select>
+        <PortalFilterInput name="state" placeholder="Contains…" defaultValue={filters.state || ""} />
       </div>
       <div className="col-12 md:col-6 lg:col-3">
         <label className={PORTAL_FILTER_LABEL_CLASS}>Country</label>
-        {isAgent ? (
-          <input
-            type="text"
-            name="country"
-            placeholder="Contains…"
-            defaultValue={filters.country || ""}
-            className="p-inputtext p-component w-full"
-          />
-        ) : (
-          <InputText name="country" className="w-full" placeholder="Contains…" defaultValue={filters.country || ""} />
-        )}
+        <PortalFilterInput name="country" placeholder="Contains…" defaultValue={filters.country || ""} />
       </div>
       <div className="col-12 md:col-6 lg:col-3">
         <label className={PORTAL_FILTER_LABEL_CLASS}>Department</label>
-        {isAgent ? (
-          <input
-            type="text"
-            name="department"
-            placeholder="Contains…"
-            defaultValue={filters.department || ""}
-            className="p-inputtext p-component w-full"
-          />
-        ) : (
-          <InputText name="department" className="w-full" placeholder="Contains…" defaultValue={filters.department || ""} />
-        )}
+        <PortalFilterInput name="department" placeholder="Contains…" defaultValue={filters.department || ""} />
       </div>
-      <div className={isAgent ? PORTAL_FILTER_ACTIONS_CLASS : "col-12 flex gap-2 align-items-end"}>
-        <button type="submit" className="p-button p-component">
-          <span className="p-button-label">Apply filters</span>
-        </button>
-        <Link href={pathname} className="p-button p-component p-button-text">
-          <span className="p-button-label">Reset</span>
-        </Link>
-      </div>
+      <PortalFilterActions>
+        <PortalFilterApplyButton />
+        <PortalFilterResetLink href={pathname} />
+      </PortalFilterActions>
     </form>
+  );
+
+  const emptyState = (
+    <ListEmptyState
+      iconClass="pi pi-building"
+      title={hasActiveFilters ? "No companies match your filters" : "No companies yet"}
+      body={
+        hasActiveFilters
+          ? "Try clearing the search box or relaxing state, country, and department filters, then click Apply filters again."
+          : isAgent
+            ? "Create an organization to assign agents and group client profiles. Companies you add appear here for browsing and assignment."
+            : "Use the form on the left to add your first company, then assign agents to it from the agent directory."
+      }
+      secondary={
+        hasActiveFilters
+          ? undefined
+          : isAgent
+            ? 'Click "New company" above to add your first record.'
+            : undefined
+      }
+    />
+  );
+
+  const agentTable = (
+    <PortalListTableWrap>
+      <PortalListTable>
+        <thead>
+          <PortalListTheadRow>
+            <PortalListTh>Name</PortalListTh>
+            <PortalListTh>Location</PortalListTh>
+            <PortalListTh>Department</PortalListTh>
+            <PortalListTh>City</PortalListTh>
+            <PortalListTh>State</PortalListTh>
+            <PortalListTh>Country</PortalListTh>
+            <PortalListTh className="text-right">Agents</PortalListTh>
+          </PortalListTheadRow>
+        </thead>
+        <tbody>
+          {companies.map((c) => (
+            <PortalListTr key={c.id}>
+              <PortalListTd className="font-medium text-900">
+                <Link href={`${pathname}/${c.id}`} className="text-900 no-underline hover:underline">
+                  {c.name}
+                </Link>
+              </PortalListTd>
+              <PortalListTd>{c.location || "—"}</PortalListTd>
+              <PortalListTd>{c.department || "—"}</PortalListTd>
+              <PortalListTd>{c.city || "—"}</PortalListTd>
+              <PortalListTd>{c.state || "—"}</PortalListTd>
+              <PortalListTd>{c.country || "—"}</PortalListTd>
+              <PortalListTd className="text-right text-600 pr-0">{c._count.agents}</PortalListTd>
+            </PortalListTr>
+          ))}
+        </tbody>
+      </PortalListTable>
+    </PortalListTableWrap>
   );
 
   const listBlock =
     companies.length > 0 ? (
       isAgent ? (
-        <PortalListTableWrap>
-          <PortalListTable>
-            <thead>
-              <PortalListTheadRow>
-                <PortalListTh>Name</PortalListTh>
-                <PortalListTh>Location</PortalListTh>
-                <PortalListTh>Department</PortalListTh>
-                <PortalListTh>City</PortalListTh>
-                <PortalListTh>State</PortalListTh>
-                <PortalListTh>Country</PortalListTh>
-                <PortalListTh className="text-right">Agents</PortalListTh>
-              </PortalListTheadRow>
-            </thead>
-            <tbody>
-              {companies.map((c) => (
-                <PortalListTr key={c.id}>
-                  <PortalListTd className="font-medium text-900">{c.name}</PortalListTd>
-                  <PortalListTd>{c.location || "—"}</PortalListTd>
-                  <PortalListTd>{c.department || "—"}</PortalListTd>
-                  <PortalListTd>{c.city || "—"}</PortalListTd>
-                  <PortalListTd>{c.state || "—"}</PortalListTd>
-                  <PortalListTd>{c.country || "—"}</PortalListTd>
-                  <PortalListTd className="text-right text-600 pr-0">{c._count.agents}</PortalListTd>
-                </PortalListTr>
-              ))}
-            </tbody>
-          </PortalListTable>
-        </PortalListTableWrap>
+        agentTable
       ) : (
         <div className="grid">
           {companies.map((c) => (
@@ -194,58 +184,62 @@ export default function CompaniesManager({
         </div>
       )
     ) : (
-      <p className="text-600 mb-0">
-        {hasActiveFilters
-          ? "No companies match your filters."
-          : isAgent
-            ? "No companies yet. Create one to get started."
-            : "No companies yet. Use the form on the left to add your first company, then assign agents to it from the agent directory."}
-      </p>
+      emptyState
     );
 
   if (isAgent) {
     return (
-      <PortalListPageCard>
-        <PortalListHeader
-          title="Companies"
-          description="Add and browse organizations for assigning clients and profiles. Editing and removing records is available to administrators."
-          actions={
-            <Link href="/agent/companies/create" className="p-button p-component p-button-success font-medium no-underline">
-              <span className="p-button-label p-c">New company</span>
-            </Link>
-          }
-        />
+      <div className="flex flex-column gap-4">
+        <PortalListPageCard>
+          <PortalListHeader
+            title="Companies"
+            description="Add and browse organizations for assigning clients and profiles. Editing and removing records is available to administrators."
+            actions={
+              <Link href="/agent/companies/create" className="p-button p-component p-button-success font-medium no-underline">
+                <span className="p-button-label p-c">New company</span>
+              </Link>
+            }
+          />
+          {filterForm}
+        </PortalListPageCard>
 
-        {filterForm}
-
-        {listBlock}
-
-        <PaginationControls pathname={pathname} searchParams={searchParams} pagination={pagination} />
-      </PortalListPageCard>
+        <PortalListPageCard>
+          <p className="text-sm text-700 m-0 mb-3">
+            Showing {companies.length === 0 ? 0 : (pagination.page - 1) * pagination.pageSize + 1}–
+            {Math.min(pagination.page * pagination.pageSize, pagination.total)} of {pagination.total} companies.
+          </p>
+          {listBlock}
+          <PaginationControls pathname={pathname} searchParams={searchParams} pagination={pagination} />
+        </PortalListPageCard>
+      </div>
     );
   }
 
   return (
     <div className="grid">
       <div className="col-12 lg:col-4">
-        <div className="surface-card border-round border-1 surface-border p-4">
+        <PortalListPageCard>
           <CompanyCreateForm apiUrl={createCompanyUrl} heading="Add company" />
-        </div>
+        </PortalListPageCard>
       </div>
       <div className="col-12 lg:col-8">
-        <div className="surface-card border-round border-1 surface-border p-4">
-          <div className="flex flex-column lg:flex-row lg:justify-content-between lg:align-items-center gap-3 mb-4">
-            <div>
-              <h3 className="mt-0 mb-2">Companies</h3>
-              <p className="m-0 text-600">
-                Manage organizations agents can be assigned to. Deleting a company is soft — it is hidden from lists but
-                history is preserved.
-              </p>
-            </div>
+        <div className="flex flex-column gap-4">
+          <PortalListPageCard>
+            <PortalListHeader
+              title="Companies"
+              description="Manage organizations agents can be assigned to. Deleting a company is soft — it is hidden from lists but history is preserved."
+            />
             {filterForm}
-          </div>
-          {listBlock}
-          <PaginationControls pathname={pathname} searchParams={searchParams} pagination={pagination} />
+          </PortalListPageCard>
+
+          <PortalListPageCard>
+            <p className="text-sm text-700 m-0 mb-3">
+              Showing {companies.length === 0 ? 0 : (pagination.page - 1) * pagination.pageSize + 1}–
+              {Math.min(pagination.page * pagination.pageSize, pagination.total)} of {pagination.total} companies.
+            </p>
+            {listBlock}
+            <PaginationControls pathname={pathname} searchParams={searchParams} pagination={pagination} />
+          </PortalListPageCard>
         </div>
       </div>
     </div>

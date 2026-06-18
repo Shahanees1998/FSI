@@ -7,7 +7,19 @@ import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import ListEmptyState from "@/components/portal/ListEmptyState";
 import PaginationControls from "@/components/portal/PaginationControls";
+import {
+  PORTAL_FILTER_FORM_CLASS,
+  PORTAL_FILTER_LABEL_CLASS,
+  PortalFilterApplyButton,
+  PortalFilterActions,
+  PortalFilterInput,
+  PortalFilterResetLink,
+  PortalFilterSelect,
+  PortalListHeader,
+  PortalListPageCard,
+} from "@/components/portal/PortalListLayout";
 import { APP_DEFAULT_AGENCY_NAME } from "@/lib/appBranding";
+import { useToast } from "@/store/toast.context";
 import { PaginationMeta, SearchParamRecord } from "@/lib/portalPagination";
 
 interface DirectoryUser {
@@ -56,7 +68,7 @@ export default function UserDirectoryManager({
     companies?: { id: string; name: string; location?: string | null; department?: string | null }[];
 }) {
     const [users, setUsers] = useState(initialUsers);
-    const [message, setMessage] = useState<string | null>(null);
+    const { showToast } = useToast();
     const [form, setForm] = useState({
         firstName: "",
         lastName: "",
@@ -77,7 +89,6 @@ export default function UserDirectoryManager({
     const hasActiveFilters = Boolean(filters.q?.trim()) || Boolean(filters.status);
 
     const createUser = async () => {
-        setMessage(null);
         const response = await fetch(endpoint, {
             method: "POST",
             credentials: "include",
@@ -92,7 +103,7 @@ export default function UserDirectoryManager({
         });
         const payload = await response.json();
         if (!response.ok) {
-            setMessage(payload.error || "Unable to create record.");
+            showToast("error", payload.error || "Unable to create record.");
             return;
         }
 
@@ -111,7 +122,7 @@ export default function UserDirectoryManager({
             carrierCode: "",
             carrierName: "",
         });
-        setMessage(`${isAgent ? "Agent" : "Carrier"} created successfully.`);
+        showToast("success", `${isAgent ? "Agent" : "Carrier"} created successfully.`);
     };
 
     return (
@@ -223,92 +234,106 @@ export default function UserDirectoryManager({
                         )}
                     </div>
                     <Button label={`Create ${isAgent ? "agent" : "carrier"}`} className="mt-3" onClick={createUser} />
-                    {message && <p className="mt-3 mb-0 font-medium">{message}</p>}
                 </div>
             </div>
             <div className="col-12 lg:col-8">
-                <div className="surface-card border-round border-1 surface-border p-4">
-                    <div className="flex flex-column lg:flex-row lg:justify-content-between lg:align-items-center gap-3 mb-4">
-                        <div>
-                            <h3 className="mt-0 mb-2">
-                                {isAgent ? "Agent directory" : "Carrier directory"}
-                            </h3>
-                            <p className="m-0 text-600">
-                                Search and filter directly on the server, then open each record for a full view.
-                            </p>
-                        </div>
-                        <form className="flex flex-column lg:flex-row gap-2" action={pathname}>
-                            <InputText name="q" placeholder="Search people, email, code..." defaultValue={filters.q || ""} />
-                            <select
-                                name="status"
-                                className="p-inputtext p-component min-w-12rem"
-                                defaultValue={filters.status || ""}
-                            >
-                                <option value="">All statuses</option>
-                                <option value="ACTIVE">Active</option>
-                                <option value="INVITED">Invited</option>
-                                <option value="INACTIVE">Inactive</option>
-                                <option value="SUSPENDED">Suspended</option>
-                            </select>
-                            <Button type="submit" label="Apply" />
+                <div className="flex flex-column gap-4">
+                    <PortalListPageCard>
+                        <PortalListHeader
+                            title={isAgent ? "Agent directory" : "Carrier directory"}
+                            description="Search and filter on the server, then open each record for a full view."
+                        />
+                        <form className={PORTAL_FILTER_FORM_CLASS} action={pathname} method="get">
+                            <input type="hidden" name="page" value="1" />
+                            <div className="col-12 md:col-6">
+                                <label className={PORTAL_FILTER_LABEL_CLASS}>Search</label>
+                                <PortalFilterInput
+                                    name="q"
+                                    inputType="search"
+                                    placeholder="Search people, email, code..."
+                                    defaultValue={filters.q || ""}
+                                />
+                            </div>
+                            <div className="col-12 md:col-6">
+                                <label className={PORTAL_FILTER_LABEL_CLASS}>Status</label>
+                                <PortalFilterSelect name="status" defaultValue={filters.status || ""}>
+                                    <option value="">All statuses</option>
+                                    <option value="ACTIVE">Active</option>
+                                    <option value="INVITED">Invited</option>
+                                    <option value="INACTIVE">Inactive</option>
+                                    <option value="SUSPENDED">Suspended</option>
+                                </PortalFilterSelect>
+                            </div>
+                            <PortalFilterActions>
+                                <PortalFilterApplyButton />
+                                <PortalFilterResetLink href={pathname} />
+                            </PortalFilterActions>
                         </form>
-                    </div>
-                    {users.length > 0 ? (
-                        <div className="grid">
-                            {users.map((user) => (
-                                <div key={user.id} className="col-12">
-                                    <div className="border-1 surface-border border-round p-3">
-                                        <div className="flex justify-content-between align-items-start gap-3">
-                                            <div>
-                                                <div className="font-semibold">
-                                                    {user.firstName} {user.lastName}
-                                                </div>
-                                                <div className="text-600 text-sm mt-1">
-                                                    {user.email} | {user.status}
-                                                </div>
-                                                <div className="text-600 text-sm mt-1">
-                                                    {isAgent
-                                                        ? `${user.agentProfile?.agentCode || "No code"}${user.agentProfile?.licenseNumber ? ` | ${user.agentProfile.licenseNumber}` : ""}`
-                                                        : `${user.carrierProfile?.carrierName || "No carrier name"} | ${user.carrierProfile?.carrierCode || "No code"}`}
-                                                </div>
-                                                {isAgent && user.agentProfile?.company?.name && (
-                                                    <div className="text-600 text-sm mt-1">
-                                                        Company: {user.agentProfile.company.name}
+                    </PortalListPageCard>
+
+                    <PortalListPageCard>
+                        <p className="text-sm text-700 m-0 mb-3">
+                            Showing {users.length === 0 ? 0 : (pagination.page - 1) * pagination.pageSize + 1}–
+                            {Math.min(pagination.page * pagination.pageSize, pagination.total)} of {pagination.total}{" "}
+                            {isAgent ? "agents" : "carriers"}.
+                        </p>
+                        {users.length > 0 ? (
+                            <div className="grid">
+                                {users.map((user) => (
+                                    <div key={user.id} className="col-12">
+                                        <div className="border-1 surface-border border-round p-3">
+                                            <div className="flex justify-content-between align-items-start gap-3">
+                                                <div>
+                                                    <div className="font-semibold">
+                                                        {user.firstName} {user.lastName}
                                                     </div>
-                                                )}
-                                            </div>
-                                            <div className="text-right">
-                                                <div className="text-600 text-sm mb-2">{user.jobTitle || "No title"}</div>
-                                                <Link href={`${pathname}/${user.id}`} className="font-medium">
-                                                    View details
-                                                </Link>
+                                                    <div className="text-600 text-sm mt-1">
+                                                        {user.email} | {user.status}
+                                                    </div>
+                                                    <div className="text-600 text-sm mt-1">
+                                                        {isAgent
+                                                            ? `${user.agentProfile?.agentCode || "No code"}${user.agentProfile?.licenseNumber ? ` | ${user.agentProfile.licenseNumber}` : ""}`
+                                                            : `${user.carrierProfile?.carrierName || "No carrier name"} | ${user.carrierProfile?.carrierCode || "No code"}`}
+                                                    </div>
+                                                    {isAgent && user.agentProfile?.company?.name && (
+                                                        <div className="text-600 text-sm mt-1">
+                                                            Company: {user.agentProfile.company.name}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="text-right">
+                                                    <div className="text-600 text-sm mb-2">{user.jobTitle || "No title"}</div>
+                                                    <Link href={`${pathname}/${user.id}`} className="font-medium">
+                                                        View details
+                                                    </Link>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <ListEmptyState
-                            iconClass={isAgent ? "pi pi-users" : "pi pi-building"}
-                            title={
-                                hasActiveFilters
-                                    ? `No ${isAgent ? "agents" : "carriers"} match your filters`
-                                    : `No ${isAgent ? "agents" : "carriers"} in the directory yet`
-                            }
-                            body={
-                                hasActiveFilters
-                                    ? `We could not find any ${isAgent ? "agent" : "carrier"} records that match your current search or status filter.`
-                                    : `Use the form on the left to invite your first ${isAgent ? "agent" : "carrier"}. Each person appears here once their account is created, with quick access to profile details and status.`
-                            }
-                            secondary={
-                                hasActiveFilters
-                                    ? 'Clear the search box, set status to "All statuses", and click Apply to see the full directory.'
-                                    : undefined
-                            }
-                        />
-                    )}
-                    <PaginationControls pathname={pathname} searchParams={searchParams} pagination={pagination} />
+                                ))}
+                            </div>
+                        ) : (
+                            <ListEmptyState
+                                iconClass={isAgent ? "pi pi-users" : "pi pi-building"}
+                                title={
+                                    hasActiveFilters
+                                        ? `No ${isAgent ? "agents" : "carriers"} match your filters`
+                                        : `No ${isAgent ? "agents" : "carriers"} in the directory yet`
+                                }
+                                body={
+                                    hasActiveFilters
+                                        ? `We could not find any ${isAgent ? "agent" : "carrier"} records that match your current search or status filter.`
+                                        : `Use the form on the left to invite your first ${isAgent ? "agent" : "carrier"}. Each person appears here once their account is created, with quick access to profile details and status.`
+                                }
+                                secondary={
+                                    hasActiveFilters
+                                        ? 'Clear the search box, set status to "All statuses", and click Apply filters to see the full directory.'
+                                        : undefined
+                                }
+                            />
+                        )}
+                        <PaginationControls pathname={pathname} searchParams={searchParams} pagination={pagination} />
+                    </PortalListPageCard>
                 </div>
             </div>
         </div>

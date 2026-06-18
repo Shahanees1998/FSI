@@ -3,28 +3,64 @@ import { NextRequest, NextResponse } from "next/server";
 import { withAdminAuth, AuthenticatedRequest } from "@/lib/authMiddleware";
 import { prisma } from "@/lib/prisma";
 import { APP_DEFAULT_AGENCY_NAME } from "@/lib/appBranding";
+import {
+  buildPagedResult,
+  getSearchValue,
+  normalizeSearchTerm,
+  parsePagination,
+} from "@/lib/portalPagination";
 
 export async function GET(request: NextRequest) {
   return withAdminAuth(request, async () => {
-    const users = await prisma.user.findMany({
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-        phone: true,
-        role: true,
-        status: true,
-        jobTitle: true,
-        location: true,
-        createdAt: true,
-        agentProfile: { select: { agentCode: true, agencyName: true } },
-        carrierProfile: { select: { carrierName: true, carrierCode: true } },
-      },
-    });
+    const pagination = parsePagination(request.nextUrl.searchParams, { defaultPageSize: 20 });
+    const q = normalizeSearchTerm(getSearchValue(request.nextUrl.searchParams, "q"));
+    const role = normalizeSearchTerm(getSearchValue(request.nextUrl.searchParams, "role"));
+    const status = normalizeSearchTerm(getSearchValue(request.nextUrl.searchParams, "status"));
 
-    return NextResponse.json({ users });
+    const where = {
+      isDeleted: false,
+      ...(role ? { role: role as "ADMIN" | "AGENT" | "CARRIER" } : {}),
+      ...(status ? { status: status as "INVITED" | "ACTIVE" | "INACTIVE" | "SUSPENDED" } : {}),
+      ...(q
+        ? {
+            OR: [
+              { firstName: { contains: q } },
+              { lastName: { contains: q } },
+              { email: { contains: q } },
+              { phone: { contains: q } },
+            ],
+          }
+        : {}),
+    };
+
+    const [total, users] = await Promise.all([
+      prisma.user.count({ where }),
+      prisma.user.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip: pagination.skip,
+        take: pagination.pageSize,
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          phone: true,
+          role: true,
+          status: true,
+          jobTitle: true,
+          location: true,
+          createdAt: true,
+          agentProfile: { select: { agentCode: true, agencyName: true } },
+          carrierProfile: { select: { carrierName: true, carrierCode: true } },
+        },
+      }),
+    ]);
+
+    return NextResponse.json({
+      users,
+      pagination: buildPagedResult(users, total, pagination).pagination,
+    });
   });
 }
 

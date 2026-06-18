@@ -65,7 +65,16 @@ const AppTopbar = forwardRef<AppTopbarRef>((_props, ref) => {
                         style={{ border: "none", background: "transparent", cursor: "pointer" }}
                         onClick={showProfileSidebar}
                     >
-                        <Avatar label={initials} size="large" shape="circle" className="bg-primary" />
+                        {user?.profileImage ? (
+                            <img
+                                src={user.profileImage}
+                                alt=""
+                                className="border-circle"
+                                style={{ width: "3rem", height: "3rem", objectFit: "cover" }}
+                            />
+                        ) : (
+                            <Avatar label={initials} size="large" shape="circle" className="bg-primary" />
+                        )}
                     </button>
                     <Button
                         label="Logout"

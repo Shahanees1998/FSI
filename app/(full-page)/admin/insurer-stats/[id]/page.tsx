@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import InsurerStatForm from "@/components/portal/InsurerStatForm";
 import { getInsurerStatDetail } from "@/lib/portalData";
+import { prisma } from "@/lib/prisma";
 import { requireCurrentUser } from "@/lib/serverAuth";
 
 export default async function AdminInsurerStatDetailPage({
@@ -15,32 +17,37 @@ export default async function AdminInsurerStatDetailPage({
     notFound();
   }
 
+  const carriers = await prisma.carrierProfile.findMany({
+    orderBy: { carrierName: "asc" },
+    select: { id: true, carrierName: true, carrierCode: true },
+  });
+
   return (
     <div className="surface-card border-round border-1 surface-border p-4">
       <div className="flex justify-content-between align-items-start gap-3 mb-4">
         <div>
           <h1 className="mt-0 mb-2">Insurer stat detail</h1>
-          <p className="text-600 m-0">Review the monthly insurer snapshot and audit metadata.</p>
+          <p className="text-600 m-0">{stat.carrierProfile.carrierName} · {new Date(stat.metricMonth).toLocaleDateString()}</p>
         </div>
         <Link href="/admin/insurer-stats">Back to insurer stats</Link>
       </div>
-      <div className="grid">
-        <div className="col-12 md:col-6">
-          <p className="mb-2"><span className="font-semibold">Carrier:</span> {stat.carrierProfile.carrierName}</p>
-          <p className="mb-2"><span className="font-semibold">Carrier code:</span> {stat.carrierProfile.carrierCode}</p>
-          <p className="mb-2"><span className="font-semibold">Metric month:</span> {new Date(stat.metricMonth).toLocaleDateString()}</p>
-          <p className="mb-2"><span className="font-semibold">Active agents:</span> {stat.activeAgents}</p>
-          <p className="mb-2"><span className="font-semibold">Submitted policies:</span> {stat.submittedPolicies}</p>
-          <p className="mb-2"><span className="font-semibold">Issued policies:</span> {stat.issuedPolicies}</p>
-        </div>
-        <div className="col-12 md:col-6">
-          <p className="mb-2"><span className="font-semibold">Submitted premium:</span> ${stat.submittedPremium.toFixed(2)}</p>
-          <p className="mb-2"><span className="font-semibold">Issued premium:</span> ${stat.issuedPremium.toFixed(2)}</p>
-          <p className="mb-2"><span className="font-semibold">Commissions paid:</span> ${stat.commissionsPaid.toFixed(2)}</p>
-          <p className="mb-2"><span className="font-semibold">Retention rate:</span> {stat.retentionRate.toFixed(1)}%</p>
-          <p className="mb-0"><span className="font-semibold">Notes:</span> {stat.notes || "No notes"}</p>
-        </div>
-      </div>
+      <InsurerStatForm
+        carriers={carriers}
+        mode="edit"
+        initial={{
+          id: stat.id,
+          carrierProfileId: stat.carrierProfileId,
+          metricMonth: new Date(stat.metricMonth).toISOString().slice(0, 7),
+          activeAgents: stat.activeAgents,
+          submittedPolicies: stat.submittedPolicies,
+          issuedPolicies: stat.issuedPolicies,
+          submittedPremium: stat.submittedPremium,
+          issuedPremium: stat.issuedPremium,
+          commissionsPaid: stat.commissionsPaid,
+          retentionRate: stat.retentionRate,
+          notes: stat.notes || "",
+        }}
+      />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { validateClientProfileInput } from "@/lib/clientProfileValidation";
 
 export type ClientProfileChildPayload = {
   firstName: string;
@@ -66,6 +67,7 @@ export type ParsedClientProfileFields = {
   sex: string | null;
   birthDate: Date | null;
   profileImageUrl: string | null;
+  profileImagePublicId: string | null;
   spouseFirstName: string | null;
   spouseMiddleName: string | null;
   spouseLastName: string | null;
@@ -86,8 +88,56 @@ export function parseClientProfileBody(body: unknown): { ok: true; fields: Parse
   const lastName = String(b.lastName ?? "").trim();
   const preferredFirstName = String(b.preferredFirstName ?? "").trim();
 
-  if (!firstName || !lastName || !preferredFirstName) {
-    return { ok: false, error: "First name, last name, and preferred first name are required." };
+  const spouseFirstName = trimStr(b.spouseFirstName);
+  const spouseLastName = trimStr(b.spouseLastName);
+  const spousePreferredFirstName = trimStr(b.spousePreferredFirstName);
+  const showSpouse = Boolean(spouseFirstName || spouseLastName || spousePreferredFirstName || trimStr(b.spouseSex) || b.spouseBirthDate);
+
+  const childrenRaw = Array.isArray(b.children) ? b.children : [];
+  const childrenForValidation = childrenRaw.map((item, index) => {
+    const o = (item && typeof item === "object" ? item : {}) as Record<string, unknown>;
+    return {
+      key: String(index),
+      firstName: String(o.firstName ?? ""),
+      middleName: String(o.middleName ?? ""),
+      lastName: String(o.lastName ?? ""),
+      preferredFirstName: String(o.preferredFirstName ?? ""),
+      sex: trimStr(o.sex),
+      birthDate: parseOptionalDate(o.birthDate),
+    };
+  });
+
+  const validation = validateClientProfileInput({
+    firstName,
+    middleName: String(b.middleName ?? ""),
+    lastName,
+    preferredFirstName,
+    sex: trimStr(b.sex),
+    birthDate: parseOptionalDate(b.birthDate),
+    email: trimStr(b.email),
+    phone: trimStr(b.phone),
+    phoneType: trimStr(b.phoneType),
+    city: trimStr(b.city),
+    state: trimStr(b.state),
+    country: trimStr(b.country) ?? "USA",
+    zipCode: trimStr(b.zipCode),
+    address: trimStr(b.address),
+    showSpouse,
+    spouse: showSpouse
+      ? {
+          firstName: spouseFirstName ?? "",
+          middleName: String(b.spouseMiddleName ?? ""),
+          lastName: spouseLastName ?? "",
+          preferredFirstName: spousePreferredFirstName ?? "",
+          sex: trimStr(b.spouseSex),
+          birthDate: parseOptionalDate(b.spouseBirthDate),
+        }
+      : undefined,
+    children: childrenForValidation,
+  });
+
+  if (validation.firstError) {
+    return { ok: false, error: validation.firstError };
   }
 
   const fields: ParsedClientProfileFields = {
@@ -106,10 +156,11 @@ export function parseClientProfileBody(body: unknown): { ok: true; fields: Parse
     sex: trimStr(b.sex),
     birthDate: parseOptionalDate(b.birthDate),
     profileImageUrl: trimStr(b.profileImageUrl),
-    spouseFirstName: trimStr(b.spouseFirstName),
+    profileImagePublicId: trimStr(b.profileImagePublicId),
+    spouseFirstName,
     spouseMiddleName: trimStr(b.spouseMiddleName),
-    spouseLastName: trimStr(b.spouseLastName),
-    spousePreferredFirstName: trimStr(b.spousePreferredFirstName),
+    spouseLastName,
+    spousePreferredFirstName,
     spouseSex: trimStr(b.spouseSex),
     spouseBirthDate: parseOptionalDate(b.spouseBirthDate),
     childrenData: normalizeChildren(b.children),

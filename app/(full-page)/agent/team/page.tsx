@@ -1,13 +1,25 @@
+import PortalHubView from "@/components/portal/PortalHubView";
+import {
+  attachCounts,
+  TEAM_HUB_SECTIONS,
+  TEAM_RECORD_TYPES,
+  TEAM_TYPE_BY_HREF,
+} from "@/lib/hubConfigs";
+import { getWorkspaceRecordCountsForAgent, getWorkspaceRecordTotalForAgent } from "@/lib/workspaceHubData";
 import { requireCurrentUser } from "@/lib/serverAuth";
 
 export default async function AgentTeamPage() {
-    await requireCurrentUser("AGENT");
+  const user = await requireCurrentUser("AGENT");
+  const counts = await getWorkspaceRecordCountsForAgent(user.id, TEAM_RECORD_TYPES);
+  const total = await getWorkspaceRecordTotalForAgent(user.id, TEAM_RECORD_TYPES);
 
-    return (
-        <div className="surface-card border-round border-1 surface-border p-4">
-            <h1 className="mt-0 mb-2">Team</h1>
-            <p className="text-600 m-0">This section will contain your team hub.</p>
-        </div>
-    );
+  return (
+    <PortalHubView
+      title="Team"
+      description="Manage agreements, invitees, promotions, reassignments, and your visual network."
+      totalRecords={total}
+      sections={attachCounts(TEAM_HUB_SECTIONS, counts, TEAM_TYPE_BY_HREF)}
+      helpLinks={[{ href: "/agent/team/recruiting", label: "Recruiting hub" }]}
+    />
+  );
 }
-

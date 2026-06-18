@@ -1,6 +1,8 @@
+import CommissionForm, { toDateInput, toMonthInput, type CommissionFormValues } from "@/components/portal/CommissionForm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCommissionDetailForUser } from "@/lib/portalData";
+import { prisma } from "@/lib/prisma";
 import { requireCurrentUser } from "@/lib/serverAuth";
 
 export default async function AdminCommissionDetailPage({
@@ -9,40 +11,64 @@ export default async function AdminCommissionDetailPage({
   params: { id: string };
 }) {
   const user = await requireCurrentUser("ADMIN");
-  const commission = await getCommissionDetailForUser(
-    { role: user.role, userId: user.id },
-    params.id
-  );
+  const [commission, agents, carriers] = await Promise.all([
+    getCommissionDetailForUser({ role: user.role, userId: user.id }, params.id),
+    prisma.user.findMany({
+      where: { role: "AGENT", isDeleted: false },
+      select: { id: true, firstName: true, lastName: true, email: true },
+      orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+    }),
+    prisma.carrierProfile.findMany({
+      select: { id: true, carrierName: true, carrierCode: true },
+      orderBy: { carrierName: "asc" },
+    }),
+  ]);
 
   if (!commission) {
     notFound();
   }
 
+  const initial: CommissionFormValues = {
+    id: commission.id,
+    agentId: commission.agentId,
+    carrierProfileId: commission.carrierProfileId,
+    policyNumber: commission.policyNumber,
+    clientName: commission.clientName,
+    productLine: commission.productLine,
+    amount: commission.amount,
+    status: commission.status,
+    statementMonth: toMonthInput(commission.statementMonth),
+    effectiveDate: toDateInput(commission.effectiveDate),
+    paidAt: toDateInput(commission.paidAt),
+    notes: commission.notes ?? "",
+  };
+
   return (
     <div className="surface-card border-round border-1 surface-border p-4">
       <div className="flex justify-content-between align-items-start gap-3 mb-4">
         <div>
-          <h1 className="mt-0 mb-2">Commission detail</h1>
-          <p className="text-600 m-0">Review policy-level commission details and audit context.</p>
+          <h1 className="mt-0 mb-2">Edit commission</h1>
+          <p className="text-600 m-0">
+            {commission.clientName} · {commission.policyNumber} · Updated{" "}
+            {commission.updatedBy
+              ? `by ${commission.updatedBy.firstName} ${commission.updatedBy.lastName}`
+              : "in system"}
+          </p>
         </div>
         <Link href="/admin/commissions">Back to commissions</Link>
       </div>
-      <div className="grid">
-        <div className="col-12 md:col-6">
-          <p className="mb-2"><span className="font-semibold">Client:</span> {commission.clientName}</p>
-          <p className="mb-2"><span className="font-semibold">Policy:</span> {commission.policyNumber}</p>
-          <p className="mb-2"><span className="font-semibold">Product line:</span> {commission.productLine}</p>
-          <p className="mb-2"><span className="font-semibold">Status:</span> {commission.status}</p>
-          <p className="mb-2"><span className="font-semibold">Statement month:</span> {new Date(commission.statementMonth).toLocaleDateString()}</p>
-        </div>
-        <div className="col-12 md:col-6">
-          <p className="mb-2"><span className="font-semibold">Amount:</span> ${commission.amount.toFixed(2)}</p>
-          <p className="mb-2"><span className="font-semibold">Agent:</span> {commission.agent.firstName} {commission.agent.lastName}</p>
-          <p className="mb-2"><span className="font-semibold">Carrier:</span> {commission.carrierProfile.carrierName}</p>
-          <p className="mb-2"><span className="font-semibold">Updated by:</span> {commission.updatedBy ? `${commission.updatedBy.firstName} ${commission.updatedBy.lastName}` : "System"}</p>
-          <p className="mb-0"><span className="font-semibold">Notes:</span> {commission.notes || "No notes"}</p>
-        </div>
-      </div>
+      <CommissionForm
+        mode="edit"
+        initial={initial}
+        agents={agents.map((a) => ({
+          id: a.id,
+          label: `${a.firstName} ${a.lastName} (${a.email})`,
+        }))}
+        carriers={carriers.map((c) => ({
+          id: c.id,
+          label: `${c.carrierName} (${c.carrierCode})`,
+        }))}
+      />
     </div>
   );
 }

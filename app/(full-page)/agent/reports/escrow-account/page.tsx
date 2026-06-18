@@ -1,9 +1,12 @@
-import EscrowAccountView from "@/components/reports/EscrowAccountView";
+import { renderAgentWorkspacePageForAgent } from "@/lib/renderAgentWorkspacePage";
 import { requireCurrentUser } from "@/lib/serverAuth";
+import { SearchParamRecord } from "@/lib/portalPagination";
 
-export default async function AgentReportsEscrowAccountPage() {
-    await requireCurrentUser("AGENT");
-
-    return <EscrowAccountView />;
+export default async function AgentReportsEscrowAccountPage({
+  searchParams = {},
+}: {
+  searchParams?: SearchParamRecord;
+}) {
+  const user = await requireCurrentUser("AGENT");
+  return renderAgentWorkspacePageForAgent(user.id, "REPORT_ESCROW", searchParams);
 }
-

@@ -1,15 +1,20 @@
-import TeamAgreementsView from "@/components/team/TeamAgreementsView";
+import TeamAgreementsWorkspaceShell from "@/components/team/TeamAgreementsWorkspaceShell";
+import { renderAgentWorkspacePageForAgent } from "@/lib/renderAgentWorkspacePage";
 import { requireCurrentUser } from "@/lib/serverAuth";
+import { SearchParamRecord } from "@/lib/portalPagination";
 import { Suspense } from "react";
 
-export default async function AgentTeamAgreementsPage() {
-    await requireCurrentUser("AGENT");
+export default async function AgentTeamAgreementsPage({
+    searchParams = {},
+}: {
+    searchParams?: SearchParamRecord;
+}) {
+    const user = await requireCurrentUser("AGENT");
+    const list = await renderAgentWorkspacePageForAgent(user.id, "TEAM_AGREEMENT", searchParams);
 
     return (
-        <div className="surface-card border-round border-1 surface-border p-4">
-            <Suspense fallback={<div className="p-4 surface-ground min-h-20rem" />}>
-                <TeamAgreementsView />
-            </Suspense>
-        </div>
+        <Suspense fallback={<div className="surface-card border-round border-1 surface-border p-4">Loading agreements…</div>}>
+            <TeamAgreementsWorkspaceShell>{list}</TeamAgreementsWorkspaceShell>
+        </Suspense>
     );
 }

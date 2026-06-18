@@ -724,6 +724,8 @@ const AppMenu = () => {
                 { label: "Companies", icon: "pi pi-fw pi-sitemap", to: "/admin/companies" },
                 { label: "Carriers", icon: "pi pi-fw pi-building", to: "/admin/carriers" },
                 { label: "Insurer Stats", icon: "pi pi-fw pi-chart-line", to: "/admin/insurer-stats" },
+                { label: "Portal Content", icon: "pi pi-fw pi-book", to: "/admin/portal-content" },
+                { label: "Workspace Records", icon: "pi pi-fw pi-database", to: "/admin/workspace-records" },
                 { label: "Settings", icon: "pi pi-fw pi-cog", to: "/admin/settings" },
             ],
         });

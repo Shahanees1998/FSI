@@ -1,11 +1,15 @@
 import Link from "next/link";
-import AgentClientsDemoSections from "@/components/clients/AgentClientsDemoSections";
 import ClientProfileDeleteButton from "@/components/clients/ClientProfileDeleteButton";
+import ListEmptyState from "@/components/portal/ListEmptyState";
 import PaginationControls from "@/components/portal/PaginationControls";
 import {
-  PORTAL_FILTER_ACTIONS_CLASS,
   PORTAL_FILTER_FORM_CLASS,
   PORTAL_FILTER_LABEL_CLASS,
+  PortalFilterApplyButton,
+  PortalFilterActions,
+  PortalFilterInput,
+  PortalFilterResetLink,
+  PortalFilterSelect,
   PortalListHeader,
   PortalListPageCard,
   PortalListTable,
@@ -32,6 +36,7 @@ export default async function AgentClientsPage({
   const q = typeof searchParams.q === "string" ? searchParams.q : undefined;
   const state = typeof searchParams.state === "string" ? searchParams.state : undefined;
   const city = typeof searchParams.city === "string" ? searchParams.city : undefined;
+  const hasFilters = Boolean(q?.trim() || state || city?.trim());
 
   return (
     <div className="flex flex-column gap-4">
@@ -50,49 +55,57 @@ export default async function AgentClientsPage({
           <input type="hidden" name="page" value="1" />
           <div className="col-12 md:col-4">
             <label className={PORTAL_FILTER_LABEL_CLASS}>Search</label>
-            <input
-              type="search"
+            <PortalFilterInput
+              inputType="search"
               name="q"
               placeholder="Name, email, phone..."
               defaultValue={q || ""}
-              className="p-inputtext p-component w-full"
             />
           </div>
           <div className="col-12 md:col-4">
             <label className={PORTAL_FILTER_LABEL_CLASS}>State</label>
-            <select name="state" className="w-full p-inputtext p-component" defaultValue={state || ""}>
+            <PortalFilterSelect name="state" defaultValue={state || ""}>
               <option value="">Any state</option>
               {US_STATE_OPTIONS.map((s) => (
                 <option key={s.value} value={s.value}>
                   {s.label}
                 </option>
               ))}
-            </select>
+            </PortalFilterSelect>
           </div>
           <div className="col-12 md:col-4">
             <label className={PORTAL_FILTER_LABEL_CLASS}>City</label>
-            <input
-              type="text"
+            <PortalFilterInput
               name="city"
               placeholder="Contains…"
               defaultValue={city || ""}
-              className="p-inputtext p-component w-full"
             />
           </div>
-          <div className={PORTAL_FILTER_ACTIONS_CLASS}>
-            <button type="submit" className="p-button p-component">
-              <span className="p-button-label">Apply filters</span>
-            </button>
-            <Link href="/agent/clients" className="p-button p-component p-button-text">
-              <span className="p-button-label">Reset</span>
-            </Link>
-          </div>
+          <PortalFilterActions>
+            <PortalFilterApplyButton />
+            <PortalFilterResetLink href="/agent/clients" />
+          </PortalFilterActions>
         </form>
+      </PortalListPageCard>
+
+      <PortalListPageCard>
+        <p className="text-sm text-700 m-0 mb-3">
+          Showing {result.data.length === 0 ? 0 : (result.pagination.page - 1) * result.pagination.pageSize + 1}–
+          {Math.min(result.pagination.page * result.pagination.pageSize, result.pagination.total)} of{" "}
+          {result.pagination.total} clients.
+        </p>
 
         {result.data.length === 0 ? (
-          <p className="text-600 mb-0">
-            {q || state || city ? "No clients match your filters." : "No client profiles yet. Create one to get started."}
-          </p>
+          <ListEmptyState
+            iconClass="pi pi-users"
+            title={hasFilters ? "No clients match your filters" : "No client profiles yet"}
+            body={
+              hasFilters
+                ? "Try clearing search, state, or city filters, then click Apply filters again."
+                : "Create a client profile to track contact details, policies, and submissions."
+            }
+            secondary={hasFilters ? undefined : 'Click "New client" above to get started.'}
+          />
         ) : (
           <PortalListTableWrap>
             <PortalListTable>
@@ -138,8 +151,6 @@ export default async function AgentClientsPage({
 
         <PaginationControls pathname="/agent/clients" searchParams={searchParams} pagination={result.pagination} />
       </PortalListPageCard>
-
-      <AgentClientsDemoSections />
     </div>
   );
 }

@@ -1,13 +1,16 @@
 import NewAgentRunYourBusinessView from "@/components/new-agents/NewAgentRunYourBusinessView";
+import { NewAgentShell } from "@/lib/newAgentCmsShell";
+import { renderNewAgentCmsPage } from "@/lib/recruitingCmsPage";
 import { requireCurrentUser } from "@/lib/serverAuth";
 
 export default async function AgentNewAgentsRunYourBusinessPage() {
     await requireCurrentUser("AGENT");
 
-    return (
-        <div className="surface-card border-round border-1 surface-border overflow-hidden p-0">
+    return renderNewAgentCmsPage(
+        "run-your-business",
+        "Run Your Business",
+        <NewAgentShell title="Run Your Business">
             <NewAgentRunYourBusinessView />
-        </div>
+        </NewAgentShell>
     );
 }
-

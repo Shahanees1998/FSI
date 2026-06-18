@@ -1,13 +1,19 @@
+import PortalHubView from "@/components/portal/PortalHubView";
+import { LEARN_HUB_SECTIONS } from "@/lib/hubConfigs";
 import { requireCurrentUser } from "@/lib/serverAuth";
 
 export default async function AgentLearnPage() {
-    await requireCurrentUser("AGENT");
+  await requireCurrentUser("AGENT");
 
-    return (
-        <div className="surface-card border-round border-1 surface-border p-4">
-            <h1 className="mt-0 mb-2">Learn</h1>
-            <p className="text-600 m-0">This section will contain training and learning resources.</p>
-        </div>
-    );
+  return (
+    <PortalHubView
+      title="Learn"
+      description="Training, product resources, department guides, forms, and portal announcements."
+      sections={LEARN_HUB_SECTIONS}
+      helpLinks={[
+        { href: "/agent/new-agents/getting-started", label: "New agents getting started" },
+        { href: "/agent/learn/development/releases", label: "Portal releases" },
+      ]}
+    />
+  );
 }
-

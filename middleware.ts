@@ -19,6 +19,7 @@ const PUBLIC_PREFIXES = [
   "/api/auth/me",
   "/api/auth/forgot-password",
   "/api/auth/reset-password",
+  "/api/support/contact",
 ];
 
 function isPublicPath(pathname: string) {

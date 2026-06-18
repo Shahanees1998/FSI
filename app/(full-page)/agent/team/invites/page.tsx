@@ -1,13 +1,16 @@
-import TeamInviteesView from "@/components/team/TeamInviteesView";
+import { renderAgentWorkspacePageForAgent } from "@/lib/renderAgentWorkspacePage";
 import { requireCurrentUser } from "@/lib/serverAuth";
+import { SearchParamRecord } from "@/lib/portalPagination";
 
-/** Team → Invites: full-page invitees listing (same data as embedded Invitees on Agreements). */
-export default async function AgentTeamInvitesPage() {
-    await requireCurrentUser("AGENT");
-
-    return (
-        <div className="surface-card border-round border-1 surface-border p-4">
-            <TeamInviteesView />
-        </div>
-    );
+export default async function AgentTeamInvitesPage({
+  searchParams = {},
+}: {
+  searchParams?: SearchParamRecord;
+}) {
+  const user = await requireCurrentUser("AGENT");
+  const mergedParams: SearchParamRecord = {
+    ...searchParams,
+    status: typeof searchParams.status === "string" ? searchParams.status : "Invited",
+  };
+  return renderAgentWorkspacePageForAgent(user.id, "TEAM_INVITEE", mergedParams);
 }

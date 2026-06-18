@@ -1,9 +1,12 @@
-import PersonalScoreboardView from "@/components/scoreboard/PersonalScoreboardView";
+import { renderAgentWorkspacePageForAgent } from "@/lib/renderAgentWorkspacePage";
 import { requireCurrentUser } from "@/lib/serverAuth";
+import { SearchParamRecord } from "@/lib/portalPagination";
 
-export default async function AgentPersonalScoreboardPage() {
-    await requireCurrentUser("AGENT");
-
-    return <PersonalScoreboardView />;
+export default async function AgentPersonalScoreboardPage({
+  searchParams = {},
+}: {
+  searchParams?: SearchParamRecord;
+}) {
+  const user = await requireCurrentUser("AGENT");
+  return renderAgentWorkspacePageForAgent(user.id, "SCOREBOARD_PERSONAL", searchParams);
 }
-

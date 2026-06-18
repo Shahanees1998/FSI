@@ -1,8 +1,12 @@
+import { renderAgentWorkspacePageForAgent } from "@/lib/renderAgentWorkspacePage";
 import { requireCurrentUser } from "@/lib/serverAuth";
-import { redirect } from "next/navigation";
+import { SearchParamRecord } from "@/lib/portalPagination";
 
-/** Legacy URL: /agent/team/invitees → canonical /agent/team/invites */
-export default async function AgentTeamInviteesRedirectPage() {
-    await requireCurrentUser("AGENT");
-    redirect("/agent/team/invites");
+export default async function AgentTeamInviteesPage({
+  searchParams = {},
+}: {
+  searchParams?: SearchParamRecord;
+}) {
+  const user = await requireCurrentUser("AGENT");
+  return renderAgentWorkspacePageForAgent(user.id, "TEAM_INVITEE", searchParams);
 }

@@ -1,9 +1,12 @@
-import RollupsView from "@/components/reports/RollupsView";
+import { renderAgentWorkspacePageForAgent } from "@/lib/renderAgentWorkspacePage";
 import { requireCurrentUser } from "@/lib/serverAuth";
+import { SearchParamRecord } from "@/lib/portalPagination";
 
-export default async function AgentReportsRollUpsPage() {
-    await requireCurrentUser("AGENT");
-
-    return <RollupsView />;
+export default async function AgentReportsRollupsPage({
+  searchParams = {},
+}: {
+  searchParams?: SearchParamRecord;
+}) {
+  const user = await requireCurrentUser("AGENT");
+  return renderAgentWorkspacePageForAgent(user.id, "REPORT_ROLLUP", searchParams);
 }
-

@@ -9,6 +9,7 @@ import {
   parsePagination,
   SearchParamRecord,
 } from "@/lib/portalPagination";
+import { notDeletedOr } from "@/lib/softDelete";
 
 type QueryParams = URLSearchParams | SearchParamRecord;
 
@@ -804,23 +805,30 @@ export async function listCompanies(queryParams: QueryParams) {
   const countryFilter = normalizeSearchTerm(getSearchValue(queryParams, "country"));
   const departmentFilter = normalizeSearchTerm(getSearchValue(queryParams, "department"));
 
-  const where: Prisma.CompanyWhereInput = {
-    deletedAt: null,
-    ...(stateFilter ? { state: stateFilter } : {}),
-    ...(countryFilter ? { country: { contains: countryFilter } } : {}),
-    ...(departmentFilter ? { department: { contains: departmentFilter } } : {}),
-    ...(query
-      ? {
-          OR: [
-            { name: buildContainsFilter(query) },
-            { location: buildContainsFilter(query) },
-            { department: buildContainsFilter(query) },
-            { city: buildContainsFilter(query) },
-            { country: buildContainsFilter(query) },
-          ],
-        }
-      : {}),
-  };
+  const andFilters: Prisma.CompanyWhereInput[] = [{ OR: [...notDeletedOr()] }];
+
+  if (stateFilter) {
+    andFilters.push({ state: { contains: stateFilter } });
+  }
+  if (countryFilter) {
+    andFilters.push({ country: { contains: countryFilter } });
+  }
+  if (departmentFilter) {
+    andFilters.push({ department: { contains: departmentFilter } });
+  }
+  if (query) {
+    andFilters.push({
+      OR: [
+        { name: buildContainsFilter(query) },
+        { location: buildContainsFilter(query) },
+        { department: buildContainsFilter(query) },
+        { city: buildContainsFilter(query) },
+        { country: buildContainsFilter(query) },
+      ],
+    });
+  }
+
+  const where: Prisma.CompanyWhereInput = { AND: andFilters };
 
   const [total, data] = await Promise.all([
     prisma.company.count({ where }),
@@ -842,7 +850,7 @@ export async function getCompanyById(id: string, options?: { allowDeleted?: bool
   return prisma.company.findFirst({
     where: {
       id,
-      ...(options?.allowDeleted ? {} : { deletedAt: null }),
+      ...(options?.allowDeleted ? {} : { OR: [...notDeletedOr()] }),
     },
     include: {
       _count: { select: { agents: true } },
@@ -853,7 +861,7 @@ export async function getCompanyById(id: string, options?: { allowDeleted?: bool
 /** For agent forms and filters; excludes soft-deleted companies. */
 export async function listActiveCompanies(limit = 200) {
   return prisma.company.findMany({
-    where: { deletedAt: null },
+    where: { OR: [...notDeletedOr()] },
     orderBy: { name: "asc" },
     take: limit,
     select: {

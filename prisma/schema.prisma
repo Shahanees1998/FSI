@@ -53,8 +53,95 @@ model User {
   fcmTokens                    FcmToken[]
   clientProfiles               ClientProfile[]         @relation("ClientProfileAgent")
   policySubmissions            PolicySubmission[]      @relation("PolicySubmissionAgent")
+  workspaceRecords             AgentWorkspaceRecord[]  @relation("AgentWorkspaceRecords")
+  portalContentsCreated        PortalContent[]         @relation("PortalContentCreatedBy")
 
   @@map("users")
+}
+
+enum PortalContentCategory {
+  LEARN
+  RECRUITING
+  POPUP
+  FAQ
+  TRAINING
+  NEW_AGENT
+}
+
+model PortalContent {
+  id          String                @id @default(auto()) @map("_id") @db.ObjectId
+  slug        String                @unique
+  category    PortalContentCategory @default(LEARN)
+  title       String
+  body        String?
+  videoId     String?
+  pdfUrl      String?
+  externalUrl String?
+  metadata    Json                  @default("{}")
+  published   Boolean               @default(true)
+  publishedAt DateTime?
+  expiresAt   DateTime?
+  sortOrder   Int                   @default(0)
+  createdById String?               @db.ObjectId
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  createdBy User? @relation("PortalContentCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([category, published])
+  @@map("portal_contents")
+}
+
+enum WorkspaceRecordType {
+  INSURANCE
+  ANNUITIES
+  TRAIL
+  RENEWALS
+  GROUP
+  HEALTH_DENTAL
+  UNLICENSED
+  ADDITIONAL_COMMISSION
+  NEW_BUSINESS_TRANSMITTAL
+  DOCUMENT
+  REPORT_PAID
+  REPORT_PENDING
+  REPORT_DEBT
+  REPORT_ROLLUP
+  REPORT_POTENTIAL_ROLLUP
+  REPORT_ESCROW
+  SCOREBOARD_PERSONAL
+  SCOREBOARD_COMPANY
+  TEAM_PROMOTION
+  TEAM_REASSIGNED_CLIENT
+  TEAM_AGREEMENT
+  TEAM_INVITEE
+  CARRIER_CONTRACT
+  CORPORATE_DOCUMENT
+  PRE_CONTRACTING_DOCUMENT
+  TEAM_CONTRACT
+}
+
+model AgentWorkspaceRecord {
+  id           String              @id @default(auto()) @map("_id") @db.ObjectId
+  agentId      String              @db.ObjectId
+  recordType   WorkspaceRecordType
+  clientName   String?
+  policyNumber String?
+  associate    String?
+  company      String?
+  status       String?
+  amount       Float?
+  recordDate   DateTime?
+  paidDate     DateTime?
+  metadata     Json                @default("{}")
+  deletedAt    DateTime?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  agent User @relation("AgentWorkspaceRecords", fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@index([agentId, recordType, deletedAt])
+  @@map("agent_workspace_records")
 }
 
 model ClientProfile {
@@ -75,6 +162,7 @@ model ClientProfile {
   sex                  String?
   birthDate            DateTime?
   profileImageUrl      String?
+  profileImagePublicId String?
   spouseFirstName      String?
   spouseMiddleName     String?
   spouseLastName       String?
@@ -155,12 +243,15 @@ model AgentProfile {
   country               String?
   contractedAt          DateTime?
   preferredCarrierIds   String[]    @db.ObjectId
+  recruiterProfileId    String?     @db.ObjectId
   notes                 String?
   createdAt             DateTime    @default(now())
   updatedAt             DateTime    @updatedAt
 
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  company Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company          Company?       @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  recruiterProfile AgentProfile?  @relation("AgentRecruitment", fields: [recruiterProfileId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  recruitedAgents  AgentProfile[] @relation("AgentRecruitment")
 
   @@map("agent_profiles")
 }

@@ -9,8 +9,8 @@ export default function ResourcesHubView() {
             <div className="p-4 md:p-5 lg:p-6" style={{ maxWidth: "48rem" }}>
                 <h1 className="text-2xl md:text-3xl font-bold text-900 m-0 mb-2">Resources</h1>
                 <p className="text-700 line-height-3 m-0 mb-4">
-                    Quoting tools, calculators, compliance forms, and agent development material. Open a topic below; full content will
-                    be added as marketing and operations publish it.
+                    Quoting tools, calculators, compliance forms, and agent development material. Open a topic below for portal
+                    resources.
                 </p>
                 <ul className="m-0 p-0 list-none border-1 surface-border border-round-lg overflow-hidden">
                     {RESOURCES_HUB_NAV.map(({ slug, label }, i) => (

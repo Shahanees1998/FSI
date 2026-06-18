@@ -11,7 +11,9 @@ export type PolicySubmissionFormData = {
     companyName?: string;
   };
   client?: {
-    /** Selected dummy / preset client row id (optional). */
+    /** Linked client profile id from /agent/clients */
+    clientProfileId?: string;
+    /** @deprecated Legacy preset id; use clientProfileId */
     dummyClientId?: string;
     /** @deprecated Legacy EFA field; kept for old saved JSON */
     efaType?: string;
@@ -51,9 +53,14 @@ function nonEmpty(v: unknown): boolean {
   return false;
 }
 
+function resolvedClientProfileId(c: PolicySubmissionFormData["client"]): string | undefined {
+  const id = c?.clientProfileId || c?.dummyClientId;
+  return id?.trim() ? id.trim() : undefined;
+}
+
 function clientIdentityComplete(f: PolicySubmissionFormData): boolean {
   const c = f.client;
-  if (nonEmpty(c?.dummyClientId)) return true;
+  if (resolvedClientProfileId(c)) return true;
   if (nonEmpty(c?.efaType)) return true;
   return nonEmpty(c?.firstName) && nonEmpty(c?.lastName);
 }
@@ -133,4 +140,49 @@ export function buildSummaryLabel(form: PolicySubmissionFormData | null | undefi
   const name = [c?.firstName, c?.lastName].filter((s) => s && String(s).trim()).join(" ");
   const parts = [name.trim(), c?.product].filter((s) => s && String(s).trim());
   return parts.join(" · ") || "Policy submission";
+}
+
+export function validatePolicySubmissionApplicant(
+  form: PolicySubmissionFormData | null | undefined
+): string | null {
+  const f = form ?? {};
+  if (!nonEmpty(f.applicant?.agentName)) {
+    return "Agent name is required.";
+  }
+  if (!nonEmpty(f.applicant?.stateDealSignedAt)) {
+    return "State deal signed at is required.";
+  }
+  return null;
+}
+
+export function validatePolicySubmissionForCreate(
+  form: PolicySubmissionFormData | null | undefined
+): { ok: true } | { ok: false; error: string } {
+  const error = validatePolicySubmissionApplicant(form);
+  if (error) {
+    return { ok: false, error };
+  }
+  return { ok: true };
+}
+
+const SUBMIT_SECTIONS: { id: PolicySectionId; label: string }[] = [
+  { id: "applicant", label: "Applicant information" },
+  { id: "company", label: "Company" },
+  { id: "client", label: "Client information" },
+  { id: "documents", label: "Documents" },
+];
+
+export function validatePolicySubmissionForSubmit(
+  form: PolicySubmissionFormData | null | undefined
+): { ok: true } | { ok: false; error: string; section: PolicySectionId } {
+  for (const section of SUBMIT_SECTIONS) {
+    if (!isPolicySectionComplete(form, section.id)) {
+      return {
+        ok: false,
+        error: `Complete all required fields in ${section.label} before submitting.`,
+        section: section.id,
+      };
+    }
+  }
+  return { ok: true };
 }

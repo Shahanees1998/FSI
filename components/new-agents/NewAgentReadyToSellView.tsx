@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { Accordion, AccordionTab } from "primereact/accordion";
 import { Button } from "primereact/button";
+import { useRouter } from "next/navigation";
 
 const FAQS = [
     "I am new to Experior, what do I need to do to start submitting contracts?",
@@ -18,6 +20,8 @@ const FAQS = [
 ];
 
 export default function NewAgentReadyToSellView() {
+    const router = useRouter();
+
     return (
         <div className="new-agent-ready px-3 py-4 md:px-5 md:py-5">
             <h1 className="text-2xl font-bold text-900 m-0 mb-4">Get Ready To Sell</h1>
@@ -28,9 +32,9 @@ export default function NewAgentReadyToSellView() {
             <section className="surface-0 border-1 surface-border border-round-lg p-3 mb-4">
                 <p className="m-0 text-sm text-800 font-semibold mb-2">Coming from Another IMO or MGA?</p>
                 <p className="m-0 text-sm text-700 mb-2">Transfer your existing contracts to Experior first. This transfers your book over while keeping your agents and clients relationships.</p>
-                <button type="button" className="p-button-link p-0 border-none bg-transparent text-primary cursor-pointer">
+                <Link href="/agent/learn/departments/contracting/transfer-forms" className="text-primary text-sm font-medium no-underline hover:underline">
                     Review Transfer Process →
-                </button>
+                </Link>
             </section>
 
             <section className="surface-0 border-1 surface-border border-round-xl p-4 mb-4" style={{ borderLeft: "4px solid #facc15" }}>
@@ -70,7 +74,9 @@ export default function NewAgentReadyToSellView() {
                     ))}
                 </div>
                 <div className="mt-3">
-                    <Button label="UPLOAD DOCUMENTS" className="p-button-warning p-button-sm font-bold" />
+                    <Link href="/agent/contracts/pre-contracting-documents" className="p-button p-button-warning p-button-sm font-bold no-underline inline-flex align-items-center">
+                        UPLOAD DOCUMENTS
+                    </Link>
                 </div>
             </section>
 
@@ -79,9 +85,17 @@ export default function NewAgentReadyToSellView() {
                 <p className="text-sm text-700 m-0 mb-3">Complete the contracting process and get appointed with your chosen carriers.</p>
                 <div className="surface-50 border-round p-3 mb-3 text-sm text-800">
                     <p className="m-0 mb-1 font-semibold">Watch the Tutorial First</p>
-                    <p className="m-0">Contracting training videos walk you through the process step-by-step.</p>
+                    <p className="m-0">
+                        Contracting training videos walk you through the process step-by-step. See{" "}
+                        <Link href="/agent/learn/about-experior/getting-started/getting-appointed" className="text-primary">
+                            Getting Appointed
+                        </Link>
+                        .
+                    </p>
                 </div>
-                <Button label="GO TO MY CONTRACTS" className="p-button-warning p-button-sm font-bold" />
+                <Link href="/agent/contracts/my-contracts" className="p-button p-button-warning p-button-sm font-bold no-underline inline-flex align-items-center">
+                    GO TO MY CONTRACTS
+                </Link>
             </section>
 
             <section className="surface-0 border-1 surface-border border-round-xl p-4 mb-4" style={{ borderLeft: "4px solid #facc15" }}>
@@ -90,7 +104,17 @@ export default function NewAgentReadyToSellView() {
                 <Accordion multiple activeIndex={[0]}>
                     {FAQS.map((q) => (
                         <AccordionTab key={q} header={q}>
-                            <p className="m-0 text-700">Answer content can be added here.</p>
+                            <p className="m-0 text-700">
+                                See the full{" "}
+                                <Link href="/agent/learn/about-experior/getting-started/contracting-faq" className="text-primary">
+                                    Contracting FAQ
+                                </Link>{" "}
+                                in Learn for detailed answers, or open a{" "}
+                                <Link href="/agent/tickets" className="text-primary">
+                                    support ticket
+                                </Link>{" "}
+                                if your case needs review.
+                            </p>
                         </AccordionTab>
                     ))}
                 </Accordion>
@@ -102,9 +126,12 @@ export default function NewAgentReadyToSellView() {
                     Excellent! You&apos;re licensed and your contracting is in place. Now you&apos;re ready to run your business, build your team,
                     and grow your success with Experior.
                 </p>
-                <Button label="RUN YOUR BUSINESS →" className="p-button-warning font-bold p-button-sm" />
+                <Button
+                    label="RUN YOUR BUSINESS →"
+                    className="p-button-warning font-bold p-button-sm"
+                    onClick={() => router.push("/agent/new-agents/run-your-business")}
+                />
             </section>
         </div>
     );
 }
-

@@ -1,4 +1,3 @@
-import AgentCompaniesDemoSection from "@/components/companies/AgentCompaniesDemoSection";
 import CompaniesManager, { CompanyListItem } from "@/components/portal/CompaniesManager";
 import { listCompanies } from "@/lib/portalData";
 import { SearchParamRecord } from "@/lib/portalPagination";
@@ -14,8 +13,7 @@ export default async function AgentCompaniesPage({
   const initialCompanies = JSON.parse(JSON.stringify(result.data)) as CompanyListItem[];
 
   return (
-    <div className="flex flex-column gap-4">
-      <CompaniesManager
+    <CompaniesManager
         variant="agent"
         initialCompanies={initialCompanies}
         pathname="/agent/companies"
@@ -28,7 +26,5 @@ export default async function AgentCompaniesPage({
           department: typeof searchParams.department === "string" ? searchParams.department : undefined,
         }}
       />
-      <AgentCompaniesDemoSection />
-    </div>
   );
 }

@@ -3,6 +3,7 @@ import { withAgentAuth } from "@/lib/authMiddleware";
 import { getClientProfileForAgent } from "@/lib/clientProfileData";
 import { parseClientProfileBody } from "@/lib/clientProfilePayload";
 import { prisma } from "@/lib/prisma";
+import { deleteFromS3 } from "@/lib/s3";
 
 export async function GET(
   request: NextRequest,
@@ -38,6 +39,17 @@ export async function PUT(
       where: { id: params.id },
       data: parsed.fields,
     });
+
+    if (
+      existing.profileImagePublicId &&
+      existing.profileImagePublicId !== parsed.fields.profileImagePublicId
+    ) {
+      try {
+        await deleteFromS3(existing.profileImagePublicId);
+      } catch (error) {
+        console.error("Failed to delete previous client image:", error);
+      }
+    }
 
     return NextResponse.json({ profile });
   });

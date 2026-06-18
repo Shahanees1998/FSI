@@ -41,6 +41,7 @@ export default async function AgentClientEditPage({ params }: { params: { id: st
     sex: profile.sex,
     birthDate: profile.birthDate?.toISOString() ?? null,
     profileImageUrl: profile.profileImageUrl,
+    profileImagePublicId: profile.profileImagePublicId,
     spouseFirstName: profile.spouseFirstName,
     spouseMiddleName: profile.spouseMiddleName,
     spouseLastName: profile.spouseLastName,

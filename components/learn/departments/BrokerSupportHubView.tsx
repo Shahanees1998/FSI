@@ -9,8 +9,7 @@ export default function BrokerSupportHubView() {
             <div className="p-4 md:p-5 lg:p-6" style={{ maxWidth: "48rem" }}>
                 <h1 className="text-2xl md:text-3xl font-bold text-900 m-0 mb-2">Broker Support</h1>
                 <p className="text-700 line-height-3 m-0 mb-4">
-                    FAQs, account security, office requests, and tutorials. Open a topic below; full content will be added as
-                    operations publishes it.
+                    FAQs, account security, office requests, and tutorials. Open a topic below for portal-managed support content.
                 </p>
                 <ul className="m-0 p-0 list-none border-1 surface-border border-round-lg overflow-hidden">
                     {BROKER_SUPPORT_NAV.map(({ slug, label }, i) => (

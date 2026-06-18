@@ -33,6 +33,8 @@ export async function PUT(request: NextRequest) {
         status: true,
         jobTitle: true,
         location: true,
+        profileImage: true,
+        profileImagePublicId: true,
       },
     });
 

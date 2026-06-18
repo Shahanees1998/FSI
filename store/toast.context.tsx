@@ -4,7 +4,7 @@ import React, { createContext, useContext, useRef, useEffect } from 'react';
 import { Toast } from 'primereact/toast';
 
 interface ToastContextType {
-  showToast: (severity: 'success' | 'error' | 'warn' | 'info', summary: string, detail: string) => void;
+  showToast: (severity: 'success' | 'error' | 'warn' | 'info', summary: string, detail?: string) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -12,7 +12,7 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const toast = useRef<Toast>(null);
 
-  const showToast = (severity: 'success' | 'error' | 'warn' | 'info', summary: string, detail: string) => {
+  const showToast = (severity: 'success' | 'error' | 'warn' | 'info', summary: string, detail = '') => {
     toast.current?.show({ severity, summary, detail, life: 4000 });
   };
 
@@ -40,7 +40,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ToastContext.Provider value={{ showToast }}>
-      <Toast ref={toast} />
+      <Toast ref={toast} position="bottom-center" className="fsi-toast" />
       {children}
     </ToastContext.Provider>
   );

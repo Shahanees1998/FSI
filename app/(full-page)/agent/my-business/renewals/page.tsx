@@ -1,13 +1,12 @@
-import RenewalsListView from "@/components/my-business/RenewalsListView";
+import { renderAgentWorkspacePageForAgent } from "@/lib/renderAgentWorkspacePage";
 import { requireCurrentUser } from "@/lib/serverAuth";
+import { SearchParamRecord } from "@/lib/portalPagination";
 
-export default async function AgentMyBusinessRenewalsPage() {
-    await requireCurrentUser("AGENT");
-
-    return (
-        <div className="surface-card border-round border-1 surface-border p-3 md:p-4">
-            <RenewalsListView />
-        </div>
-    );
+export default async function AgentMyBusinessRenewalsPage({
+  searchParams = {},
+}: {
+  searchParams?: SearchParamRecord;
+}) {
+  const user = await requireCurrentUser("AGENT");
+  return renderAgentWorkspacePageForAgent(user.id, "RENEWALS", searchParams);
 }
-

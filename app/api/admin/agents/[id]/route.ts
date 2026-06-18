@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { withAdminAuth } from "@/lib/authMiddleware";
 import { prisma } from "@/lib/prisma";
 import { getUserDirectoryDetail } from "@/lib/portalData";
+import { notDeletedOr } from "@/lib/softDelete";
 
 export async function GET(
   request: NextRequest,
@@ -34,7 +35,7 @@ export async function PUT(
         companyUpdate = { disconnect: true };
       } else {
         const company = await prisma.company.findFirst({
-          where: { id: String(body.companyId), deletedAt: null },
+          where: { id: String(body.companyId), OR: [...notDeletedOr()] },
           select: { id: true },
         });
         companyUpdate = company ? { connect: { id: company.id } } : { disconnect: true };

@@ -1,36 +1,38 @@
 "use client";
 
-import { Button } from "primereact/button";
+import Link from "next/link";
 
-const QUICK_ACCESS = [
-    { title: "Reports", text: "Review paid, and debt reports. Track your commissions and case status.", link: "View Reports +" },
-    { title: "My Contracts", text: "Manage carrier contracts, upload documents, and track contracting status.", link: "My Contracts +" },
-    { title: "My Team", text: "See your recruited agents, track team growth, and manage your downline.", link: "View Team +" },
-    { title: "Support Tickets", text: "Submit a support request or check the status of existing tickets.", link: "Submit Ticket +" },
+type ResourceItem = { title: string; text: string; link: string; href: string };
+
+const QUICK_ACCESS: ResourceItem[] = [
+    { title: "Reports", text: "Review paid, and debt reports. Track your commissions and case status.", link: "View Reports +", href: "/agent/reports" },
+    { title: "My Contracts", text: "Manage carrier contracts, upload documents, and track contracting status.", link: "My Contracts +", href: "/agent/contracts/my-contracts" },
+    { title: "My Team", text: "See your recruited agents, track team growth, and manage your downline.", link: "View Team +", href: "/agent/team/visual-network" },
+    { title: "Support Tickets", text: "Submit a support request or check the status of existing tickets.", link: "Submit Ticket +", href: "/agent/tickets" },
 ];
 
-const TRAINING = [
-    { title: "Experior Academy", text: "Ongoing courses for product knowledge, sales skills, and business development.", link: "Access Academy +" },
-    { title: "Lead Training Guides", text: "Agent-only and leader-only sales structure, objection handling, appointment setting, and door knocking tips.", link: "View Training Guides +" },
-    { title: "New Business Training (NBT)", text: "Back office tutorials and case processing walkthroughs.", link: "Watch NBT Videos +" },
-    { title: "Events & Training Calendar", text: "Live webinars, training sessions, and company events. View upcoming events and archive replays.", link: "View Calendar +" },
-    { title: "Marketing Hub", text: "Professional marketing materials, recruiting presentations, and social media assets.", link: "Explore Marketing Hub +" },
+const TRAINING: ResourceItem[] = [
+    { title: "Experior Academy", text: "Ongoing courses for product knowledge, sales skills, and business development.", link: "Access Academy +", href: "/agent/learn/about-experior/experior-academy" },
+    { title: "Lead Training Guides", text: "Agent-only and leader-only sales structure, objection handling, appointment setting, and door knocking tips.", link: "View Training Guides +", href: "/agent/learn/about-experior/lead-training-guides" },
+    { title: "New Business Training (NBT)", text: "Back office tutorials and case processing walkthroughs.", link: "Watch NBT Videos +", href: "/agent/learn/departments/new-pending-business" },
+    { title: "Events & Training Calendar", text: "Live webinars, training sessions, and company events. View upcoming events and archive replays.", link: "View Calendar +", href: "/agent/learn/about-experior/whats-new/experior-events" },
+    { title: "Marketing Hub", text: "Professional marketing materials, recruiting presentations, and social media assets.", link: "Explore Marketing Hub +", href: "/agent/learn/departments/marketing" },
 ];
 
-const RECRUITING = [
-    { title: "BTO Webinar Recordings", text: "Business building and recruiting strategies from experienced leaders.", link: "Watch BTO Webinars +" },
-    { title: "Driving Your Success Webinar", text: "Leadership development and team growth training.", link: "Watch Webinar +" },
+const RECRUITING: ResourceItem[] = [
+    { title: "BTO Webinar Recordings", text: "Business building and recruiting strategies from experienced leaders.", link: "Watch BTO Webinars +", href: "/agent/learn/about-experior/training/bto" },
+    { title: "Driving Your Success Webinar", text: "Leadership development and team growth training.", link: "Watch Webinar +", href: "/agent/learn/about-experior/training/driving-your-success-webinar" },
 ];
 
-const MAINTAIN_LICENSE = [
-    { title: "Licensing & Compliance (NIPR)", text: "Manage your licenses, track renewals, and stay compliant across all states.", link: "Visit NIPR +" },
-    { title: "CE Credits Providers", text: "Find approved continuing education providers to meet your state requirements.", link: "Find CE Providers +" },
+const MAINTAIN_LICENSE: ResourceItem[] = [
+    { title: "Licensing & Compliance (NIPR)", text: "Manage your licenses, track renewals, and stay compliant across all states.", link: "Visit NIPR +", href: "/agent/learn/about-experior/getting-started/keep-your-license-up-to-date-with-nipr" },
+    { title: "CE Credits Providers", text: "Find approved continuing education providers to meet your state requirements.", link: "Find CE Providers +", href: "/agent/learn/about-experior/getting-started/ce-credits-providers" },
 ];
 
-const COMPLIANCE = [
-    { title: "Compliance Manual", text: "Complete guide to market conduct and sales practices for Experior agents.", link: "View Manual (PDF) +" },
-    { title: "Compliance Incident Report", text: "Report compliance violations or incidents through this secure form.", link: "Submit Report +" },
-    { title: "Compliance Best Practices", text: "Your guide to selling the right way-protect yourself, your clients, and your business.", link: "View Best Practices +" },
+const COMPLIANCE: ResourceItem[] = [
+    { title: "Compliance Manual", text: "Complete guide to market conduct and sales practices for Experior agents.", link: "View Manual (PDF) +", href: "/agent/learn/departments/compliance" },
+    { title: "Compliance Incident Report", text: "Report compliance violations or incidents through this secure form.", link: "Submit Report +", href: "/agent/tickets" },
+    { title: "Compliance Best Practices", text: "Your guide to selling the right way-protect yourself, your clients, and your business.", link: "View Best Practices +", href: "/agent/learn/departments/compliance" },
 ];
 
 const FAQS = [
@@ -58,7 +60,7 @@ function SectionHeader({ icon, title }: { icon: string; title: string }) {
     );
 }
 
-function ResourceGrid({ items, cols = "md:col-6" }: { items: { title: string; text: string; link: string }[]; cols?: string }) {
+function ResourceGrid({ items, cols = "md:col-6" }: { items: ResourceItem[]; cols?: string }) {
     return (
         <div className="grid mb-4">
             {items.map((i) => (
@@ -66,9 +68,9 @@ function ResourceGrid({ items, cols = "md:col-6" }: { items: { title: string; te
                     <div className="surface-0 border-1 surface-border border-round-lg p-3 h-full">
                         <h4 className="text-xl font-semibold text-900 m-0 mb-2">{i.title}</h4>
                         <p className="text-700 text-sm line-height-3 m-0 mb-2">{i.text}</p>
-                        <button type="button" className="p-button-link p-0 border-none bg-transparent text-primary cursor-pointer text-sm font-medium">
+                        <Link href={i.href} className="text-primary text-sm font-medium no-underline hover:underline">
                             {i.link}
-                        </button>
+                        </Link>
                     </div>
                 </div>
             ))}
@@ -98,12 +100,12 @@ export default function NewAgentRunYourBusinessView() {
 
                 <section className="surface-50 border-1 surface-border border-round-xl p-3 mb-4">
                     <h3 className="m-0 mb-2 text-2xl font-semibold text-900">New Agent Resources</h3>
-                    <div className="surface-0 border-1 surface-border border-round p-2 mb-2 text-sm">
+                    <Link href="/agent/new-agents/getting-started" className="surface-0 border-1 surface-border border-round p-2 mb-2 text-sm block no-underline text-800 hover:surface-50">
                         <strong>Getting Started</strong> - For unlicensed or newly licensed agents
-                    </div>
-                    <div className="surface-0 border-1 surface-border border-round p-2 text-sm">
+                    </Link>
+                    <Link href="/agent/new-agents/ready-to-sell" className="surface-0 border-1 surface-border border-round p-2 text-sm block no-underline text-800 hover:surface-50">
                         <strong>Ready To Sell</strong> - For licensed agents ready to contract
-                    </div>
+                    </Link>
                 </section>
 
                 <SectionHeader icon="pi pi-sun" title="Maintain Your License" />
@@ -117,9 +119,22 @@ export default function NewAgentRunYourBusinessView() {
                     {FAQS.map((q) => (
                         <div key={q} className="flex justify-content-between align-items-center py-3 border-bottom-1 surface-border">
                             <span className="text-sm text-800">{q}</span>
-                            <span className="text-yellow-600 font-bold">+</span>
+                            <Link href="/agent/reports" className="text-yellow-600 font-bold no-underline hover:underline">
+                                +
+                            </Link>
                         </div>
                     ))}
+                    <p className="text-sm text-600 m-0 mt-3">
+                        Commission and reporting answers live in{" "}
+                        <Link href="/agent/reports" className="text-primary">
+                            Reports
+                        </Link>
+                        . Contracting questions are covered in the{" "}
+                        <Link href="/agent/learn/about-experior/getting-started/contracting-faq" className="text-primary">
+                            Contracting FAQ
+                        </Link>
+                        .
+                    </p>
                 </section>
 
                 <section className="border-round-xl p-4 md:p-5 text-center" style={{ background: "#020617" }}>
@@ -128,10 +143,11 @@ export default function NewAgentRunYourBusinessView() {
                         Excellent! You&apos;re licensed and your contracting is in place. Now you&apos;re ready to run your business, build your team,
                         and grow your success with Experior.
                     </p>
-                    <Button label="RUN YOUR BUSINESS →" className="p-button-warning font-bold p-button-sm" />
+                    <Link href="/agent/team/recruiting" className="p-button p-button-warning font-bold p-button-sm no-underline inline-flex align-items-center">
+                        EXPLORE RECRUITING →
+                    </Link>
                 </section>
             </div>
         </div>
     );
 }
-

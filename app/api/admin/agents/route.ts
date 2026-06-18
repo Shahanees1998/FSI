@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import { withAdminAuth } from "@/lib/authMiddleware";
 import { prisma } from "@/lib/prisma";
+import { notDeletedOr } from "@/lib/softDelete";
 import { listUsersByRole } from "@/lib/portalData";
 import { APP_DEFAULT_AGENCY_NAME } from "@/lib/appBranding";
 
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
     let companyConnect: { connect: { id: string } } | undefined;
     if (body.companyId && typeof body.companyId === "string") {
       const company = await prisma.company.findFirst({
-        where: { id: body.companyId, deletedAt: null },
+        where: { id: body.companyId, OR: [...notDeletedOr()] },
         select: { id: true },
       });
       if (company) {

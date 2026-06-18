@@ -1,4 +1,5 @@
-import type { CSSProperties, HTMLAttributes, ReactNode, TableHTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from "react";
+import type { CSSProperties, HTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TableHTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from "react";
+import Link from "next/link";
 
 /**
  * Standard list page pattern (see `/agent/clients`): padded card, header row, `grid` filter form,
@@ -18,12 +19,13 @@ export const PORTAL_LIST_TITLE_CLASS = "text-2xl font-semibold m-0 text-900";
 
 export const PORTAL_LIST_SUBTITLE_CLASS = "m-0 mt-2 text-600";
 
-export const PORTAL_FILTER_FORM_CLASS = "grid mb-4";
+export const PORTAL_FILTER_FORM_CLASS = "grid mb-0";
 
-export const PORTAL_FILTER_LABEL_CLASS = "block mb-2 text-sm font-medium";
+export const PORTAL_FILTER_LABEL_CLASS = "block mb-2 text-sm font-medium text-700";
 
-/** Apply filters + Reset row (full width under filter fields) */
-export const PORTAL_FILTER_ACTIONS_CLASS = "col-12 flex gap-2 align-items-end";
+/** Apply filters + Reset row — compact, right-aligned */
+export const PORTAL_FILTER_ACTIONS_CLASS =
+  "col-12 flex gap-2 align-items-center justify-content-end portal-filter-actions";
 
 export const PORTAL_LIST_TABLE_WRAP_CLASS = "overflow-auto";
 
@@ -36,6 +38,58 @@ export function PortalListPageCard({ children, className = "", ...rest }: HTMLAt
     <div className={`${PORTAL_LIST_CARD_CLASS} ${className}`.trim()} {...rest}>
       {children}
     </div>
+  );
+}
+
+export function PortalFilterSelect({
+  className = "",
+  children,
+  ...rest
+}: SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <div className="portal-filter-select-wrap">
+      <select
+        className={`portal-filter-select p-inputtext p-component w-full ${className}`.trim()}
+        {...rest}
+      >
+        {children}
+      </select>
+      <i className="pi pi-chevron-down portal-filter-select-icon" aria-hidden />
+    </div>
+  );
+}
+
+type PortalFilterInputProps = InputHTMLAttributes<HTMLInputElement> & {
+  inputType?: "search" | "text";
+};
+
+export function PortalFilterInput({ className = "", inputType = "text", ...rest }: PortalFilterInputProps) {
+  return (
+    <input
+      type={inputType}
+      className={`portal-filter-input p-inputtext p-component w-full ${className}`.trim()}
+      {...rest}
+    />
+  );
+}
+
+export function PortalFilterActions({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <div className={`${PORTAL_FILTER_ACTIONS_CLASS} ${className}`.trim()}>{children}</div>;
+}
+
+export function PortalFilterApplyButton({ label = "Apply filters" }: { label?: string }) {
+  return (
+    <button type="submit" className="p-button p-component p-button-sm p-button-outlined portal-filter-btn">
+      <span className="p-button-label">{label}</span>
+    </button>
+  );
+}
+
+export function PortalFilterResetLink({ href, label = "Reset" }: { href: string; label?: string }) {
+  return (
+    <Link href={href} className="p-button p-component p-button-sm p-button-text portal-filter-btn no-underline">
+      <span className="p-button-label">{label}</span>
+    </Link>
   );
 }
 

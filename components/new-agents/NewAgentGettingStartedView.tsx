@@ -78,7 +78,9 @@ export default function NewAgentGettingStartedView() {
             <section className="surface-0 border-1 surface-border border-round-xl p-4 text-center mx-auto mb-5" style={{ maxWidth: "580px" }}>
                 <h4 className="text-3xl font-semibold text-900 m-0 mb-2">Complete Your Back Office Profile</h4>
                 <p className="text-700 m-0 mb-3 text-sm">Set up your agent profile with contact information, licensing details, and preferences.</p>
-                <Button label="COMPLETE YOUR PROFILE" className="p-button-warning font-bold px-4 py-2" />
+                <Link href="/agent/profile" className="p-button p-button-warning font-bold px-4 py-2 no-underline inline-flex align-items-center">
+                    COMPLETE YOUR PROFILE
+                </Link>
             </section>
 
             <section

@@ -5,6 +5,7 @@ import { Button } from "primereact/button";
 import { InputSwitch } from "primereact/inputswitch";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
+import { useToast } from "@/store/toast.context";
 
 interface SystemSettingsFormProps {
     settings: {
@@ -18,6 +19,7 @@ interface SystemSettingsFormProps {
 }
 
 export default function SystemSettingsForm({ settings }: SystemSettingsFormProps) {
+    const { showToast } = useToast();
     const [form, setForm] = useState({
         siteName: settings.siteName,
         siteDescription: settings.siteDescription ?? "",
@@ -26,10 +28,7 @@ export default function SystemSettingsForm({ settings }: SystemSettingsFormProps
         commissionDisclaimer: settings.commissionDisclaimer ?? "",
         notificationsEnabled: settings.notificationsEnabled,
     });
-    const [message, setMessage] = useState<string | null>(null);
-
     const save = async () => {
-        setMessage(null);
         const response = await fetch("/api/admin/settings", {
             method: "PUT",
             credentials: "include",
@@ -37,7 +36,11 @@ export default function SystemSettingsForm({ settings }: SystemSettingsFormProps
             body: JSON.stringify(form),
         });
         const payload = await response.json();
-        setMessage(response.ok ? "Settings saved." : payload.error || "Unable to save settings.");
+        if (response.ok) {
+            showToast("success", "Settings saved.");
+        } else {
+            showToast("error", payload.error || "Unable to save settings.");
+        }
     };
 
     return (
@@ -103,7 +106,6 @@ export default function SystemSettingsForm({ settings }: SystemSettingsFormProps
                 </div>
             </div>
             <Button label="Save settings" className="mt-3" onClick={save} />
-            {message && <p className="mt-3 mb-0 font-medium">{message}</p>}
         </div>
     );
 }

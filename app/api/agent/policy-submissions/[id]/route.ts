@@ -4,8 +4,8 @@ import {
   getPolicySubmissionForAgent,
   mergeFormDataProgress,
   mergeStoredAndIncomingFormData,
-  parseFormDataJson,
 } from "@/lib/policySubmissionData";
+import { parseFormDataJson, validatePolicySubmissionForSubmit } from "@/lib/policySubmissionForm";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
@@ -40,6 +40,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
     let status: "DRAFT" | "SUBMITTED" | undefined;
     if (body.status === "SUBMITTED") {
+      const validation = validatePolicySubmissionForSubmit(formData);
+      if (!validation.ok) {
+        return NextResponse.json({ error: validation.error }, { status: 400 });
+      }
       status = "SUBMITTED";
     } else if (body.status === "DRAFT") {
       status = "DRAFT";

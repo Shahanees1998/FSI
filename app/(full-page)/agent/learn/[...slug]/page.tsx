@@ -20,18 +20,15 @@ import GlobalViewInvestmentPlatformView from "@/components/learn/products/Global
 import InsuranceSnapViewIsvView from "@/components/learn/products/InsuranceSnapViewIsvView";
 import HealthInsuranceProductsHubView from "@/components/learn/products/HealthInsuranceProductsHubView";
 import CarriersHubView from "@/components/learn/products/CarriersHubView";
-import CarriersSubpageView from "@/components/learn/products/CarriersSubpageView";
 import PuertoRicoHubView from "@/components/learn/products/PuertoRicoHubView";
-import PuertoRicoSubpageView from "@/components/learn/products/PuertoRicoSubpageView";
 import ReferralPartnersHubView from "@/components/learn/products/ReferralPartnersHubView";
-import ReferralPartnersSubpageView from "@/components/learn/products/ReferralPartnersSubpageView";
 import LifeInsuranceProductsHubView from "@/components/learn/products/LifeInsuranceProductsHubView";
+import { renderLearnCmsSubpage } from "@/lib/renderLearnCmsSubpage";
 import DevelopmentComingSoonView from "@/components/learn/development/DevelopmentComingSoonView";
 import DevelopmentPopUpsView from "@/components/learn/development/DevelopmentPopUpsView";
 import DevelopmentReleasesView from "@/components/learn/development/DevelopmentReleasesView";
 import PurchaseLeadsView from "@/components/learn/PurchaseLeadsView";
 import UpcomingMeetingsView from "@/components/learn/UpcomingMeetingsView";
-import ContactsSectionView from "@/components/learn/contacts/ContactsSectionView";
 import ExperiorContactsView from "@/components/learn/contacts/ExperiorContactsView";
 import ExperiorOfficeBranchesView from "@/components/learn/contacts/ExperiorOfficeBranchesView";
 import ProviderContactsView from "@/components/learn/contacts/ProviderContactsView";
@@ -46,18 +43,12 @@ import TwoHundredGrandClubView from "@/components/learn/whats-new/TwoHundredGran
 import OneMillionHierarchyClubView from "@/components/learn/whats-new/OneMillionHierarchyClubView";
 import PersonalBonusQualifiersView from "@/components/learn/whats-new/PersonalBonusQualifiersView";
 import RecordBreakersView from "@/components/learn/whats-new/RecordBreakersView";
-import WhatsNewSectionView from "@/components/learn/whats-new/WhatsNewSectionView";
 import BrokerSupportHubView from "@/components/learn/departments/BrokerSupportHubView";
-import BrokerSupportSubpageView from "@/components/learn/departments/BrokerSupportSubpageView";
 import CommissionsHubView from "@/components/learn/departments/CommissionsHubView";
-import CommissionsSubpageView from "@/components/learn/departments/CommissionsSubpageView";
 import ComplianceHubView from "@/components/learn/departments/ComplianceHubView";
-import ComplianceSubpageView from "@/components/learn/departments/ComplianceSubpageView";
 import MarketingHubView from "@/components/learn/departments/MarketingHubView";
 import NewPendingBusinessHubView from "@/components/learn/departments/NewPendingBusinessHubView";
-import NewPendingBusinessSubpageView from "@/components/learn/departments/NewPendingBusinessSubpageView";
 import ContractingHubView from "@/components/learn/departments/ContractingHubView";
-import ContractingSubpageView from "@/components/learn/departments/ContractingSubpageView";
 import { BROKER_SUPPORT_LEARN_TITLES } from "@/lib/learn/departmentsBrokerSupportNav";
 import { COMMISSIONS_LEARN_TITLES } from "@/lib/learn/departmentsCommissionsNav";
 import { COMPLIANCE_LEARN_TITLES } from "@/lib/learn/departmentsComplianceNav";
@@ -70,13 +61,13 @@ import FormsHubView from "@/components/learn/resources/FormsHubView";
 import MyCrmView from "@/components/learn/resources/MyCrmView";
 import ExperiorConnectWorkvivoView from "@/components/learn/resources/ExperiorConnectWorkvivoView";
 import ExperiorConnectWorkvivoGettingStartedView from "@/components/learn/resources/ExperiorConnectWorkvivoGettingStartedView";
-import FormsSubpageView from "@/components/learn/resources/FormsSubpageView";
-import ResourcesHubSubpageView from "@/components/learn/resources/ResourcesHubSubpageView";
 import ResourcesHubView from "@/components/learn/resources/ResourcesHubView";
 import { FORMS_LEARN_TITLES } from "@/lib/learn/resourcesFormsNav";
 import { RESOURCES_HUB_LEARN_TITLES } from "@/lib/learn/resourcesHubNav";
 import { requireCurrentUser } from "@/lib/serverAuth";
 import { redirect } from "next/navigation";
+import PortalContentView from "@/components/portal/PortalContentView";
+import { getPortalContentBySlug, listActivePopups, portalContentToPopupRow } from "@/lib/portalContentData";
 
 const EXPERIOR_ACADEMY_EXTERNAL_URL = "https://experioracademyus.learnworlds.com/";
 const DEFAULT_EXPERIOR_WORKVIVO_LOGIN_URL = "https://experiorfinancial.workvivo.us/login";
@@ -198,6 +189,41 @@ function toTitleCaseFromSlug(value: string): string {
         .join(" ");
 }
 
+const GETTING_STARTED_BACK = {
+    backHref: "/agent/learn/about-experior/getting-started/getting-started-with-experior-checklist-licensed",
+    backLabel: "Getting Started",
+} as const;
+
+const WHATS_NEW_BACK = {
+    backHref: "/agent/learn/about-experior/whats-new",
+    backLabel: "What's New",
+} as const;
+
+const SCHEDULE_BACK = {
+    backHref: "/agent/learn/about-experior/experior-schedule/upcoming-meetings",
+    backLabel: "Schedule",
+} as const;
+
+const CONTESTS_BACK = {
+    backHref: "/agent/learn/about-experior/contests",
+    backLabel: "Contests",
+} as const;
+
+const CONTACTS_MAIN_BACK = {
+    backHref: "/agent/learn/about-experior/contacts",
+    backLabel: "Contacts",
+} as const;
+
+const DEVELOPMENT_BACK = {
+    backHref: "/agent/learn/development/releases",
+    backLabel: "Development",
+} as const;
+
+const LEARN_ROOT_BACK = {
+    backHref: "/agent/learn",
+    backLabel: "Learn",
+} as const;
+
 export default async function AgentLearnDetailPage({
     params,
 }: {
@@ -220,19 +246,27 @@ export default async function AgentLearnDetailPage({
     }
 
     if (key === "about-experior/experior-schedule/upcoming-meetings") {
-        return (
-            <UpcomingMeetingsView
-                embedUrl={process.env.NEXT_PUBLIC_UPCOMING_MEETINGS_CALENDAR_EMBED_URL ?? null}
-            />
-        );
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...SCHEDULE_BACK,
+            fallback: (
+                <UpcomingMeetingsView
+                    embedUrl={process.env.NEXT_PUBLIC_UPCOMING_MEETINGS_CALENDAR_EMBED_URL ?? null}
+                />
+            ),
+        });
     }
 
     if (key === "about-experior/experior-schedule/event-calendar") {
-        return (
-            <EventCalendarView
-                embedUrl={process.env.NEXT_PUBLIC_EVENT_CALENDAR_EMBED_URL ?? null}
-            />
-        );
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...SCHEDULE_BACK,
+            fallback: (
+                <EventCalendarView embedUrl={process.env.NEXT_PUBLIC_EVENT_CALENDAR_EMBED_URL ?? null} />
+            ),
+        });
     }
 
     if (key === "about-experior/getting-started") {
@@ -240,94 +274,159 @@ export default async function AgentLearnDetailPage({
     }
 
     if (key === "about-experior/getting-started/usa-onboarding-process") {
-        return <UsaOnboardingProcessView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...GETTING_STARTED_BACK,
+            fallback: <UsaOnboardingProcessView />,
+        });
     }
 
     if (key === "about-experior/getting-started/register-for-the-online-course") {
-        return (
-            <RegisterForOnlineCourseView
-                registrationUrl={
-                    process.env.NEXT_PUBLIC_EXAMFX_REGISTRATION_URL?.trim() || "https://www.examfx.com/"
-                }
-            />
-        );
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...GETTING_STARTED_BACK,
+            fallback: (
+                <RegisterForOnlineCourseView
+                    registrationUrl={
+                        process.env.NEXT_PUBLIC_EXAMFX_REGISTRATION_URL?.trim() || "https://www.examfx.com/"
+                    }
+                />
+            ),
+        });
     }
 
     if (key === "about-experior/getting-started/errors-and-omissions-insurance") {
-        return (
-            <ErrorsAndOmissionsInsuranceView
-                signUpUrl={process.env.NEXT_PUBLIC_EO_SIGNUP_URL?.trim() ?? ""}
-                pricingGuidePdfUrl={
-                    process.env.NEXT_PUBLIC_EO_PRICING_GUIDE_PDF_URL?.trim() ?? "/documents/eo-pricing-guide.pdf"
-                }
-                viewRatesPdfUrl={process.env.NEXT_PUBLIC_EO_VIEW_RATES_PDF_URL?.trim() ?? "/documents/eo-view-rates.pdf"}
-                programComparisonPdfUrl={
-                    process.env.NEXT_PUBLIC_EO_PROGRAM_COMPARISON_PDF_URL?.trim() ??
-                    "/documents/eo-program-comparison.pdf"
-                }
-            />
-        );
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...GETTING_STARTED_BACK,
+            fallback: (
+                <ErrorsAndOmissionsInsuranceView
+                    signUpUrl={process.env.NEXT_PUBLIC_EO_SIGNUP_URL?.trim() ?? ""}
+                    pricingGuidePdfUrl={
+                        process.env.NEXT_PUBLIC_EO_PRICING_GUIDE_PDF_URL?.trim() ?? "/documents/eo-pricing-guide.pdf"
+                    }
+                    viewRatesPdfUrl={process.env.NEXT_PUBLIC_EO_VIEW_RATES_PDF_URL?.trim() ?? "/documents/eo-view-rates.pdf"}
+                    programComparisonPdfUrl={
+                        process.env.NEXT_PUBLIC_EO_PROGRAM_COMPARISON_PDF_URL?.trim() ??
+                        "/documents/eo-program-comparison.pdf"
+                    }
+                />
+            ),
+        });
     }
 
     if (key === "about-experior/getting-started/getting-started-with-experior-checklist-unlicensed") {
-        return <ChecklistUnlicensedView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...GETTING_STARTED_BACK,
+            fallback: <ChecklistUnlicensedView />,
+        });
     }
 
     if (key === "about-experior/getting-started/getting-started-with-experior-checklist-licensed") {
-        return <ChecklistLicensedView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...GETTING_STARTED_BACK,
+            fallback: <ChecklistLicensedView />,
+        });
     }
 
     if (key === "about-experior/getting-started/submit-your-license-application") {
-        return (
-            <SubmitLicenseApplicationView
-                applicationUrl={
-                    process.env.NEXT_PUBLIC_STATE_LICENSE_APPLICATION_URL?.trim() || "https://www.nipr.com/"
-                }
-            />
-        );
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...GETTING_STARTED_BACK,
+            fallback: (
+                <SubmitLicenseApplicationView
+                    applicationUrl={
+                        process.env.NEXT_PUBLIC_STATE_LICENSE_APPLICATION_URL?.trim() || "https://www.nipr.com/"
+                    }
+                />
+            ),
+        });
     }
 
     if (key === "about-experior/getting-started/mandatory-documents") {
-        return <MandatoryDocumentsView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...GETTING_STARTED_BACK,
+            fallback: <MandatoryDocumentsView />,
+        });
     }
 
     if (key === "about-experior/getting-started/getting-appointed") {
-        return <GettingAppointedView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...GETTING_STARTED_BACK,
+            fallback: <GettingAppointedView />,
+        });
     }
 
     if (key === "about-experior/getting-started/contracting-faq") {
-        return <ContractingFaqView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...GETTING_STARTED_BACK,
+            fallback: <ContractingFaqView />,
+        });
     }
 
     if (key === "about-experior/getting-started/keep-your-license-up-to-date-with-nipr") {
-        return <KeepLicenseNiprView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...GETTING_STARTED_BACK,
+            fallback: <KeepLicenseNiprView />,
+        });
     }
 
     if (key === "about-experior/getting-started/ce-credits-providers") {
-        return <CeCreditsProvidersView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...GETTING_STARTED_BACK,
+            fallback: <CeCreditsProvidersView />,
+        });
     }
 
     if (key === "about-experior/getting-started/tutorials-in-spanish") {
-        return (
-            <TutorialsSpanishLearnView
-                videos={{
-                    preLicense: process.env.NEXT_PUBLIC_SPANISH_TUTORIAL_PRE_LICENSE_VIDEO_ID,
-                    nipr: process.env.NEXT_PUBLIC_SPANISH_TUTORIAL_NIPR_VIDEO_ID,
-                    platform: process.env.NEXT_PUBLIC_SPANISH_TUTORIAL_PLATFORM_VIDEO_ID,
-                    eo: process.env.NEXT_PUBLIC_SPANISH_TUTORIAL_EO_VIDEO_ID,
-                    inviteLead: process.env.NEXT_PUBLIC_SPANISH_TUTORIAL_INVITE_LEAD_VIDEO_ID,
-                    nbtEfaLite: process.env.NEXT_PUBLIC_SPANISH_TUTORIAL_NBT_EFA_LITE_VIDEO_ID,
-                }}
-            />
-        );
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...GETTING_STARTED_BACK,
+            fallback: (
+                <TutorialsSpanishLearnView
+                    videos={{
+                        preLicense: process.env.NEXT_PUBLIC_SPANISH_TUTORIAL_PRE_LICENSE_VIDEO_ID,
+                        nipr: process.env.NEXT_PUBLIC_SPANISH_TUTORIAL_NIPR_VIDEO_ID,
+                        platform: process.env.NEXT_PUBLIC_SPANISH_TUTORIAL_PLATFORM_VIDEO_ID,
+                        eo: process.env.NEXT_PUBLIC_SPANISH_TUTORIAL_EO_VIDEO_ID,
+                        inviteLead: process.env.NEXT_PUBLIC_SPANISH_TUTORIAL_INVITE_LEAD_VIDEO_ID,
+                        nbtEfaLite: process.env.NEXT_PUBLIC_SPANISH_TUTORIAL_NBT_EFA_LITE_VIDEO_ID,
+                    }}
+                />
+            ),
+        });
     }
 
     if (key === "about-experior/getting-started/back-office-fees") {
-        return (
-            <BackOfficeFeesView
-                ecosystemVideoId={process.env.NEXT_PUBLIC_ECOSYSTEM_FEES_VIDEO_ID ?? null}
-            />
-        );
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...GETTING_STARTED_BACK,
+            fallback: (
+                <BackOfficeFeesView
+                    ecosystemVideoId={process.env.NEXT_PUBLIC_ECOSYSTEM_FEES_VIDEO_ID ?? null}
+                />
+            ),
+        });
     }
 
     if (key === "about-experior/training") {
@@ -342,25 +441,64 @@ export default async function AgentLearnDetailPage({
         redirect("/agent/learn/about-experior/training/us-product-partner-webinars/weekly-webinar-schedule");
     }
 
+    const trainingTitle = LEARN_TITLES[key];
+    if (trainingTitle && key.startsWith("about-experior/training/")) {
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: trainingTitle,
+            backHref: "/agent/learn/about-experior/training/ceo-tap-webinar",
+            backLabel: "Training",
+        });
+    }
+
+    if (key === "about-experior/hpn-university") {
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            backHref: "/agent/learn",
+            backLabel: "Learn",
+        });
+    }
+
     if (key === "about-experior/purchase-leads") {
-        return (
-            <PurchaseLeadsView
-                caboomWebinarVideoId={process.env.NEXT_PUBLIC_CABOOM_LAUNCH_WEBINAR_VIDEO_ID ?? null}
-                caboomWebinarRecordingUrl={process.env.NEXT_PUBLIC_CABOOM_LAUNCH_WEBINAR_RECORDING_URL ?? null}
-            />
-        );
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: (
+                <PurchaseLeadsView
+                    caboomWebinarVideoId={process.env.NEXT_PUBLIC_CABOOM_LAUNCH_WEBINAR_VIDEO_ID ?? null}
+                    caboomWebinarRecordingUrl={process.env.NEXT_PUBLIC_CABOOM_LAUNCH_WEBINAR_RECORDING_URL ?? null}
+                />
+            ),
+        });
     }
 
     if (key === "about-experior/lead-training-guides") {
-        return <LeadTrainingGuidesView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: <LeadTrainingGuidesView />,
+        });
     }
 
     if (key === "about-experior/contests/desert-oasis-2027") {
-        return <DesertOasisContest2027View />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...CONTESTS_BACK,
+            fallback: <DesertOasisContest2027View />,
+        });
     }
 
     if (key === "about-experior/contests") {
-        return <ContestsView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: <ContestsView />,
+        });
     }
 
     if (key === "about-experior/whats-new") {
@@ -379,57 +517,114 @@ export default async function AgentLearnDetailPage({
     }
 
     if (key === "about-experior/whats-new/experior-events") {
-        return <ExperiorEventsView eventsPageUrl={process.env.NEXT_PUBLIC_EXPERIOR_EVENTS_URL?.trim() ?? null} />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...WHATS_NEW_BACK,
+            fallback: <ExperiorEventsView eventsPageUrl={process.env.NEXT_PUBLIC_EXPERIOR_EVENTS_URL?.trim() ?? null} />,
+        });
     }
 
     if (key === "about-experior/whats-new/news-events") {
-        return (
-            <NewsAndEventsView
-                experiorFactorTicketsUrl={process.env.NEXT_PUBLIC_EXPERIOR_FACTOR_TICKETS_URL?.trim() ?? null}
-                entrepreneursLoungeRegisterUrl={process.env.NEXT_PUBLIC_ENTREPRENEURS_LOUNGE_REGISTER_URL?.trim() ?? null}
-            />
-        );
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...WHATS_NEW_BACK,
+            fallback: (
+                <NewsAndEventsView
+                    experiorFactorTicketsUrl={process.env.NEXT_PUBLIC_EXPERIOR_FACTOR_TICKETS_URL?.trim() ?? null}
+                    entrepreneursLoungeRegisterUrl={
+                        process.env.NEXT_PUBLIC_ENTREPRENEURS_LOUNGE_REGISTER_URL?.trim() ?? null
+                    }
+                />
+            ),
+        });
     }
 
     if (key === "about-experior/whats-new/record-breakers") {
-        return <RecordBreakersView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...WHATS_NEW_BACK,
+            fallback: <RecordBreakersView />,
+        });
     }
 
     if (key === "about-experior/whats-new/personal-bonus-qualifiers") {
-        return <PersonalBonusQualifiersView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...WHATS_NEW_BACK,
+            fallback: <PersonalBonusQualifiersView />,
+        });
     }
 
     if (key === "about-experior/whats-new/builders-bonus-qualifiers") {
-        return <BuildersBonusQualifiersView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...WHATS_NEW_BACK,
+            fallback: <BuildersBonusQualifiersView />,
+        });
     }
 
     if (key === "about-experior/whats-new/leadership") {
-        return <LeadershipView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...WHATS_NEW_BACK,
+            fallback: <LeadershipView />,
+        });
     }
 
     if (key === "about-experior/whats-new/hierarchy-agency-premium-clubs/1-million-hierarchy-club") {
-        return <OneMillionHierarchyClubView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...WHATS_NEW_BACK,
+            fallback: <OneMillionHierarchyClubView />,
+        });
     }
 
     if (key === "about-experior/whats-new/hierarchy-agency-premium-clubs/100-grand-agency-club") {
-        return <HundredGrandClubView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...WHATS_NEW_BACK,
+            fallback: <HundredGrandClubView />,
+        });
     }
 
     if (key === "about-experior/whats-new/hierarchy-agency-premium-clubs/200-grand-agency-club") {
-        return <TwoHundredGrandClubView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...WHATS_NEW_BACK,
+            fallback: <TwoHundredGrandClubView />,
+        });
     }
 
     if (key === "about-experior/whats-new/hierarchy-agency-premium-clubs/300-grand-agency-club") {
-        return <ThreeHundredGrandClubView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...WHATS_NEW_BACK,
+            fallback: <ThreeHundredGrandClubView />,
+        });
     }
 
     if (key === "about-experior/whats-new/hierarchy-agency-premium-clubs/400-grand-agency-club") {
-        return <FourHundredGrandClubView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...WHATS_NEW_BACK,
+            fallback: <FourHundredGrandClubView />,
+        });
     }
 
     const whatsNewTitle = LEARN_TITLES[key];
     if (whatsNewTitle && key.startsWith("about-experior/whats-new/")) {
-        return <WhatsNewSectionView title={whatsNewTitle} />;
+        return await renderLearnCmsSubpage({ slug: key, title: whatsNewTitle, backHref: "/agent/learn/about-experior/whats-new", backLabel: "What's New" });
     }
 
     if (key === "about-experior/contacts") {
@@ -437,206 +632,324 @@ export default async function AgentLearnDetailPage({
     }
 
     if (key === "about-experior/contacts/experior-contacts") {
-        return <ExperiorContactsView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...CONTACTS_MAIN_BACK,
+            fallback: <ExperiorContactsView />,
+        });
     }
 
     if (key === "about-experior/contacts/experior-office-branches") {
-        return (
-            <ExperiorOfficeBranchesView
-                embedUrl={process.env.NEXT_PUBLIC_EXPERIOR_OFFICE_BRANCHES_URL?.trim() ?? null}
-            />
-        );
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...CONTACTS_MAIN_BACK,
+            fallback: (
+                <ExperiorOfficeBranchesView
+                    embedUrl={process.env.NEXT_PUBLIC_EXPERIOR_OFFICE_BRANCHES_URL?.trim() ?? null}
+                />
+            ),
+        });
     }
 
     if (key === "about-experior/contacts/provider-contacts") {
-        return <ProviderContactsView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...CONTACTS_MAIN_BACK,
+            fallback: <ProviderContactsView />,
+        });
     }
 
     const contactsTitle = LEARN_TITLES[key];
     if (contactsTitle && key.startsWith("about-experior/contacts/")) {
-        return <ContactsSectionView title={contactsTitle} />;
+        return await renderLearnCmsSubpage({ slug: key, title: contactsTitle, backHref: "/agent/learn/about-experior/contacts", backLabel: "Contacts" });
     }
 
     if (key === "products/life-insurance-products") {
-        return (
-            <LifeInsuranceProductsHubView
-                quotingToolsUrl={process.env.NEXT_PUBLIC_LIFE_QUOTING_TOOLS_URL?.trim() ?? null}
-            />
-        );
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: (
+                <LifeInsuranceProductsHubView
+                    quotingToolsUrl={process.env.NEXT_PUBLIC_LIFE_QUOTING_TOOLS_URL?.trim() ?? null}
+                />
+            ),
+        });
     }
 
     if (key === "products/health-insurance-products") {
-        return (
-            <HealthInsuranceProductsHubView
-                newHealthPartnersUrl={process.env.NEXT_PUBLIC_NEW_HEALTH_PARTNERS_URL?.trim() ?? null}
-                c2gUrl={process.env.NEXT_PUBLIC_C2G_HEALTH_URL?.trim() ?? null}
-            />
-        );
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: (
+                <HealthInsuranceProductsHubView
+                    newHealthPartnersUrl={process.env.NEXT_PUBLIC_NEW_HEALTH_PARTNERS_URL?.trim() ?? null}
+                    c2gUrl={process.env.NEXT_PUBLIC_C2G_HEALTH_URL?.trim() ?? null}
+                />
+            ),
+        });
     }
 
     if (key === "products/annuities-quantum") {
-        return (
-            <AnnuitiesQuantumView
-                advisorPortalUrl={process.env.NEXT_PUBLIC_QUANTUM_ADVISOR_PORTAL_URL?.trim() ?? null}
-            />
-        );
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: (
+                <AnnuitiesQuantumView
+                    advisorPortalUrl={process.env.NEXT_PUBLIC_QUANTUM_ADVISOR_PORTAL_URL?.trim() ?? null}
+                />
+            ),
+        });
     }
 
     if (key === "products/global-view-investment-platform") {
-        return (
-            <GlobalViewInvestmentPlatformView
-                compensationGridVideoId={process.env.NEXT_PUBLIC_GLOBAL_VIEW_COMPENSATION_VIDEO_ID?.trim() ?? null}
-                trifectaRecruitingVideoId={process.env.NEXT_PUBLIC_GLOBAL_VIEW_TRIFECTA_RECRUITING_VIDEO_ID?.trim() ?? null}
-            />
-        );
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: (
+                <GlobalViewInvestmentPlatformView
+                    compensationGridVideoId={process.env.NEXT_PUBLIC_GLOBAL_VIEW_COMPENSATION_VIDEO_ID?.trim() ?? null}
+                    trifectaRecruitingVideoId={
+                        process.env.NEXT_PUBLIC_GLOBAL_VIEW_TRIFECTA_RECRUITING_VIDEO_ID?.trim() ?? null
+                    }
+                />
+            ),
+        });
     }
 
     if (key === "products/new-insurance-snapview-isv") {
-        return <InsuranceSnapViewIsvView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: <InsuranceSnapViewIsvView />,
+        });
     }
 
     if (key === "products/carriers") {
-        return <CarriersHubView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: <CarriersHubView />,
+        });
     }
 
     if (key.startsWith("products/carriers/")) {
         const carrierTitle = CARRIER_LEARN_TITLES[key];
         if (carrierTitle) {
-            return <CarriersSubpageView title={carrierTitle} />;
+            return await renderLearnCmsSubpage({ slug: key, title: carrierTitle, backHref: "/agent/learn/products/carriers", backLabel: "Carriers" });
         }
     }
 
     if (key === "products/referral-partners") {
-        return <ReferralPartnersHubView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: <ReferralPartnersHubView />,
+        });
     }
 
     if (key.startsWith("products/referral-partners/")) {
         const referralTitle = REFERRAL_PARTNER_LEARN_TITLES[key];
         if (referralTitle) {
-            return <ReferralPartnersSubpageView title={referralTitle} />;
+            return await renderLearnCmsSubpage({ slug: key, title: referralTitle, backHref: "/agent/learn/products/referral-partners", backLabel: "Referral Partners" });
         }
     }
 
     if (key === "products/puerto-rico") {
-        return <PuertoRicoHubView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: <PuertoRicoHubView />,
+        });
     }
 
     if (key.startsWith("products/puerto-rico/")) {
         const prTitle = PUERTO_RICO_LEARN_TITLES[key];
         if (prTitle) {
-            return <PuertoRicoSubpageView title={prTitle} />;
+            return await renderLearnCmsSubpage({ slug: key, title: prTitle, backHref: "/agent/learn/products/puerto-rico", backLabel: "Puerto Rico" });
         }
     }
 
     if (key === "departments/broker-support") {
-        return <BrokerSupportHubView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: <BrokerSupportHubView />,
+        });
     }
 
     if (key.startsWith("departments/broker-support/")) {
         const bsTitle = BROKER_SUPPORT_LEARN_TITLES[key];
         if (bsTitle) {
-            return <BrokerSupportSubpageView title={bsTitle} />;
+            return await renderLearnCmsSubpage({ slug: key, title: bsTitle, backHref: "/agent/learn/departments/broker-support", backLabel: "Broker Support" });
         }
     }
 
     if (key === "departments/commissions") {
-        return <CommissionsHubView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: <CommissionsHubView />,
+        });
     }
 
     if (key.startsWith("departments/commissions/")) {
         const commTitle = COMMISSIONS_LEARN_TITLES[key];
         if (commTitle) {
-            return <CommissionsSubpageView title={commTitle} />;
+            return await renderLearnCmsSubpage({ slug: key, title: commTitle, backHref: "/agent/learn/departments/commissions", backLabel: "Commissions" });
         }
     }
 
     if (key === "departments/contracting") {
-        return <ContractingHubView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: <ContractingHubView />,
+        });
     }
 
     if (key.startsWith("departments/contracting/")) {
         const contractingTitle = CONTRACTING_LEARN_TITLES[key];
         if (contractingTitle) {
-            return <ContractingSubpageView title={contractingTitle} />;
+            return await renderLearnCmsSubpage({ slug: key, title: contractingTitle, backHref: "/agent/learn/departments/contracting", backLabel: "Contracting" });
         }
     }
 
     if (key === "departments/compliance") {
-        return <ComplianceHubView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: <ComplianceHubView />,
+        });
     }
 
     if (key.startsWith("departments/compliance/")) {
         const complianceTitle = COMPLIANCE_LEARN_TITLES[key];
         if (complianceTitle) {
-            return <ComplianceSubpageView title={complianceTitle} />;
+            return await renderLearnCmsSubpage({ slug: key, title: complianceTitle, backHref: "/agent/learn/departments/compliance", backLabel: "Compliance" });
         }
     }
 
     if (key === "departments/marketing") {
-        return (
-            <MarketingHubView
-                experiorFactorTicketsUrl={process.env.NEXT_PUBLIC_EXPERIOR_FACTOR_TICKETS_URL?.trim() ?? null}
-                promotionsCompensationGuideUrl={
-                    process.env.NEXT_PUBLIC_MARKETING_PROMOTIONS_COMPENSATION_GUIDE_URL?.trim() ?? null
-                }
-                promotionTrackUrl={process.env.NEXT_PUBLIC_MARKETING_PROMOTION_TRACK_URL?.trim() ?? null}
-            />
-        );
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: (
+                <MarketingHubView
+                    experiorFactorTicketsUrl={process.env.NEXT_PUBLIC_EXPERIOR_FACTOR_TICKETS_URL?.trim() ?? null}
+                    promotionsCompensationGuideUrl={
+                        process.env.NEXT_PUBLIC_MARKETING_PROMOTIONS_COMPENSATION_GUIDE_URL?.trim() ?? null
+                    }
+                    promotionTrackUrl={process.env.NEXT_PUBLIC_MARKETING_PROMOTION_TRACK_URL?.trim() ?? null}
+                />
+            ),
+        });
     }
 
     if (key === "departments/new-pending-business") {
-        return <NewPendingBusinessHubView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: <NewPendingBusinessHubView />,
+        });
     }
 
     if (key.startsWith("departments/new-pending-business/")) {
         const npbTitle = NEW_PENDING_BUSINESS_LEARN_TITLES[key];
         if (npbTitle) {
-            return <NewPendingBusinessSubpageView title={npbTitle} />;
+            return await renderLearnCmsSubpage({ slug: key, title: npbTitle, backHref: "/agent/learn/departments/new-pending-business", backLabel: "New & Pending Business" });
         }
     }
 
     if (key === "development/releases") {
-        return <DevelopmentReleasesView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...DEVELOPMENT_BACK,
+            fallback: <DevelopmentReleasesView />,
+        });
     }
 
     if (key === "development/coming-soon") {
-        return <DevelopmentComingSoonView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...DEVELOPMENT_BACK,
+            fallback: <DevelopmentComingSoonView />,
+        });
     }
 
     if (key === "development/pop-ups") {
-        return <DevelopmentPopUpsView />;
+        const popups = await listActivePopups();
+        return <DevelopmentPopUpsView rows={popups.map(portalContentToPopupRow)} />;
     }
 
     if (key === "resources/resources") {
-        return <ResourcesHubView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: <ResourcesHubView />,
+        });
     }
 
     if (key.startsWith("resources/resources/")) {
         const resTitle = RESOURCES_HUB_LEARN_TITLES[key];
         if (resTitle) {
-            return <ResourcesHubSubpageView title={resTitle} />;
+            return await renderLearnCmsSubpage({ slug: key, title: resTitle, backHref: "/agent/learn/resources/resources", backLabel: "Resources" });
         }
     }
 
     if (key === "resources/forms") {
-        return <FormsHubView />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: <FormsHubView />,
+        });
     }
 
     if (key.startsWith("resources/forms/")) {
         const formsTitle = FORMS_LEARN_TITLES[key];
         if (formsTitle) {
-            return <FormsSubpageView title={formsTitle} />;
+            return await renderLearnCmsSubpage({ slug: key, title: formsTitle, backHref: "/agent/learn/resources/forms", backLabel: "Forms" });
         }
     }
 
     if (key === "resources/my-crm") {
-        return <MyCrmView crmUrl={process.env.NEXT_PUBLIC_EXPERIOR_CRM_URL?.trim() ?? null} />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: <MyCrmView crmUrl={process.env.NEXT_PUBLIC_EXPERIOR_CRM_URL?.trim() ?? null} />,
+        });
     }
 
     if (key === "resources/experior-connect-workvivo") {
         const workvivoUrl =
             process.env.NEXT_PUBLIC_EXPERIOR_WORKVIVO_URL?.trim() || DEFAULT_EXPERIOR_WORKVIVO_LOGIN_URL;
-        return <ExperiorConnectWorkvivoView loginUrl={workvivoUrl} />;
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: <ExperiorConnectWorkvivoView loginUrl={workvivoUrl} />,
+        });
     }
 
     if (key === "resources/experior-connect-workvivo-getting-started") {
@@ -649,25 +962,34 @@ export default async function AgentLearnDetailPage({
         const profileTutorialYoutubeId = process.env.NEXT_PUBLIC_WORKVIVO_PROFILE_TUTORIAL_YOUTUBE_ID?.trim() ?? null;
         const createPostTutorialYoutubeId =
             process.env.NEXT_PUBLIC_WORKVIVO_CREATE_POST_TUTORIAL_YOUTUBE_ID?.trim() ?? null;
-        return (
-            <ExperiorConnectWorkvivoGettingStartedView
-                desktopLoginUrl={desktopLoginUrl}
-                iosAppUrl={iosAppUrl}
-                androidAppUrl={androidAppUrl}
-                dashboardImageSrc={dashboardImageSrc}
-                profileTutorialYoutubeId={profileTutorialYoutubeId}
-                createPostTutorialYoutubeId={createPostTutorialYoutubeId}
-            />
-        );
+        return await renderLearnCmsSubpage({
+            slug: key,
+            title: LEARN_TITLES[key],
+            ...LEARN_ROOT_BACK,
+            fallback: (
+                <ExperiorConnectWorkvivoGettingStartedView
+                    desktopLoginUrl={desktopLoginUrl}
+                    iosAppUrl={iosAppUrl}
+                    androidAppUrl={androidAppUrl}
+                    dashboardImageSrc={dashboardImageSrc}
+                    profileTutorialYoutubeId={profileTutorialYoutubeId}
+                    createPostTutorialYoutubeId={createPostTutorialYoutubeId}
+                />
+            ),
+        });
+    }
+
+    const cmsContent = await getPortalContentBySlug(key);
+    if (cmsContent) {
+        return <PortalContentView content={cmsContent} backHref="/agent/learn" backLabel="Learn" />;
     }
 
     const title = LEARN_TITLES[key] ?? toTitleCaseFromSlug(slug[slug.length - 1] ?? "Learn");
 
-    return (
-        <div className="surface-card border-round border-1 surface-border p-4">
-            <h1 className="mt-0 mb-2">{title}</h1>
-            <p className="text-600 m-0">Dummy content for now.</p>
-        </div>
-    );
+    return await renderLearnCmsSubpage({
+        slug: key,
+        title,
+        ...LEARN_ROOT_BACK,
+    });
 }
 

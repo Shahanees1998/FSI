@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
+import { useToast } from "@/store/toast.context";
 
 export type CompanyDetail = {
   id: string;
@@ -25,16 +26,24 @@ export type CompanyDetail = {
   _count: { agents: number };
 };
 
-export default function CompanyDetailForm({ company: initial }: { company: CompanyDetail }) {
+export default function CompanyDetailForm({
+  company: initial,
+  variant = "admin",
+}: {
+  company: CompanyDetail;
+  variant?: "admin" | "agent";
+}) {
   const router = useRouter();
+  const { showToast } = useToast();
   const [company, setCompany] = useState(initial);
-  const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const isAgent = variant === "agent";
+  const listPath = isAgent ? "/agent/companies" : "/admin/companies";
+  const apiBase = isAgent ? "/api/agent/companies" : "/api/admin/companies";
 
   const save = async () => {
     setSaving(true);
-    setMessage(null);
-    const response = await fetch(`/api/admin/companies/${company.id}`, {
+    const response = await fetch(`${apiBase}/${company.id}`, {
       method: "PUT",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -54,7 +63,7 @@ export default function CompanyDetailForm({ company: initial }: { company: Compa
     const payload = await response.json();
     setSaving(false);
     if (!response.ok) {
-      setMessage(payload.error || "Unable to save.");
+      showToast("error", payload.error || "Unable to save.");
       return;
     }
     setCompany((prev) => ({
@@ -63,24 +72,23 @@ export default function CompanyDetailForm({ company: initial }: { company: Compa
       createdAt: payload.company.createdAt ?? prev.createdAt,
       updatedAt: payload.company.updatedAt ?? prev.updatedAt,
     }));
-    setMessage("Saved.");
+    showToast("success", "Saved.");
   };
 
   const softDelete = async () => {
     if (!window.confirm(`Soft-delete “${company.name}”? It will be removed from lists; linked agents keep their link for records.`)) {
       return;
     }
-    setMessage(null);
     const response = await fetch(`/api/admin/companies/${company.id}`, {
       method: "DELETE",
       credentials: "include",
     });
     const payload = await response.json();
     if (!response.ok) {
-      setMessage(payload.error || "Unable to delete.");
+      showToast("error", payload.error || "Unable to delete.");
       return;
     }
-    router.push("/admin/companies");
+    router.push(listPath);
     router.refresh();
   };
 
@@ -88,7 +96,7 @@ export default function CompanyDetailForm({ company: initial }: { company: Compa
     return (
       <div className="surface-card border-round border-1 surface-border p-4">
         <p className="mt-0">This company was deleted on {new Date(company.deletedAt).toLocaleString()}.</p>
-        <Link href="/admin/companies">Back to companies</Link>
+        <Link href={listPath}>Back to companies</Link>
       </div>
     );
   }
@@ -104,7 +112,7 @@ export default function CompanyDetailForm({ company: initial }: { company: Compa
                 {company._count.agents} agent(s) linked · Created {new Date(company.createdAt).toLocaleString()}
               </p>
             </div>
-            <Link href="/admin/companies">Back to list</Link>
+            <Link href={listPath}>Back to list</Link>
           </div>
         </div>
       </div>
@@ -196,10 +204,10 @@ export default function CompanyDetailForm({ company: initial }: { company: Compa
           </div>
           <div className="flex flex-wrap gap-2 align-items-center mt-3">
             <Button label="Save changes" onClick={save} loading={saving} disabled={saving} />
-            {message && <span className="font-medium">{message}</span>}
           </div>
         </div>
       </div>
+      {!isAgent ? (
       <div className="col-12 lg:col-4">
         <div className="surface-card border-round border-1 surface-border p-4">
           <h3 className="mt-0">Danger zone</h3>
@@ -209,6 +217,7 @@ export default function CompanyDetailForm({ company: initial }: { company: Compa
           <Button label="Soft-delete company" severity="danger" outlined onClick={softDelete} />
         </div>
       </div>
+      ) : null}
     </div>
   );
 }

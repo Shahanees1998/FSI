@@ -1,4 +1,4 @@
-import ScoreboardTrainingView from "@/components/scoreboard/ScoreboardTrainingView";
+import { renderScoreboardTrainingPage } from "@/lib/scoreboardCmsPage";
 import { requireCurrentUser } from "@/lib/serverAuth";
 
 export default async function AgentScoreboardTrainingPage() {
@@ -7,6 +7,5 @@ export default async function AgentScoreboardTrainingPage() {
     const investmentsPaidFilterVideoId =
         process.env.NEXT_PUBLIC_SCOREBOARD_TRAINING_INVESTMENTS_PAID_FILTER_VIDEO_ID?.trim() ?? null;
 
-    return <ScoreboardTrainingView investmentsPaidFilterVideoId={investmentsPaidFilterVideoId} />;
+    return renderScoreboardTrainingPage(investmentsPaidFilterVideoId);
 }
-

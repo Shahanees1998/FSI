@@ -9,8 +9,8 @@ export default function ComplianceHubView() {
             <div className="p-4 md:p-5 lg:p-6" style={{ maxWidth: "48rem" }}>
                 <h1 className="text-2xl md:text-3xl font-bold text-900 m-0 mb-2">Compliance</h1>
                 <p className="text-700 line-height-3 m-0 mb-4">
-                    Best practices, the compliance manual, and how to report incidents. Open a topic below; full content will be added
-                    as compliance publishes it.
+                    Best practices, the compliance manual, and how to report incidents. Open a topic below; admins can publish
+                    updates in Portal Content at any time.
                 </p>
                 <ul className="m-0 p-0 list-none border-1 surface-border border-round-lg overflow-hidden">
                     {COMPLIANCE_NAV.map(({ slug, label }, i) => (

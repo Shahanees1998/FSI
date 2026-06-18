@@ -9,8 +9,7 @@ export default function NewPendingBusinessHubView() {
             <div className="p-4 md:p-5 lg:p-6" style={{ maxWidth: "48rem" }}>
                 <h1 className="text-2xl md:text-3xl font-bold text-900 m-0 mb-2">New &amp; Pending Business</h1>
                 <p className="text-700 line-height-3 m-0 mb-4">
-                    FAQs, forms, medical ordering, and back-office training. Open a topic below; full content will be added as
-                    operations publishes it.
+                    FAQs, forms, medical ordering, and back-office training. Open a topic below for portal-managed guidance.
                 </p>
                 <ul className="m-0 p-0 list-none border-1 surface-border border-round-lg overflow-hidden">
                     {NEW_PENDING_BUSINESS_NAV.map(({ slug, label }, i) => (

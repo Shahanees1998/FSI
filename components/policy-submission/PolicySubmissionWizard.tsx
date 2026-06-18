@@ -13,8 +13,10 @@ import {
   isPolicySectionComplete,
   PolicySectionId,
   PolicySubmissionFormData,
+  validatePolicySubmissionForSubmit,
 } from "@/lib/policySubmissionForm";
 import { US_STATE_OPTIONS } from "@/lib/usStates";
+import { useToast } from "@/store/toast.context";
 
 const PRODUCT_OPTIONS = [
   { label: "Term life", value: "Term life" },
@@ -25,22 +27,8 @@ const PRODUCT_OPTIONS = [
   { label: "Indexed universal life", value: "Indexed universal life" },
 ];
 
-/** Sample clients (first + last) until linked to Client Profiles. */
-const DUMMY_CLIENTS: { id: string; firstName: string; lastName: string; label: string }[] = [
-  { id: "dc-sarah-mitchell", firstName: "Sarah", lastName: "Mitchell", label: "Sarah Mitchell" },
-  { id: "dc-james-chen", firstName: "James", lastName: "Chen", label: "James Chen" },
-  { id: "dc-emily-rodriguez", firstName: "Emily", lastName: "Rodriguez", label: "Emily Rodriguez" },
-  { id: "dc-michael-obrien", firstName: "Michael", lastName: "O'Brien", label: "Michael O'Brien" },
-  { id: "dc-priya-patel", firstName: "Priya", lastName: "Patel", label: "Priya Patel" },
-];
-
-/** Placeholder carriers until live company list is wired in. */
-const DUMMY_COMPANIES: { id: string; name: string }[] = [
-  { id: "dummy-acme", name: "Acme Insurance Group" },
-  { id: "dummy-summit", name: "Summit Financial Partners" },
-  { id: "dummy-harbor", name: "Harbor Life & Health" },
-  { id: "dummy-metro", name: "Metro Brokerage Network" },
-];
+type ClientOption = { id: string; firstName: string; lastName: string; label: string };
+type CompanyOption = { id: string; name: string };
 
 const SECTION_NAV: { id: string; label: string; section: PolicySectionId }[] = [
   { id: "section-applicant", label: "Applicant", section: "applicant" },
@@ -48,6 +36,13 @@ const SECTION_NAV: { id: string; label: string; section: PolicySectionId }[] = [
   { id: "section-client", label: "Client", section: "client" },
   { id: "section-documents", label: "Documents", section: "documents" },
 ];
+
+const SECTION_ELEMENT_ID: Record<PolicySectionId, string> = {
+  applicant: "section-applicant",
+  company: "section-company",
+  client: "section-client",
+  documents: "section-documents",
+};
 
 function SectionNavRow({
   href,
@@ -108,6 +103,7 @@ export default function PolicySubmissionWizard({
   defaultAgentName: string;
 }) {
   const router = useRouter();
+  const { showToast } = useToast();
   const [form, setForm] = useState<PolicySubmissionFormData>(() => ({
     ...emptyForm(),
     ...initialForm,
@@ -117,8 +113,49 @@ export default function PolicySubmissionWizard({
   const [submitting, setSubmitting] = useState(false);
   const [showSplit, setShowSplit] = useState(Boolean(initialForm.applicant?.splitAgent?.trim()));
   const [showTrainee, setShowTrainee] = useState(Boolean(initialForm.applicant?.traineeNote?.trim()));
+  const [clientOptions, setClientOptions] = useState<ClientOption[]>([]);
+  const [companyOptions, setCompanyOptions] = useState<CompanyOption[]>([]);
+  const [loadingLookups, setLoadingLookups] = useState(true);
 
   const isFirstRun = useRef(true);
+
+  const selectedClientId =
+    form.client?.clientProfileId?.trim() || form.client?.dummyClientId?.trim() || null;
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [clientsRes, companiesRes] = await Promise.all([
+          fetch("/api/agent/client-profiles?pageSize=500", { credentials: "include" }),
+          fetch("/api/agent/companies?pageSize=500", { credentials: "include" }),
+        ]);
+        if (cancelled) return;
+        if (clientsRes.ok) {
+          const data = (await clientsRes.json()) as {
+            profiles?: { id: string; firstName: string; lastName: string }[];
+          };
+          setClientOptions(
+            (data.profiles ?? []).map((p) => ({
+              id: p.id,
+              firstName: p.firstName,
+              lastName: p.lastName,
+              label: `${p.firstName} ${p.lastName}`.trim(),
+            }))
+          );
+        }
+        if (companiesRes.ok) {
+          const data = (await companiesRes.json()) as { companies?: { id: string; name: string }[] };
+          setCompanyOptions((data.companies ?? []).map((c) => ({ id: c.id, name: c.name })));
+        }
+      } finally {
+        if (!cancelled) setLoadingLookups(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const progress = computePolicySubmissionProgress(form);
 
@@ -145,15 +182,16 @@ export default function PolicySubmissionWizard({
         });
         if (!res.ok) {
           const j = await res.json().catch(() => ({}));
-          window.alert(typeof j.error === "string" ? j.error : "Save failed.");
-        } else {
-          router.refresh();
+          showToast("error", typeof j.error === "string" ? j.error : "Save failed.");
+          return false;
         }
+        router.refresh();
+        return true;
       } finally {
         setSaving(false);
       }
     },
-    [form, policyId, router]
+    [form, policyId, router, showToast]
   );
 
   useEffect(() => {
@@ -181,9 +219,21 @@ export default function PolicySubmissionWizard({
   };
 
   const complete = async () => {
+    const validation = validatePolicySubmissionForSubmit(form);
+    if (!validation.ok) {
+      showToast("warn", "Cannot complete submission", validation.error);
+      document.getElementById(SECTION_ELEMENT_ID[validation.section])?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      return;
+    }
+
     setSubmitting(true);
-    await persist({ status: "SUBMITTED" });
+    const ok = await persist({ status: "SUBMITTED" });
     setSubmitting(false);
+    if (!ok) return;
+    showToast("success", "Policy submission completed.");
     router.push("/agent/policy-submission");
     router.refresh();
   };
@@ -225,7 +275,9 @@ export default function PolicySubmissionWizard({
             <h2 className="text-xl text-orange-600 mt-0 mb-4">Applicant information</h2>
             <div className="grid">
               <div className="col-12 md:col-6">
-                <label className="block mb-2 font-medium">Agent name</label>
+                <label className="block mb-2 font-medium">
+                  Agent name <span className="text-red-500">*</span>
+                </label>
                 <InputText
                   className="w-full"
                   value={form.applicant?.agentName ?? ""}
@@ -233,7 +285,9 @@ export default function PolicySubmissionWizard({
                 />
               </div>
               <div className="col-12 md:col-6">
-                <label className="block mb-2 font-medium">State deal signed at</label>
+                <label className="block mb-2 font-medium">
+                  State deal signed at <span className="text-red-500">*</span>
+                </label>
                 <Dropdown
                   className="w-full"
                   value={form.applicant?.stateDealSignedAt ?? null}
@@ -282,43 +336,59 @@ export default function PolicySubmissionWizard({
 
           <section id="section-company" className="mb-5 scroll-mt-3">
             <h2 className="text-xl text-orange-600 mt-0 mb-4">Company</h2>
-            <label className="block mb-2 font-medium">Select company</label>
+            <label className="block mb-2 font-medium">
+              Select company <span className="text-red-500">*</span>
+            </label>
             <Dropdown
               className="w-full md:w-8"
               value={form.company?.companyId ?? null}
-              options={DUMMY_COMPANIES}
+              options={companyOptions}
               optionLabel="name"
               optionValue="id"
-              placeholder="Choose a company"
+              placeholder={loadingLookups ? "Loading companies…" : "Choose a company"}
               filter
               showClear
+              disabled={loadingLookups}
               onChange={(e) => {
                 const id = e.value as string | null;
-                const row = DUMMY_COMPANIES.find((c) => c.id === id);
+                const row = companyOptions.find((c) => c.id === id);
                 patchSection("company", { companyId: id ?? "", companyName: row?.name ?? "" });
               }}
             />
+            {!loadingLookups && companyOptions.length === 0 ? (
+              <p className="text-sm text-600 mt-2 mb-0">
+                No companies yet.{" "}
+                <Link href="/agent/companies/create" className="text-primary">
+                  Add a company
+                </Link>
+                .
+              </p>
+            ) : null}
           </section>
 
           <section id="section-client" className="mb-5 scroll-mt-3">
             <h2 className="text-xl text-orange-600 mt-0 mb-4">Client information</h2>
             <div className="grid">
               <div className="col-12 md:col-8">
-                <label className="block mb-2 font-medium">Client</label>
+                <label className="block mb-2 font-medium">
+                  Client <span className="text-red-500">*</span>
+                </label>
                 <Dropdown
                   className="w-full"
-                  value={form.client?.dummyClientId ?? null}
-                  options={DUMMY_CLIENTS}
+                  value={selectedClientId}
+                  options={clientOptions}
                   optionLabel="label"
                   optionValue="id"
-                  placeholder="Select a client"
+                  placeholder={loadingLookups ? "Loading clients…" : "Select a client"}
                   filter
                   showClear
+                  disabled={loadingLookups}
                   onChange={(e) => {
                     const id = e.value as string | null;
-                    const row = DUMMY_CLIENTS.find((c) => c.id === id);
+                    const row = clientOptions.find((c) => c.id === id);
                     if (!row) {
                       patchSection("client", {
+                        clientProfileId: "",
                         dummyClientId: "",
                         efaType: "",
                         firstName: "",
@@ -327,14 +397,18 @@ export default function PolicySubmissionWizard({
                       return;
                     }
                     patchSection("client", {
-                      dummyClientId: row.id,
+                      clientProfileId: row.id,
+                      dummyClientId: "",
                       firstName: row.firstName,
                       lastName: row.lastName,
                     });
                   }}
                 />
                 <p className="text-orange-600 text-sm mt-2 line-height-3">
-                  Pick a sample client or enter first and last name manually below.
+                  Pick a saved client profile or enter first and last name manually below.{" "}
+                  <Link href="/agent/clients/create" className="text-primary">
+                    Create client profile
+                  </Link>
                 </p>
               </div>
               <div className="col-12 md:col-4 lg:col-4">
@@ -349,7 +423,12 @@ export default function PolicySubmissionWizard({
                   className="w-full"
                   value={form.client?.firstName ?? ""}
                   onChange={(e) =>
-                    patchSection("client", { firstName: e.target.value, dummyClientId: "", efaType: "" })
+                    patchSection("client", {
+                      firstName: e.target.value,
+                      clientProfileId: "",
+                      dummyClientId: "",
+                      efaType: "",
+                    })
                   }
                 />
               </div>
@@ -367,12 +446,19 @@ export default function PolicySubmissionWizard({
                   className="w-full"
                   value={form.client?.lastName ?? ""}
                   onChange={(e) =>
-                    patchSection("client", { lastName: e.target.value, dummyClientId: "", efaType: "" })
+                    patchSection("client", {
+                      lastName: e.target.value,
+                      clientProfileId: "",
+                      dummyClientId: "",
+                      efaType: "",
+                    })
                   }
                 />
               </div>
               <div className="col-12 md:col-6">
-                <label className="block mb-2 font-medium">Product</label>
+                <label className="block mb-2 font-medium">
+                  Product <span className="text-red-500">*</span>
+                </label>
                 <Dropdown
                   className="w-full"
                   value={form.client?.product ?? null}
@@ -404,7 +490,7 @@ export default function PolicySubmissionWizard({
               <div className="col-12 md:col-6">
                 <label className="block mb-2 font-medium">
                   <i className="pi pi-dollar mr-1" aria-hidden />
-                  Annual premium
+                  Annual premium <span className="text-red-500">*</span>
                 </label>
                 <InputText
                   className="w-full"
@@ -427,7 +513,7 @@ export default function PolicySubmissionWizard({
               <div className="col-12 md:col-6">
                 <label className="block mb-2 font-medium">
                   <i className="pi pi-hashtag mr-1" aria-hidden />
-                  Application number
+                  Application number <span className="text-red-500">*</span>
                 </label>
                 <InputText
                   className="w-full"
