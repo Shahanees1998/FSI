@@ -7,6 +7,7 @@ import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { AuthSplitLayout } from "@/components/auth/AuthSplitLayout";
 import { useAuth } from "@/hooks/useAuth";
+import { APP_NAME } from "@/lib/appBranding";
 import { getDefaultRedirectPath } from "@/lib/rolePermissions";
 
 function LoginContent() {
@@ -40,7 +41,7 @@ function LoginContent() {
         <AuthSplitLayout>
             <div className="auth-form-content">
                 <div className="mb-4">
-                    <h1 className="text-2xl font-bold mb-2 text-white m-0">Sign in to JS Investment</h1>
+                    <h1 className="text-2xl font-bold mb-2 text-white m-0">Sign in to {APP_NAME}</h1>
                     <span className="text-white-alpha-90 font-medium">
                         Access your back-office dashboard, commissions, and support tools.
                     </span>

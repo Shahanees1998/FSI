@@ -13,6 +13,7 @@
     "prettier": "prettier --write .",
     "prisma:generate": "yarn prisma generate",
     "prisma:seed": "tsx prisma/seed.ts",
+    "prisma:seed-portal-content": "npx tsx scripts/seed-portal-content.ts",
     "prepare": "husky install",
     "init:chat-rooms": "node scripts/init-chat-rooms.js"
   },

@@ -7,6 +7,7 @@ import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { AuthSplitLayout } from "@/components/auth/AuthSplitLayout";
+import { APP_NAME } from "@/lib/appBranding";
 import { getDefaultRedirectPath } from "@/lib/rolePermissions";
 
 export default function RegisterPage() {
@@ -81,7 +82,7 @@ export default function RegisterPage() {
         <AuthSplitLayout>
             <div className="auth-form-content">
                 <div className="mb-4">
-                    <h1 className="text-2xl font-bold mb-2 text-white m-0">Create your JS Investment account</h1>
+                    <h1 className="text-2xl font-bold mb-2 text-white m-0">Create your {APP_NAME} account</h1>
                     <span className="text-white-alpha-90 font-medium">
                         Join the portal as an agent or carrier and start working immediately.
                     </span>

@@ -24,7 +24,7 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
       email:
         process.env.SENDGRID_FROM_EMAIL ||
         process.env.FROM_EMAIL ||
-        "noreply@jsinvestment.com",
+        "noreply@jcinvestment.com",
       name: process.env.SENDGRID_FROM_NAME || APP_NAME,
     },
     subject: options.subject,

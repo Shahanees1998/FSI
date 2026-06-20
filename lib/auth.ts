@@ -2,10 +2,11 @@ import { SignJWT, decodeJwt, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
+import { APP_NAME } from "@/lib/appBranding";
 import { prisma } from "@/lib/prisma";
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "JS Investment-development-secret-change-me"
+  process.env.JWT_SECRET || "JC Investment-development-secret-change-me"
 );
 
 const ACCESS_TOKEN_EXPIRY = "7d";
@@ -77,7 +78,7 @@ export class AuthService {
     }
 
     if (user.status !== "ACTIVE") {
-      throw new Error("Account is not active. Please contact the JS Investment administrator.");
+      throw new Error(`Account is not active. Please contact the ${APP_NAME} administrator.`);
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);

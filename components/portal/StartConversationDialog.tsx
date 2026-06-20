@@ -6,6 +6,8 @@ import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 
+import { APP_NAME } from "@/lib/appBranding";
+
 type EligibleUser = {
     id: string;
     firstName: string;
@@ -145,7 +147,7 @@ export default function StartConversationDialog({
             dismissableMask
         >
             <p className="text-600 mt-0 line-height-3">
-                Search people you are allowed to message. Admins can reach anyone; agents see JS Investment admins and
+                Search people you are allowed to message. Admins can reach anyone; agents see {APP_NAME} admins and
                 carriers in their preferred list; carriers see admins and contracted agents.
             </p>
             <label className="block mb-2 font-medium">Find people</label>

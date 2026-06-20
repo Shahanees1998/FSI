@@ -34,9 +34,9 @@ async function main() {
 
   const admin = await prisma.user.create({
     data: {
-      email: "admin@jsinvestment.com",
+      email: "admin@jcinvestment.com",
       password: hashedPassword,
-      firstName: "JS Investment",
+      firstName: APP_NAME,
       lastName: "Administrator",
       phone: "5551000001",
       role: "ADMIN",
@@ -50,7 +50,7 @@ async function main() {
 
   const agentOne = await prisma.user.create({
     data: {
-      email: "agent.sarah@JS Investment-demo.com",
+      email: "agent.sarah@jcinvestment-demo.com",
       password: hashedPassword,
       firstName: "Sarah",
       lastName: "Miles",
@@ -81,7 +81,7 @@ async function main() {
 
   const agentTwo = await prisma.user.create({
     data: {
-      email: "agent.daniel@JS Investment-demo.com",
+      email: "agent.daniel@jcinvestment-demo.com",
       password: hashedPassword,
       firstName: "Daniel",
       lastName: "Reed",
@@ -111,7 +111,7 @@ async function main() {
 
   const carrierOne = await prisma.user.create({
     data: {
-      email: "carrier.liberty@JS Investment-demo.com",
+      email: "carrier.liberty@jcinvestment-demo.com",
       password: hashedPassword,
       firstName: "Liberty",
       lastName: "National",
@@ -126,7 +126,7 @@ async function main() {
         create: {
           carrierCode: "CAR-2001",
           carrierName: "Liberty National Insurance",
-          contactEmail: "carrier.liberty@JS Investment-demo.com",
+          contactEmail: "carrier.liberty@jcinvestment-demo.com",
           contactPhone: "5551000004",
           website: "https://example.com/liberty-national",
           status: "ACTIVE",
@@ -140,7 +140,7 @@ async function main() {
 
   const carrierTwo = await prisma.user.create({
     data: {
-      email: "carrier.atlas@JS Investment-demo.com",
+      email: "carrier.atlas@jcinvestment-demo.com",
       password: hashedPassword,
       firstName: "Atlas",
       lastName: "Health",
@@ -155,7 +155,7 @@ async function main() {
         create: {
           carrierCode: "CAR-2002",
           carrierName: "Atlas Health Assurance",
-          contactEmail: "carrier.atlas@JS Investment-demo.com",
+          contactEmail: "carrier.atlas@jcinvestment-demo.com",
           contactPhone: "5551000005",
           website: "https://example.com/atlas-health",
           status: "ACTIVE",
@@ -375,7 +375,7 @@ async function main() {
       {
         userId: agentOne.id,
         title: "Ticket updated",
-        message: "JS Investment operations responded to your commission support ticket.",
+        message: `${APP_NAME} operations responded to your commission support ticket.`,
         type: "TICKET",
         link: "/agent/tickets",
       },
@@ -577,7 +577,7 @@ async function main() {
     ],
   });
 
-  console.log("JS Investment demo data seeded successfully.");
+  console.log(`${APP_NAME} demo data seeded successfully.`);
 }
 
 main()

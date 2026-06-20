@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
 import { InputTextarea } from "primereact/inputtextarea";
+import { useToast } from "@/store/toast.context";
 
 interface TicketDetailViewProps {
   ticket: {
@@ -41,15 +43,15 @@ interface TicketDetailViewProps {
 }
 
 export default function TicketDetailView({ ticket, isAdmin }: TicketDetailViewProps) {
+  const router = useRouter();
+  const { showToast } = useToast();
   const [status, setStatus] = useState(ticket.status);
   const [message, setMessage] = useState("");
   const [internal, setInternal] = useState(false);
-  const [feedback, setFeedback] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const submitUpdate = async () => {
     setSubmitting(true);
-    setFeedback(null);
 
     const response = await fetch(`/api/tickets/${ticket.id}`, {
       method: "PUT",
@@ -64,14 +66,15 @@ export default function TicketDetailView({ ticket, isAdmin }: TicketDetailViewPr
 
     const payload = await response.json();
     if (!response.ok) {
-      setFeedback(payload.error || "Unable to update ticket.");
+      showToast("error", payload.error || "Unable to update ticket.");
       setSubmitting(false);
       return;
     }
 
-    setFeedback("Ticket updated successfully.");
+    showToast("success", "Ticket updated successfully.");
     setMessage("");
-    window.location.reload();
+    router.refresh();
+    setSubmitting(false);
   };
 
   return (
@@ -174,7 +177,6 @@ export default function TicketDetailView({ ticket, isAdmin }: TicketDetailViewPr
               onClick={submitUpdate}
               disabled={submitting}
             />
-            {feedback && <p className="mt-3 mb-0 font-medium">{feedback}</p>}
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { APP_NAME } from "@/lib/appBranding";
 import Link from "next/link";
 import { Button } from "primereact/button";
 import { useEffect } from "react";
@@ -9,7 +10,7 @@ const OPEN_DEBOUNCE_MS = 800;
 
 export default function NewAssociatesRecruitingView() {
     useEffect(() => {
-        const key = "JS Investment-new-associates-pdf-open";
+        const key = `${APP_NAME}-new-associates-pdf-open`;
         const now = Date.now();
         const last = Number(sessionStorage.getItem(key) || 0);
         if (now - last < OPEN_DEBOUNCE_MS) return;

@@ -9,6 +9,12 @@ import { PUERTO_RICO_LEARN_TITLES } from "@/lib/learn/puertoRicoNav";
 import { REFERRAL_PARTNER_LEARN_TITLES } from "@/lib/learn/referralPartnersNav";
 import { FORMS_LEARN_TITLES } from "@/lib/learn/resourcesFormsNav";
 import { RESOURCES_HUB_LEARN_TITLES } from "@/lib/learn/resourcesHubNav";
+import {
+  portalContentDefaultBody,
+  portalContentSeedBody,
+  PORTAL_CONTENT_PDF_OVERRIDES,
+  PORTAL_CONTENT_VIDEO_OVERRIDES,
+} from "@/lib/portalContentSeedBodies";
 
 const TRAINING_SLUGS: Record<string, string> = {
   "about-experior/training/ceo-tap-webinar": "CEO Tap Webinar",
@@ -140,6 +146,8 @@ const EXTRA_LEARN_SLUGS: Record<string, string> = {
   "resources/experior-connect-workvivo-getting-started": "Experior Connect - Workvivo Getting Started",
 };
 
+export { portalContentDefaultBody } from "@/lib/portalContentSeedBodies";
+
 function categoryForSlug(slug: string): PortalContentCategory {
   if (slug.startsWith("recruiting/")) return "RECRUITING";
   if (slug.startsWith("new-agents/")) return "NEW_AGENT";
@@ -147,19 +155,6 @@ function categoryForSlug(slug: string): PortalContentCategory {
   if (slug.startsWith("about-experior/training/")) return "TRAINING";
   if (slug.includes("faq") || slug.includes("FAQ")) return "FAQ";
   return "LEARN";
-}
-
-export function portalContentDefaultBody(title: string, slug: string) {
-  if (slug === "departments/compliance/compliance-violation-incident-report-form") {
-    return `${title}: report compliance violations or incidents through Support Tickets (/agent/tickets) or follow the internal compliance process from head office. Admins can replace this page with a form link or PDF in Portal Content.`;
-  }
-  if (slug.includes("new-pending-business") || slug.includes("nbt")) {
-    return `${title} procedures, forms, and training for new business transactions. Use My Business → New business transmittals (/agent/my-business/new-business-transmittals) for submissions. Admins can publish detailed steps here (slug: ${slug}).`;
-  }
-  if (slug.startsWith("resources/forms/")) {
-    return `${title} forms and instructions for agents. Download the latest PDF from head office or check Portal Content updates. Slug: ${slug}.`;
-  }
-  return `${title} resources are available in the portal. This page is managed through the admin Portal Content manager (slug: ${slug}). Contact your upline or head office for the latest carrier-specific details.`;
 }
 
 /** Pages with dedicated React UI fallbacks stay unpublished so CMS does not override them. */
@@ -260,7 +255,9 @@ export function buildPortalContentSeedData(createdById: string) {
     slug,
     category: categoryForSlug(slug),
     title,
-    body: redirectOnly ? null : portalContentDefaultBody(title, slug),
+    body: redirectOnly ? null : portalContentSeedBody(title, slug),
+    videoId: PORTAL_CONTENT_VIDEO_OVERRIDES[slug] ?? undefined,
+    pdfUrl: PORTAL_CONTENT_PDF_OVERRIDES[slug] ?? undefined,
     published: !richFallback,
     publishedAt: richFallback ? null : new Date(),
     createdById,
@@ -274,7 +271,7 @@ export function buildPortalContentSeedData(createdById: string) {
           },
         }
       : {}),
-    ...(slug === "recruiting/new-associates"
+    ...(slug === "recruiting/new-associates" && !PORTAL_CONTENT_PDF_OVERRIDES[slug]
       ? { pdfUrl: "/documents/new-associates-dummy.pdf" }
       : {}),
     ...(slug === "recruiting/cfrb-newstalk-1010-interview-ceo-jamie-prickett"

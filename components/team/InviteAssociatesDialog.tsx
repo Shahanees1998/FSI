@@ -118,71 +118,88 @@ export default function InviteAssociatesDialog({ visible, onHide }: Props) {
 
     const footer = (
         <div className="flex justify-content-end gap-2">
-            <Button label="CANCEL" className="p-button-warning font-bold" type="button" onClick={onHide} disabled={submitting} />
             <Button
-                label={submitting ? "SENDING…" : "SEND"}
-                className="p-button-warning font-bold"
+                label="Cancel"
                 type="button"
+                severity="secondary"
+                outlined
+                size="small"
+                onClick={onHide}
+                disabled={submitting}
+            />
+            <Button
+                label={submitting ? "Sending…" : "Send invite"}
+                type="button"
+                icon="pi pi-send"
+                size="small"
+                className="p-button-warning"
                 onClick={handleSend}
                 loading={submitting}
             />
         </div>
     );
 
+    const handleHide = () => {
+        if (submitting) return;
+        onHide();
+    };
+
     return (
         <Dialog
             header="Invite Associates"
             visible={visible}
-            onHide={onHide}
+            onHide={handleHide}
             footer={footer}
             modal
             dismissableMask
-            className="invite-associates-dialog w-full max-w-30rem"
-            style={{ width: "95vw", maxWidth: "32rem" }}
+            className="invite-associates-dialog"
+            style={{ width: "min(52rem, 95vw)" }}
             blockScroll
         >
-            <div className="flex flex-column gap-3">
+            <p className="invite-associates-intro m-0 mb-4 text-600 line-height-3">
+                Send an AOA invite to a new associate. Required fields are marked with an asterisk.
+            </p>
+
+            <div className="flex flex-column gap-4">
                 <div>
-                    <span className="block text-sm font-bold text-800 mb-2">Language</span>
-                    <div className="flex align-items-center gap-4 flex-wrap">
-                        <div className="flex align-items-center gap-2">
-                            <input
-                                id="invite-lang-en"
-                                name="aoaLang"
-                                type="radio"
-                                value="english"
-                                checked={aoaLanguage === "english"}
-                                onChange={(e) => setAoaLanguage(e.target.value as "english" | "spanish")}
-                                className="m-0"
-                            />
-                            <label htmlFor="invite-lang-en" className="text-sm cursor-pointer">
-                                English AOA
+                    <span className="invite-associates-label">Language</span>
+                    <div className="invite-associates-lang-options" role="radiogroup" aria-label="AOA language">
+                        {(
+                            [
+                                { id: "invite-lang-en", value: "english" as const, label: "English AOA" },
+                                { id: "invite-lang-es", value: "spanish" as const, label: "Spanish AOA" },
+                            ] as const
+                        ).map((option) => (
+                            <label
+                                key={option.value}
+                                htmlFor={option.id}
+                                className={classNames("invite-associates-lang-option", {
+                                    "invite-associates-lang-option--active": aoaLanguage === option.value,
+                                })}
+                            >
+                                <input
+                                    id={option.id}
+                                    name="aoaLang"
+                                    type="radio"
+                                    value={option.value}
+                                    checked={aoaLanguage === option.value}
+                                    onChange={(e) => setAoaLanguage(e.target.value as "english" | "spanish")}
+                                    className="invite-associates-lang-input"
+                                />
+                                <span>{option.label}</span>
                             </label>
-                        </div>
-                        <div className="flex align-items-center gap-2">
-                            <input
-                                id="invite-lang-es"
-                                name="aoaLang"
-                                type="radio"
-                                value="spanish"
-                                checked={aoaLanguage === "spanish"}
-                                onChange={(e) => setAoaLanguage(e.target.value as "english" | "spanish")}
-                                className="m-0"
-                            />
-                            <label htmlFor="invite-lang-es" className="text-sm cursor-pointer">
-                                Spanish AOA
-                            </label>
-                        </div>
+                        ))}
                     </div>
                 </div>
 
                 <div className="grid">
                     <div className="col-12 md:col-4">
-                        <label className="block text-sm font-bold text-800 mb-1">
-                            First Name <span className="text-red-500">*</span>
+                        <label className="invite-associates-label" htmlFor="invite-first-name">
+                            First name <span className="text-red-500">*</span>
                         </label>
                         <InputText
-                            className={classNames("w-full surface-100 border-none", { "p-invalid": errors.firstName })}
+                            id="invite-first-name"
+                            className={classNames("w-full", { "p-invalid": errors.firstName })}
                             placeholder="Enter first name"
                             value={firstName}
                             onChange={(e) => {
@@ -199,20 +216,24 @@ export default function InviteAssociatesDialog({ visible, onHide }: Props) {
                         {errors.firstName ? <small className="p-error block mt-1">{errors.firstName}</small> : null}
                     </div>
                     <div className="col-12 md:col-4">
-                        <label className="block text-sm font-bold text-800 mb-1">Middle Name</label>
+                        <label className="invite-associates-label" htmlFor="invite-middle-name">
+                            Middle name
+                        </label>
                         <InputText
-                            className="w-full surface-100 border-none"
+                            id="invite-middle-name"
+                            className="w-full"
                             placeholder="Enter middle name"
                             value={middleName}
                             onChange={(e) => setMiddleName(e.target.value)}
                         />
                     </div>
                     <div className="col-12 md:col-4">
-                        <label className="block text-sm font-bold text-800 mb-1">
-                            Last Name <span className="text-red-500">*</span>
+                        <label className="invite-associates-label" htmlFor="invite-last-name">
+                            Last name <span className="text-red-500">*</span>
                         </label>
                         <InputText
-                            className={classNames("w-full surface-100 border-none", { "p-invalid": errors.lastName })}
+                            id="invite-last-name"
+                            className={classNames("w-full", { "p-invalid": errors.lastName })}
                             placeholder="Enter last name"
                             value={lastName}
                             onChange={(e) => {
@@ -231,11 +252,12 @@ export default function InviteAssociatesDialog({ visible, onHide }: Props) {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-bold text-800 mb-1">
+                    <label className="invite-associates-label" htmlFor="invite-email">
                         Email <span className="text-red-500">*</span>
                     </label>
                     <InputText
-                        className={classNames("w-full surface-100 border-none", { "p-invalid": errors.email })}
+                        id="invite-email"
+                        className={classNames("w-full", { "p-invalid": errors.email })}
                         type="email"
                         placeholder="Enter email address"
                         value={email}
@@ -253,41 +275,49 @@ export default function InviteAssociatesDialog({ visible, onHide }: Props) {
                     {errors.email ? <small className="p-error block mt-1">{errors.email}</small> : null}
                 </div>
 
-                <div className="flex align-items-center gap-2">
-                    <Checkbox
-                        inputId="split-recruiting"
-                        checked={splitRecruiting}
-                        onChange={(e) => setSplitRecruiting(!!e.checked)}
-                    />
-                    <label htmlFor="split-recruiting" className="text-sm cursor-pointer">
-                        Split Recruiting
+                <div className="grid align-items-end">
+                    <div className="col-12 md:col-4 flex align-items-center gap-2 pb-2">
+                        <Checkbox
+                            inputId="split-recruiting"
+                            checked={splitRecruiting}
+                            onChange={(e) => setSplitRecruiting(!!e.checked)}
+                        />
+                        <label htmlFor="split-recruiting" className="text-sm text-700 cursor-pointer m-0">
+                            Split recruiting
+                        </label>
+                    </div>
+                    <div className="col-12 md:col-8">
+                        <label className="invite-associates-label" htmlFor="invite-recruiter">
+                            Recruiter
+                        </label>
+                        <Dropdown
+                            inputId="invite-recruiter"
+                            value={recruiterProfileId}
+                            options={recruiters}
+                            onChange={(e) => setRecruiterProfileId(e.value)}
+                            optionLabel="label"
+                            optionValue="value"
+                            filter
+                            filterBy="label"
+                            showClear
+                            placeholder="Select recruiter"
+                            className="w-full"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <label className="invite-associates-label" htmlFor="invite-message">
+                        Message to user
                     </label>
-                </div>
-
-                <div>
-                    <label className="block text-sm font-bold text-800 mb-1">Recruiter</label>
-                    <Dropdown
-                        value={recruiterProfileId}
-                        options={recruiters}
-                        onChange={(e) => setRecruiterProfileId(e.value)}
-                        optionLabel="label"
-                        optionValue="value"
-                        filter
-                        filterBy="label"
-                        showClear
-                        placeholder="Select recruiter"
-                        className="w-full"
-                    />
-                </div>
-
-                <div>
-                    <label className="block text-sm font-bold text-800 mb-1">Message to user</label>
                     <InputTextarea
+                        id="invite-message"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
-                        placeholder="Message to user"
+                        placeholder="Add a personal note for the invitee (optional)"
                         className="w-full"
-                        rows={5}
+                        rows={4}
+                        autoResize
                     />
                 </div>
             </div>

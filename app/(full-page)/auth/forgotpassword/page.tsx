@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
+import { APP_NAME, APP_PORTAL_NAME } from "@/lib/appBranding";
 import { AuthSplitLayout } from "@/components/auth/AuthSplitLayout";
 
 export default function ForgotPasswordPage() {
@@ -27,7 +28,7 @@ export default function ForgotPasswordPage() {
                 <div className="mb-4">
                     <h1 className="text-2xl font-bold mb-2 text-white m-0">Reset your password</h1>
                     <span className="text-white-alpha-90 font-medium">
-                        Enter the email tied to your JS Investment portal account.
+                        Enter the email tied to your {APP_PORTAL_NAME} account.
                     </span>
                 </div>
                 <label className="block text-white mb-2">Email</label>

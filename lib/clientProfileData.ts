@@ -7,6 +7,7 @@ import {
   parsePagination,
   SearchParamRecord,
 } from "@/lib/portalPagination";
+import { notDeletedOr } from "@/lib/softDelete";
 
 type QueryParams = URLSearchParams | SearchParamRecord;
 
@@ -21,24 +22,31 @@ export async function listClientProfilesForAgent(agentId: string, queryParams: Q
   const stateFilter = normalizeSearchTerm(getSearchValue(queryParams, "state"));
   const cityFilter = normalizeSearchTerm(getSearchValue(queryParams, "city"));
 
-  const where: Prisma.ClientProfileWhereInput = {
-    agentId,
-    deletedAt: null,
-    ...(stateFilter ? { state: stateFilter } : {}),
-    ...(cityFilter ? { city: { contains: cityFilter } } : {}),
-    ...(q
-      ? {
-          OR: [
-            { firstName: buildContainsFilter(q) },
-            { lastName: buildContainsFilter(q) },
-            { preferredFirstName: buildContainsFilter(q) },
-            { email: buildContainsFilter(q) },
-            { phone: buildContainsFilter(q) },
-            { city: buildContainsFilter(q) },
-          ],
-        }
-      : {}),
-  };
+  const andFilters: Prisma.ClientProfileWhereInput[] = [
+    { agentId },
+    { OR: [...notDeletedOr()] },
+  ];
+
+  if (stateFilter) {
+    andFilters.push({ state: stateFilter });
+  }
+  if (cityFilter) {
+    andFilters.push({ city: { contains: cityFilter } });
+  }
+  if (q) {
+    andFilters.push({
+      OR: [
+        { firstName: buildContainsFilter(q) },
+        { lastName: buildContainsFilter(q) },
+        { preferredFirstName: buildContainsFilter(q) },
+        { email: buildContainsFilter(q) },
+        { phone: buildContainsFilter(q) },
+        { city: buildContainsFilter(q) },
+      ],
+    });
+  }
+
+  const where: Prisma.ClientProfileWhereInput = { AND: andFilters };
 
   const [total, data] = await Promise.all([
     prisma.clientProfile.count({ where }),
@@ -58,7 +66,7 @@ export async function getClientProfileForAgent(agentId: string, id: string, opti
     where: {
       id,
       agentId,
-      ...(options?.includeDeleted ? {} : { deletedAt: null }),
+      ...(options?.includeDeleted ? {} : { OR: [...notDeletedOr()] }),
     },
   });
 }

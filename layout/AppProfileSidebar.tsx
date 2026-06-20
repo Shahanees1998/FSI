@@ -77,7 +77,7 @@ const AppProfileSidebar = () => {
                     <i className="pi pi-power-off text-xl text-primary"></i>
                     <div className="ml-3">
                         <span className="font-semibold block">Sign out</span>
-                        <span className="text-color-secondary">End your current JS Investment portal session.</span>
+                        <span className="text-color-secondary">End your current {APP_NAME} portal session.</span>
                     </div>
                 </button>
             </div>

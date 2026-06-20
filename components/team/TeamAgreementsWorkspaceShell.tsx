@@ -22,11 +22,14 @@ export default function TeamAgreementsWorkspaceShell({ children }: { children: R
     }, [searchParams, router]);
 
     return (
-        <div className="flex min-h-0 border-round overflow-hidden surface-card border-1 surface-border">
+        <div
+            className={`team-agreements-workspace min-h-0 ${
+                sidebarOpen ? "team-agreements-workspace--sidebar-open" : "team-agreements-workspace--sidebar-collapsed"
+            }`}
+        >
             <button
                 type="button"
-                className="hidden md:flex align-items-center justify-content-center border-none cursor-pointer surface-100 hover:surface-200 text-600 flex-shrink-0"
-                style={{ width: "1.25rem" }}
+                className="team-agreements-workspace-toggle hidden md:flex align-items-center justify-content-center border-none cursor-pointer surface-card border-1 surface-border border-round surface-100 hover:surface-200 text-600 flex-shrink-0"
                 onClick={() => setSidebarOpen((open) => !open)}
                 aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
             >
@@ -34,27 +37,24 @@ export default function TeamAgreementsWorkspaceShell({ children }: { children: R
             </button>
 
             {sidebarOpen ? (
-                <aside
-                    className="surface-0 border-right-1 surface-border flex flex-column gap-3 p-3 flex-shrink-0"
-                    style={{ width: "220px", minWidth: "220px" }}
-                >
+                <aside className="team-agreements-workspace-sidebar surface-card border-round border-1 surface-border flex flex-column gap-2 p-3 flex-shrink-0">
                     <Button
                         label="+ New Associate"
                         className="w-full p-button-warning font-bold"
                         type="button"
                         onClick={() => setInviteOpen(true)}
                     />
-                    <nav className="flex flex-column gap-2">
-                        <span className="text-900 font-semibold text-sm">Agreements</span>
-                        <Link href="/agent/team/invitees" className="text-primary text-sm no-underline hover:underline">
+                    <nav className="flex flex-column gap-1">
+                        <span className="text-900 font-semibold text-sm line-height-3">Agreements</span>
+                        <Link href="/agent/team/invitees" className="text-primary text-sm no-underline hover:underline line-height-3">
                             Invitees
                         </Link>
-                        <Link href="/agent/team/invites" className="text-primary text-sm no-underline hover:underline">
+                        <Link href="/agent/team/invites" className="text-primary text-sm no-underline hover:underline line-height-3">
                             Open invites
                         </Link>
                         <button
                             type="button"
-                            className="text-left text-sm bg-transparent border-none cursor-pointer p-0 text-primary no-underline hover:underline"
+                            className="text-left text-sm bg-transparent border-none cursor-pointer p-0 text-primary no-underline hover:underline line-height-3"
                             onClick={() => setLegendOpen(true)}
                         >
                             Legend
@@ -63,7 +63,7 @@ export default function TeamAgreementsWorkspaceShell({ children }: { children: R
                 </aside>
             ) : null}
 
-            <div className="flex-grow-1 min-w-0 p-3 md:p-4">{children}</div>
+            <div className="team-agreements-workspace-main min-w-0">{children}</div>
 
             <InviteAssociatesDialog visible={inviteOpen} onHide={() => setInviteOpen(false)} />
             <AgreementsLegendDialog visible={legendOpen} onHide={() => setLegendOpen(false)} />

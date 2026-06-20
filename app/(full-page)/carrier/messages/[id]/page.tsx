@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { APP_NAME } from "@/lib/appBranding";
 import MessagingWorkspace from "@/components/portal/MessagingWorkspace";
 import { getConversationDetailForUser, listConversationsForUser } from "@/lib/portalData";
 import { SearchParamRecord } from "@/lib/portalPagination";
@@ -33,7 +34,7 @@ export default async function CarrierConversationDetailPage({
     return (
         <MessagingWorkspace
             title="Messages"
-            subtitle="Coordinate with JS Investment administrators and agents who carry your products. Search covers subjects, people, and message text. Updates appear live."
+            subtitle={`Coordinate with ${APP_NAME} administrators and agents who carry your products. Search covers subjects, people, and message text. Updates appear live.`}
             basePath="/carrier/messages"
             currentUser={{
                 id: user.id,
